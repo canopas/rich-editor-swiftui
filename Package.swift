@@ -4,20 +4,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "RichEditorSwiftui",
+    name: "RichEditorSwiftUI",
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "RichEditorSwiftui",
-            targets: ["RichEditorSwiftui"]),
+            name: "RichEditorSwiftUI",
+            targets: ["RichEditorSwiftUI"]),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "RichEditorSwiftui"),
+            name: "RichEditorSwiftUI"),
         .testTarget(
-            name: "RichEditorSwiftuiTests",
-            dependencies: ["RichEditorSwiftui"]),
+            name: "RichEditorSwiftUITests",
+            dependencies: ["RichEditorSwiftUI"]),
     ]
 )
