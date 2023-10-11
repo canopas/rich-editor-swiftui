@@ -11,7 +11,7 @@
 		2A0D579C2AD66C7200BCF488 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0D579B2AD66C7200BCF488 /* ContentView.swift */; };
 		2A0D579E2AD66C7200BCF488 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A0D579D2AD66C7200BCF488 /* Assets.xcassets */; };
 		2A0D57A22AD66C7200BCF488 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A0D57A12AD66C7200BCF488 /* Preview Assets.xcassets */; };
-		2A0D57AB2AD66CA800BCF488 /* RichEditorSwiftui in Frameworks */ = {isa = PBXBuildFile; productRef = 2A0D57AA2AD66CA800BCF488 /* RichEditorSwiftui */; };
+		2A0D57AD2AD6A4D400BCF488 /* RichEditorSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2A0D57AC2AD6A4D400BCF488 /* RichEditorSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,7 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2A0D57AB2AD66CA800BCF488 /* RichEditorSwiftui in Frameworks */,
+				2A0D57AD2AD6A4D400BCF488 /* RichEditorSwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,7 +98,7 @@
 			);
 			name = RichEditorDemo;
 			packageProductDependencies = (
-				2A0D57AA2AD66CA800BCF488 /* RichEditorSwiftui */,
+				2A0D57AC2AD6A4D400BCF488 /* RichEditorSwiftUI */,
 			);
 			productName = RichEditorDemo;
 			productReference = 2A0D57962AD66C7200BCF488 /* RichEditorDemo.app */;
@@ -305,7 +305,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.nolonely.RichEditorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -341,7 +342,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.canopas.nolonely.RichEditorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -372,9 +374,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2A0D57AA2AD66CA800BCF488 /* RichEditorSwiftui */ = {
+		2A0D57AC2AD6A4D400BCF488 /* RichEditorSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = RichEditorSwiftui;
+			productName = RichEditorSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

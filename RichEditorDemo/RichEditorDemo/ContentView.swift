@@ -6,14 +6,13 @@
 //
 
 import SwiftUI
+import RichEditorSwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            RichEditorView()
         }
         .padding()
     }
