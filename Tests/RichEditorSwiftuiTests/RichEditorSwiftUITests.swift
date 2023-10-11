@@ -1,7 +1,7 @@
 import XCTest
-@testable import RichEditorSwiftui
+@testable import RichEditorSwiftUI
 
-final class RichEditorSwiftuiTests: XCTestCase {
+final class RichEditorSwiftUITests: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest
