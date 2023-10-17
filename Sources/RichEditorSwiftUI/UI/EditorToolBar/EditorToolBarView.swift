@@ -56,15 +56,3 @@ private struct EditorToolBarCell: View {
         }
     }
 }
-
-
-#Preview {
-    @State var selectedTools: [EditorTool] = []
-    return EditorToolBarView(appliedTools: selectedTools, onToolSelect: { tool in
-        if selectedTools.contains(where: { $0 == tool }) {
-            selectedTools.removeAll(where: { $0 == tool })
-        } else {
-            selectedTools.append(tool)
-        }
-    })
-}
