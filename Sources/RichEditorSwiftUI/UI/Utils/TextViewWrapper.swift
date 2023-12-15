@@ -10,7 +10,6 @@ import SwiftUI
 internal struct TextViewWrapper: UIViewRepresentable {
     
     @Binding private var text: NSMutableAttributedString
-    @Binding private var selectedRange: NSRange?
     @Binding private var typingAttributes: [NSAttributedString.Key : Any]?
     
     private let isEditable: Bool
@@ -24,7 +23,6 @@ internal struct TextViewWrapper: UIViewRepresentable {
     private let onTextViewEvent: ((TextViewEvents) -> Void)?
     
     public init(text: Binding<NSMutableAttributedString>,
-                selectedRange: Binding<NSRange?>? = nil,
                 typingAttributes: Binding<[NSAttributedString.Key : Any]?>? = nil,
                 isEditable: Bool = true,
                 isUserInteractionEnabled: Bool = true,
@@ -36,7 +34,6 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 tag: Int? = nil,
                 onTextViewEvent: ((TextViewEvents) -> Void)? = nil) {
         self._text = text
-        self._selectedRange = selectedRange != nil ? selectedRange! : .constant(nil)
         self._typingAttributes = typingAttributes != nil ? typingAttributes! : .constant(nil)
         
         self.isEditable = isEditable
@@ -81,7 +78,9 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
         
         if let fontStyle = fontStyle {
-            textView.font = fontStyle
+            let scaledFontSize = UIFontMetrics.default.scaledValue(for: fontStyle.pointSize)
+            let scaledFont = fontStyle.withSize(scaledFontSize)
+            textView.font = scaledFont
         }
         
         return textView
@@ -91,7 +90,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         // Record where the cursor is
         var cursorOffset: Int?
         if let selectedRange = textView.selectedTextRange {
-            cursorOffset = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
+            cursorOffset = textView.offset(from: textView.beginningOfDocument, to: selectedRange.end)
         }
         
         // Update the field (this will displace the cursor)
@@ -100,11 +99,18 @@ internal struct TextViewWrapper: UIViewRepresentable {
         textView.isEditable = isEditable
         textView.typingAttributes = typingAttributes ?? [:]
         
+//        if let fontStyle = fontStyle {
+//            let scaledFontSize = UIFontMetrics.default.scaledValue(for: fontStyle.pointSize)
+//            let scaledFont = fontStyle.withSize(scaledFontSize)
+//            textView.font = scaledFont
+//        }
+        
         // Put the cursor back
         if let offset = cursorOffset,
            let position = textView.position(from: textView.beginningOfDocument, offset: offset) {
             textView.selectedTextRange = textView.textRange(from: position, to: position)
         }
+//        textView.reloadInputViews()
     }
     
     public class Coordinator: NSObject, UITextViewDelegate {
@@ -124,19 +130,19 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
         
         public func textViewDidChange(_ textView: UITextView) {
-            parent.onTextViewEvent?(.change(textView: textView))
             if textView.markedTextRange == nil {
                 parent.text = NSMutableAttributedString(attributedString: textView.attributedText)
             }
+            parent.onTextViewEvent?(.change(textView: textView))
         }
         
         public func textViewDidBeginEditing(_ textView: UITextView) {
-            parent.onTextViewEvent?(.beginEditing(textView: textView))
             //Invoked when text view start editing (TextView get focuse or become first responder)
+            parent.onTextViewEvent?(.beginEditing(textView: textView))
         }
         
         public func textViewDidEndEditing(_ textView: UITextView) {
-            parent.onTextViewEvent?(.EndEditing(textView: textView))
+            parent.onTextViewEvent?(.endEditing(textView: textView))
         }
     }
 }
@@ -144,7 +150,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
 //MARK: - TextViewOverRidden
 class TextViewOverRidden: UITextView {
     ///https://developer.apple.com/forums/thread/115445
-    ///To disable system manu for edit text on text seletion
+    ///To disable system manu for edit text on text selection
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         return false //To disable clipboard Manu on text selection
     }
@@ -155,5 +161,5 @@ public enum TextViewEvents {
     case changeSelection(textView: UITextView)
     case beginEditing(textView: UITextView)
     case change(textView: UITextView)
-    case EndEditing(textView: UITextView)
+    case endEditing(textView: UITextView)
 }
