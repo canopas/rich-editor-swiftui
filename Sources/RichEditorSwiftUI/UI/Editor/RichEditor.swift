@@ -25,11 +25,7 @@ public struct RichEditor: View {
                                 typingAttributes: $state.activeAttributes,
                                 isScrollEnabled: false,
                                 onTextViewEvent: state.onTextViewEvent(_:))
-                .frame(minHeight: 100)
-                //            .id(id)
-                .onReceive(state.objectWillChange) { _ in
-                    //                id = UUID().uuidString
-                }
+                .frame(minHeight: 300)
             })
             .padding()
         }

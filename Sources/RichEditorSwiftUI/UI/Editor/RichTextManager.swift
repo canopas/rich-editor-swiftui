@@ -33,18 +33,18 @@ class RichTextManager: ObservableObject {
     
     func onTextViewEvent(_ event: TextViewEvents) {
         switch event {
-        case .changeSelection(textView: let textView):
+        case .didChangeSelection(textView: let textView):
             selection = textView.selectedRange
 //            attribute.state.selectedRange = textView.selectedRange
 //            attribute.state.curserLocation = textView.selectedRange.location
 //            print("=== selected state at CB \(selectedRange)")
             return
-        case .beginEditing:
+        case .didBeginEditing:
 //            focusedAttribute = attribute
             return
-        case .change:
+        case .didChange:
             return
-        case .endEditing:
+        case .didEndEditing:
 //            focusedAttribute = nil
             return
         }

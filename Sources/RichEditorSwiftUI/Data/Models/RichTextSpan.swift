@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class RichTextSpan: Codable {
+public struct RichTextSpan: Codable {
     public let id: String
     public let from: Int
     public var to: Int
@@ -21,11 +21,11 @@ public class RichTextSpan: Codable {
     }
 }
 
-extension RichTextSpan {
-    public func update(to: Int) {
-        self.to = to
-    }
-}
+//extension RichTextSpan {
+//    public func update(to: Int) {
+//        self.to = to
+//    }
+//}
 
 extension RichTextSpan: Equatable {
     public static func == (lhs: RichTextSpan, rhs: RichTextSpan) -> Bool {

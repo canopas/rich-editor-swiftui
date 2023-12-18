@@ -73,39 +73,19 @@ public class RichEditorState: ObservableObject {
 extension RichEditorState {
     func onTextViewEvent(_ event: TextViewEvents) {
         switch event {
-        case .changeSelection(textView: let textView):
+        case .didChangeSelection(let textView):
             selection = textView.selectedRange
-            //            updateTextLengthsIfNeeded()
-//            setCurrentAttributes()
+            updateCurrentSpanStyle()
+        case .didBeginEditing(let textView):
+            selection = textView.selectedRange
+            return
+        case .didChange(let textView):
             onTextFieldValueChange(newText: editableText, selection: selection)
-        case .beginEditing:
-            setCurrentAttributes()
-            //focusedAttribute = attribute
-        case .change:
-            setCurrentAttributes()
-            updateTextLengthsIfNeeded()
-        case .endEditing:
-            //selection = .init(location: 0, length: 0)
+            return
+        case .didEndEditing:
+            selection = .init(location: 0, length: 0)
             return
         }
-    }
-    
-    private func updateTextLengthsIfNeeded() {
-        if currentTextLength != (editableText.length) {
-            currentTextLength = (editableText.length)
-            updateSpanIfNeeded()
-        }
-    }
-    
-    private func updateSpanIfNeeded() {
-        let lenthDiff = currentTextLength - previousTextLength
-        if lenthDiff != 0 {
-            let spans = getRichSpansByTextIndex(selection.location - 1)
-            spans.forEach({
-                $0.update(to: ($0.to + lenthDiff))
-            })
-        }
-        updateText()
     }
     
     private func setCurrentAttributes() {
@@ -114,7 +94,8 @@ extension RichEditorState {
         let currentSpan = getRichSpansByTextIndex(location)
         activeSpans = Set(currentSpan)
         
-        currentStyles = Set(spans.filter({ ($0.from...($0.to)).contains(location) }).map({ $0.style}))
+        /// From + 1 to conpenset for the fact that the cursor is befor the start of the current span
+        currentStyles = Set(spans.filter({ ($0.from...$0.to).contains(location) }).map({ $0.style}))
         let attributes = currentAttributesFor(currentSpan.map({ $0.style }))
         guard let attributes, attributes.isEmpty && attributes.keys != activeAttributes?.keys else { return }
         activeAttributes = attributes
@@ -227,7 +208,7 @@ extension RichEditorState {
         currentStyles.removeAll()
         
         if selection.collapsed {
-            let currentStyles = getRichSpanStyleByTextIndex(textIndex: selection.lowerBound - 1)
+            let currentStyles = getRichSpanStyleByTextIndex(textIndex: selection.lowerBound)
             self.currentStyles.formUnion(currentStyles)
         } else {
             let currentStyles = getRichSpanStyleListByTextRange(selection)
@@ -298,7 +279,7 @@ extension RichEditorState {
         let toIndex = selection.collapsed ? fromIndex : selection.upperBound
         
         let startIndex = 0 //rawText.prefix(fromIndex).index(before: <#T##Substring.Index#>) max(0, rawText.lastIndex(of: "\n", before: fromIndex) ?? rawText.startIndex)
-        let endIndex = 0 //rawText.firstIndex(of: "\n", after: toIndex) ?? rawText.index(before: rawText.endIndex)
+        var endIndex = 0 //rawText.firstIndex(of: "\n", after: toIndex) ?? rawText.index(before: rawText.endIndex)
         
         if endIndex == (rawText.count - 1) {
             //            endIndex = rawText.index(before: endIndex)
@@ -340,8 +321,8 @@ extension RichEditorState {
         
         let selectedParts = spans.filter({ (($0.from...$0.to).overlaps(fromIndex...toIndex )) })
         
-        let startParts = spans.filter { $0.from == fromIndex - 1 }
-        let endParts = spans.filter { $0.to == toIndex }
+        let startParts = spans.filter { $0.from == fromIndex }
+        let endParts = spans.filter { $0.to == toIndex + 1 }
         
         if startParts.isEmpty && endParts.isEmpty && !selectedParts.isEmpty {
             spans.append(RichTextSpan(from: fromIndex, to: toIndex, style: style))
@@ -387,8 +368,8 @@ extension RichEditorState {
             handleRemovingCharacters(newText)
         }
         
-        updateText()
         rawText = newText.string
+        updateText()
     }
     
     private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
@@ -405,7 +386,7 @@ extension RichEditorState {
         
         moveSpans(startTypeIndex: startTypeIndex, by: typedChars)
         
-        let startParts = spans.filter { $0.from == startTypeIndex - 1}
+        let startParts = spans.filter { $0.from == startTypeIndex}
         let endParts = spans.filter { $0.to == startTypeIndex - 1}
         let commonParts = Set(startParts).intersection(Set(endParts))
         
@@ -441,7 +422,7 @@ extension RichEditorState {
                 selectedStyles.remove(richTextSpan.style)
             } else {
                 if forward {
-                    spans[index] = RichTextSpan(from: newFromIndex, to: newToIndex, style: richTextSpan.style)
+                    spans[index] = RichTextSpan(from: richTextSpan.from, to: newToIndex, style: richTextSpan.style)
                 } else {
                     spans[index] = RichTextSpan(from: richTextSpan.from, to: startTypeIndex - 1, style: richTextSpan.style)
                     spans.insert(RichTextSpan(from: startTypeIndex + typedChars, to: newToIndex, style: richTextSpan.style), at: index + 1)
@@ -451,12 +432,21 @@ extension RichEditorState {
         }
     }
     
-    private func moveSpans(startTypeIndex: Int, by: Int) {
+    private func handleAddedCharectersAboveSpanStart(typedChars: Int, typedAt index: Int) {
+        let spansToUpdate = spans.filter({ $0.from < index })
+        spansToUpdate.forEach { part in
+            if let index = spans.firstIndex(of: part) {
+                spans[index] = RichTextSpan(from: part.from + typedChars, to: part.to + typedChars, style: part.style)
+            }
+        }
+    }
+    
+    private func moveSpans(startTypeIndex: Int, by step: Int) {
         let filteredSpans = spans.filter { $0.from > startTypeIndex }
         
         filteredSpans.forEach { part in
             if let index = spans.firstIndex(of: part) {
-                spans[index] = RichTextSpan(from: part.from + by, to: part.to + by, style: part.style)
+                spans[index] = RichTextSpan(from: part.from + step, to: part.to + step, style: part.style)
             }
         }
     }

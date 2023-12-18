@@ -64,6 +64,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         textView.textContainer.lineFragmentPadding = 0
         textView.showsVerticalScrollIndicator = false
         textView.showsHorizontalScrollIndicator = false
+        textView.isSelectable = true
         
         if let attributes = typingAttributes {
             textView.typingAttributes = attributes
@@ -94,9 +95,10 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
         
         // Update the field (this will displace the cursor)
-        textView.attributedText = text
+        if textView.attributedText != text {
+            textView.attributedText = text
+        }
         textView.textColor = UIColor.black
-        textView.isEditable = isEditable
         textView.typingAttributes = typingAttributes ?? [:]
         
 //        if let fontStyle = fontStyle {
@@ -110,7 +112,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
            let position = textView.position(from: textView.beginningOfDocument, offset: offset) {
             textView.selectedTextRange = textView.textRange(from: position, to: position)
         }
-//        textView.reloadInputViews()
+        textView.reloadInputViews()
     }
     
     public class Coordinator: NSObject, UITextViewDelegate {
@@ -126,23 +128,23 @@ internal struct TextViewWrapper: UIViewRepresentable {
         
         public func textViewDidChangeSelection(_ textView: UITextView) {
             //Invoked when selection change whether it is text lelected or pointer moved any where
-            parent.onTextViewEvent?(.changeSelection(textView: textView))
+            parent.onTextViewEvent?(.didChangeSelection(textView))
         }
         
         public func textViewDidChange(_ textView: UITextView) {
             if textView.markedTextRange == nil {
                 parent.text = NSMutableAttributedString(attributedString: textView.attributedText)
             }
-            parent.onTextViewEvent?(.change(textView: textView))
+            parent.onTextViewEvent?(.didChange(textView))
         }
         
         public func textViewDidBeginEditing(_ textView: UITextView) {
             //Invoked when text view start editing (TextView get focuse or become first responder)
-            parent.onTextViewEvent?(.beginEditing(textView: textView))
+            parent.onTextViewEvent?(.didBeginEditing(textView))
         }
         
         public func textViewDidEndEditing(_ textView: UITextView) {
-            parent.onTextViewEvent?(.endEditing(textView: textView))
+            parent.onTextViewEvent?(.didEndEditing(textView))
         }
     }
 }
@@ -158,8 +160,8 @@ class TextViewOverRidden: UITextView {
 
 //MARK: - TextView Events
 public enum TextViewEvents {
-    case changeSelection(textView: UITextView)
-    case beginEditing(textView: UITextView)
-    case change(textView: UITextView)
-    case endEditing(textView: UITextView)
+    case didChangeSelection(_ textView: UITextView)
+    case didBeginEditing(_ textView: UITextView)
+    case didChange(_ textView: UITextView)
+    case didEndEditing(_ textView: UITextView)
 }
