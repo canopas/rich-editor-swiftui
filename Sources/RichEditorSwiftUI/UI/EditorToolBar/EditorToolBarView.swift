@@ -16,11 +16,9 @@ struct EditorToolBarView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 5, content: {
                 ForEach(EditorTool.allCases, id: \.self) { tool in
-                    EditorToolBarCell(tool: tool, isSelected: appliedTools.contains(where: { $0.key == tool.getTextSpanStyle().key }), onToolSelect: onToolSelect)
+                    EditorToolBarCell(tool: tool, appliedTools: appliedTools, onToolSelect: onToolSelect)
                 }
             })
-            .padding(.horizontal, 3)
-            .padding(.horizontal)
         }
         .background(.gray.opacity(0.1))
         .frame(height: 50)
@@ -30,8 +28,12 @@ struct EditorToolBarView: View {
 private struct EditorToolBarCell: View {
     
     let tool: EditorTool
-    let isSelected: Bool
+    let appliedTools: Set<TextSpanStyle>
     let onToolSelect: (TextSpanStyle) -> Void
+    
+    private var isSelected: Bool {
+        tool.isSelected(appliedTools)
+    }
     
     @State var isExpanded: Bool = false
     
@@ -49,7 +51,7 @@ private struct EditorToolBarCell: View {
                     if tool.isContainManu {
                         Image(systemName: "chevron.down")
                             .font(.subheadline)
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                            .rotationEffect(.degrees(isExpanded ? 0 : 180))
                             .animation(.spring(), value: isExpanded)
                     }
                 })
@@ -59,31 +61,36 @@ private struct EditorToolBarCell: View {
                 .background(isSelected ? .gray.opacity(0.1) : .clear)
         })
         } else {
-                Menu(content: {
-                    ForEach(HeaderOptions.allCases, id: \.self) { header in
-                        Button(action: {
-                            onToolSelect(EditorTool.header(header).getTextSpanStyle())
-                        }, label: {
-                            Text(header.title)
-                                .font(header.fontStyle)
-                        })
-                    }
-                }, label: {
-                    HStack(alignment: .center, spacing: 4, content: {
-                        Image(systemName: tool.systemImageName)
-                            .font(.title)
-                        if tool.isContainManu {
-                            Image(systemName: "chevron.down")
-                                .font(.subheadline)
-                                .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                                .animation(.spring(), value: isExpanded)
-                        }
+            Menu(content: {
+                ForEach(HeaderOptions.allCases, id: \.self) { header in
+                    Button(action: {
+                        isExpanded = false
+                        onToolSelect(EditorTool.header(header).getTextSpanStyle())
+                    }, label: {
+                        Text(header.title)
+                            .font(header.fontStyle)
+                            .foregroundColor(appliedTools.contains(where: { $0.key == header.getTextSpanStyle().key }) ? .blue : .black)
                     })
-                    .foregroundColor(isSelected ? .blue : .black)
-                    .frame(width: tool.isContainManu ? 60 : 45, height: 50, alignment: .center)
-                    .padding(.horizontal, 3)
-                    .background(isSelected ? .gray.opacity(0.1) : .clear)
+                }
+            }, label: {
+                HStack(alignment: .center, spacing: 4, content: {
+                    Image(systemName: tool.systemImageName)
+                        .font(.title)
+                    if tool.isContainManu {
+                        Image(systemName: "chevron.down")
+                            .font(.subheadline)
+                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                            .animation(.spring(), value: isExpanded)
+                    }
                 })
+                .foregroundColor(isSelected ? .blue : .black)
+                .frame(width: tool.isContainManu ? 60 : 45, height: 50, alignment: .center)
+                .padding(.horizontal, 3)
+                .background(isSelected ? .gray.opacity(0.1) : .clear)
+            })
+            .onTapGesture {
+                isExpanded.toggle()
+            }
         }
     }
 }
