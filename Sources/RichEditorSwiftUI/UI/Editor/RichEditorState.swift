@@ -75,7 +75,6 @@ extension RichEditorState {
         switch event {
         case .didChangeSelection(let textView):
             selection = textView.selectedRange
-            updateCurrentSpanStyle()
         case .didBeginEditing(let textView):
             selection = textView.selectedRange
             return
@@ -86,57 +85,6 @@ extension RichEditorState {
             selection = .init(location: 0, length: 0)
             return
         }
-    }
-    
-    private func setCurrentAttributes() {
-        let location = selection.location
-        
-        let currentSpan = getRichSpansByTextIndex(location)
-        activeSpans = Set(currentSpan)
-        
-        /// From + 1 to conpenset for the fact that the cursor is befor the start of the current span
-        currentStyles = Set(spans.filter({ ($0.from...$0.to).contains(location) }).map({ $0.style}))
-        let attributes = currentAttributesFor(currentSpan.map({ $0.style }))
-        guard let attributes, attributes.isEmpty && attributes.keys != activeAttributes?.keys else { return }
-        activeAttributes = attributes
-    }
-    
-    private func currentAttributesFor(_ style: [TextSpanStyle]) -> [NSAttributedString.Key: Any]? {
-        var attributes: [NSAttributedString.Key: Any] = [:]
-        style.forEach({
-            var font: UIFont = UIFont()
-            switch $0 {
-            case .bold:
-                font = .boldSystemFont(ofSize: 15)
-                attributes[.font] = font
-            case .italic:
-                font = .italicSystemFont(ofSize: 12)
-                attributes[.font] = font
-            case .underline:
-                attributes[NSAttributedString.Key.underlineStyle] = NSUnderlineStyle.single.rawValue
-            case .h1:
-                font = .systemFont(ofSize: 20)
-                attributes[.font] = font
-            case .h2:
-                font = .systemFont(ofSize: 18)
-                attributes[.font] = font
-            case .h3:
-                font = .systemFont(ofSize: 16)
-                attributes[.font] = font
-            case .h4:
-                font = .systemFont(ofSize: 14)
-                attributes[.font] = font
-            case .h5:
-                font = .systemFont(ofSize: 12)
-                attributes[.font] = font
-            case .h6:
-                font = .systemFont(ofSize: 10)
-                attributes[.font] = font
-            case .default:
-                return
-            }
-        })
-        return attributes
     }
     
     func onToolSelection(_ tool: TextSpanStyle) {
@@ -386,8 +334,8 @@ extension RichEditorState {
         
         moveSpans(startTypeIndex: startTypeIndex, by: typedChars)
         
-        let startParts = spans.filter { $0.from == startTypeIndex}
-        let endParts = spans.filter { $0.to == startTypeIndex - 1}
+        let startParts = spans.filter { ($0.from...$0.to).contains(startTypeIndex - 1) }
+        let endParts = spans.filter { ($0.from...$0.to).contains(startTypeIndex) }
         let commonParts = Set(startParts).intersection(Set(endParts))
         
         startParts.filter { !commonParts.contains($0) }.forEach { part in
@@ -432,15 +380,6 @@ extension RichEditorState {
         }
     }
     
-    private func handleAddedCharectersAboveSpanStart(typedChars: Int, typedAt index: Int) {
-        let spansToUpdate = spans.filter({ $0.from < index })
-        spansToUpdate.forEach { part in
-            if let index = spans.firstIndex(of: part) {
-                spans[index] = RichTextSpan(from: part.from + typedChars, to: part.to + typedChars, style: part.style)
-            }
-        }
-    }
-    
     private func moveSpans(startTypeIndex: Int, by step: Int) {
         let filteredSpans = spans.filter { $0.from > startTypeIndex }
         
@@ -457,7 +396,7 @@ extension RichEditorState {
             currentStyles.removeAll()
             return
         }
-
+                
         let removedCharsCount = rawText.count - newText.string.count
         let startRemoveIndex = selection.lowerBound
         let endRemoveIndex = selection.lowerBound + removedCharsCount
