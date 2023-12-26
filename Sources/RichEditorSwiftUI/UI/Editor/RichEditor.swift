@@ -13,21 +13,17 @@ public struct RichEditor: View {
     public init(state: ObservedObject<RichEditorState>) {
         self._state = state
     }
-
-    @State var id = UUID().uuidString
     
     public var body: some View {
-        ScrollView {
-            VStack(content: {
-                EditorToolBarView(appliedTools: state.currentStyles, onToolSelect: state.onToolSelection(_:))
-                
-                TextViewWrapper(text: $state.editableText,
-                                typingAttributes: $state.activeAttributes,
-                                isScrollEnabled: false,
-                                onTextViewEvent: state.onTextViewEvent(_:))
-                .frame(minHeight: 300)
-            })
-            .padding()
-        }
+        VStack(content: {
+            EditorToolBarView(appliedTools: state.activeStyles, onToolSelect: state.onToolSelection(_:))
+            
+            TextViewWrapper(text: $state.editableText,
+                            typingAttributes: $state.activeAttributes,
+                            attributesToApply:  $state.attributesToApply,
+                            isScrollEnabled: true,
+                            onTextViewEvent: state.onTextViewEvent(_:))
+        })
+        .padding()
     }
 }

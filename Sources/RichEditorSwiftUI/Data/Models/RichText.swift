@@ -8,10 +8,10 @@
 import Foundation
 
 public struct RichText: Codable {
-    let text: String
-    var spans: [RichTextSpan]
+    public let text: String
+    public let spans: [RichTextSpan]
     
-    init(text: String = "", spans: [RichTextSpan] = []) {
+    public init(text: String = "", spans: [RichTextSpan] = []) {
         self.text = text
         self.spans = spans
     }

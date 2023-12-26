@@ -10,8 +10,9 @@ import SwiftUI
 internal struct TextViewWrapper: UIViewRepresentable {
     
     @Binding private var text: NSMutableAttributedString
-    @Binding private var typingAttributes: [NSAttributedString.Key : Any]?
-    
+    @Binding private var typingAttributes: [NSAttributedString.Key: Any]?
+    @Binding private var attributesToApply: (attributes: [NSAttributedString.Key: Any], range: NSRange, shouldApply: Bool)?
+
     private let isEditable: Bool
     private let isUserInteractionEnabled: Bool
     private let isScrollEnabled: Bool
@@ -23,7 +24,8 @@ internal struct TextViewWrapper: UIViewRepresentable {
     private let onTextViewEvent: ((TextViewEvents) -> Void)?
     
     public init(text: Binding<NSMutableAttributedString>,
-                typingAttributes: Binding<[NSAttributedString.Key : Any]?>? = nil,
+                typingAttributes: Binding<[NSAttributedString.Key: Any]?>? = nil,
+                attributesToApply: Binding<(attributes: [NSAttributedString.Key: Any], range: NSRange, shouldApply: Bool)?>? = nil,
                 isEditable: Bool = true,
                 isUserInteractionEnabled: Bool = true,
                 isScrollEnabled: Bool = false,
@@ -35,6 +37,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 onTextViewEvent: ((TextViewEvents) -> Void)? = nil) {
         self._text = text
         self._typingAttributes = typingAttributes != nil ? typingAttributes! : .constant(nil)
+        self._attributesToApply = attributesToApply != nil ? attributesToApply! : .constant(nil)
         
         self.isEditable = isEditable
         self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -45,6 +48,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         self.backGroundColor = backGroundColor
         self.tag = tag
         self.onTextViewEvent = onTextViewEvent
+        
     }
     
     public func makeCoordinator() -> Coordinator {
@@ -88,18 +92,21 @@ internal struct TextViewWrapper: UIViewRepresentable {
     }
     
     public func updateUIView(_ textView: TextViewOverRidden, context: Context) {
-        // Record where the cursor is
-        var cursorOffset: Int?
-        if let selectedRange = textView.selectedTextRange {
-            cursorOffset = textView.offset(from: textView.beginningOfDocument, to: selectedRange.end)
+        textView.textColor = UIColor(fontColor)
+        if let typingAttributes {
+            textView.typingAttributes = typingAttributes
         }
-        
-        // Update the field (this will displace the cursor)
-        if textView.attributedText != text {
-            textView.attributedText = text
+        //Update attributes in textStorage
+        if let attributesToApply = attributesToApply {
+            if attributesToApply.shouldApply {
+                textView.textStorage.addAttributes(attributesToApply.attributes, range: attributesToApply.range)
+            } else {
+                attributesToApply.attributes.forEach({
+                    textView.textStorage.removeAttribute($0.key, range: attributesToApply.range)
+                })
+            }
+            self.attributesToApply = nil
         }
-        textView.textColor = UIColor.black
-        textView.typingAttributes = typingAttributes ?? [:]
         
 //        if let fontStyle = fontStyle {
 //            let scaledFontSize = UIFontMetrics.default.scaledValue(for: fontStyle.pointSize)
@@ -107,43 +114,38 @@ internal struct TextViewWrapper: UIViewRepresentable {
 //            textView.font = scaledFont
 //        }
         
-        // Put the cursor back
-        if let offset = cursorOffset,
-           let position = textView.position(from: textView.beginningOfDocument, offset: offset) {
-            textView.selectedTextRange = textView.textRange(from: position, to: position)
-        }
         textView.reloadInputViews()
     }
     
-    public class Coordinator: NSObject, UITextViewDelegate {
+    internal class Coordinator: NSObject, UITextViewDelegate {
         var parent: TextViewWrapper
         
         init(_ uiTextView: TextViewWrapper) {
             self.parent = uiTextView
         }
         
-        public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
             return true
         }
         
-        public func textViewDidChangeSelection(_ textView: UITextView) {
+        func textViewDidChangeSelection(_ textView: UITextView) {
             //Invoked when selection change whether it is text lelected or pointer moved any where
             parent.onTextViewEvent?(.didChangeSelection(textView))
         }
         
-        public func textViewDidChange(_ textView: UITextView) {
+        func textViewDidChange(_ textView: UITextView) {
             if textView.markedTextRange == nil {
                 parent.text = NSMutableAttributedString(attributedString: textView.attributedText)
             }
             parent.onTextViewEvent?(.didChange(textView))
         }
         
-        public func textViewDidBeginEditing(_ textView: UITextView) {
+        func textViewDidBeginEditing(_ textView: UITextView) {
             //Invoked when text view start editing (TextView get focuse or become first responder)
             parent.onTextViewEvent?(.didBeginEditing(textView))
         }
         
-        public func textViewDidEndEditing(_ textView: UITextView) {
+        func textViewDidEndEditing(_ textView: UITextView) {
             parent.onTextViewEvent?(.didEndEditing(textView))
         }
     }

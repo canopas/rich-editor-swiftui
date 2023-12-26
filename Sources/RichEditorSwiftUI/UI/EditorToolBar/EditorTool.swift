@@ -112,23 +112,6 @@ enum HeaderOptions: CaseIterable {
         }
     }
     
-    func isSelected(currentStyle: Set<TextSpanStyle>) -> Bool {
-        switch self {
-        case .h1:
-            return currentStyle.contains(.h1)
-        case .h2:
-            return currentStyle.contains(.h2)
-        case .h3:
-            return currentStyle.contains(.h3)
-        case .h4:
-            return currentStyle.contains(.h4)
-        case .h5:
-            return currentStyle.contains(.h5)
-        case .h6:
-            return currentStyle.contains(.h6)
-        }
-    }
-    
     func getTextSpanStyle() -> TextSpanStyle {
         switch self {
         case .h1: return .h1

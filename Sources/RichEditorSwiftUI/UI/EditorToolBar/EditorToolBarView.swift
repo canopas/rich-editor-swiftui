@@ -11,17 +11,16 @@ struct EditorToolBarView: View {
     
     let appliedTools: Set<TextSpanStyle>
     let onToolSelect: (TextSpanStyle) -> Void
-
+    
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 5, content: {
-                ForEach(EditorTool.allCases, id: \.self) { tool in
-                    EditorToolBarCell(tool: tool, appliedTools: appliedTools, onToolSelect: onToolSelect)
-                }
-            })
-        }
-        .background(.gray.opacity(0.1))
+        LazyHStack(spacing: 5, content: {
+            ForEach(EditorTool.allCases, id: \.self) { tool in
+                EditorToolBarCell(tool: tool, appliedTools: appliedTools, onToolSelect: onToolSelect)
+            }
+        })
         .frame(height: 50)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.gray.opacity(0.1))
     }
 }
 

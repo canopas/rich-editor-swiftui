@@ -8,13 +8,13 @@
 import Foundation
 
 protocol EditorAdapter {
-    func encode(input: String) -> RichText
+    func encode(input: String, spans: [RichTextSpan]) -> RichText
     func decode(editorValue: RichText) -> String
 }
 
 class DefaultAdapter: EditorAdapter {
-    func encode(input: String) -> RichText {
-        return RichText(text: input)
+    func encode(input: String, spans: [RichTextSpan] = []) -> RichText {
+        return RichText(text: input, spans: spans)
     }
     
     func decode(editorValue: RichText) -> String {
