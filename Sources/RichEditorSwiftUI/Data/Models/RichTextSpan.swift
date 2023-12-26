@@ -7,9 +7,9 @@
 
 import Foundation
 
-public class RichTextSpan: Codable {
+public struct RichTextSpan: Codable {
     public let from: Int
-    public var to: Int
+    public let to: Int
     public let style: TextSpanStyle
     
     public init(from: Int, to: Int, style: TextSpanStyle) {
@@ -18,12 +18,6 @@ public class RichTextSpan: Codable {
         self.style = style
     }
 }
-
-//extension RichTextSpan {
-//    public func update(to: Int) {
-//        self.to = to
-//    }
-//}
 
 extension RichTextSpan: Equatable {
     public static func == (lhs: RichTextSpan, rhs: RichTextSpan) -> Bool {
