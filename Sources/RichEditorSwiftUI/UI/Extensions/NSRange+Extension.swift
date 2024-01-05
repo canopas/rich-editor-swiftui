@@ -8,7 +8,11 @@
 import Foundation
 
 extension NSRange {
-    var collapsed: Bool {
+    var isCollapsed: Bool {
         return self.length == 0 || self.upperBound == self.lowerBound
+    }
+    
+    var closedRange: ClosedRange<Int> {
+        return lowerBound...upperBound
     }
 }
