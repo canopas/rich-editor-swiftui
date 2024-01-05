@@ -18,7 +18,7 @@ public class RichEditorState: ObservableObject {
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
     internal var curretFont: UIFont = .systemFont(ofSize: 16)
     
-    @Published internal var attributesToApply: (attributes: [NSAttributedString.Key: Any], activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)? = nil
+    @Published internal var attributesToApply: (activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)? = nil
     
     private var spans: [RichTextSpan]
     private var highlightedRange: NSRange
@@ -238,14 +238,21 @@ extension RichEditorState {
      */
     private func applyStylesToSelectedText(_ style: TextSpanStyle, range: NSRange) {
         guard !range.isCollapsed else { return }
-        attributesToApply = (attributes: [style.attributedStringKey: style.defaultAttributeValue], activeStyles: [style], range: range, shouldApply: true)
+        attributesToApply = (activeStyles: [style], range: range, shouldApply: true)
     }
     
     //MARK: - Remove Style
+    /**
+     This will remove style from active sytyle if it contains it
+     - Parameters:
+     - style: which is of type TextSpanStyle
+     
+     This will remove typing attributes as well fot style.
+     */
     private func removeStyle(_ style: TextSpanStyle) {
         guard activeStyles.contains(style) else { return }
         activeStyles.remove(style)
-        removeStylesAndTypingAttributes()
+        updateTypingAttributes()
         removeAttributes(style)
         
         guard !highlightedRange.isCollapsed else {
@@ -260,7 +267,10 @@ extension RichEditorState {
         removeStylesWithSpanFromSelectedPart(selectedParts, fromIndex: fromIndex, toIndex: toIndex)
     }
     
-    private func removeStylesAndTypingAttributes() {
+    /**
+     This will update the typing attribute according to active style
+     */
+    private func updateTypingAttributes() {
         var attributes: [NSAttributedString.Key: Any] = [:]
         
         activeStyles.forEach({
@@ -270,14 +280,26 @@ extension RichEditorState {
         activeAttributes = attributes
     }
     
+    /**
+     This will remove the attributes from text for style
+     - Parameters:
+     - style:  which is of type of TextSpanStyle
+     */
     private func removeAttributes(_ style: TextSpanStyle) {
         guard !highlightedRange.isCollapsed else { return }
-        attributesToApply = (attributes: [style.attributedStringKey: style.defaultAttributeValue], activeStyles: [style], range: highlightedRange, shouldApply: false)
+        attributesToApply = (activeStyles: [style], range: highlightedRange, shouldApply: false)
     }
     
-    private func handleRemoveHeaderStyle(newText: NSMutableAttributedString, removeRange: Range<Int>, newLineIndex: String.Index) {
-        let fromIndex = highlightedRange.lowerBound
-        let toIndex = highlightedRange.upperBound - 1
+    /**
+     This will remove header style form selected range of text
+     - Parameters:
+     - newText: it's NSmutableAttributedString
+     - range: is the NSRange
+     - newLineIndex: is string index of new line where is it located
+     */
+    private func handleRemoveHeaderStyle(newText: NSMutableAttributedString, at range: NSRange, newLineIndex: String.Index) {
+        let fromIndex = range.lowerBound
+        let toIndex = range.upperBound - 1
         
         let startIndex = max(newText.string.startIndex, newText.string.index(before: newLineIndex))
         let endIndex = newText.string.index(after: newLineIndex)
@@ -293,38 +315,70 @@ extension RichEditorState {
 
 //MARK: - Helper Methods
 extension RichEditorState {
+    /**
+     This will reset the editor. It will remove all the text form the editor.
+     */
     public func reset() {
         spans.removeAll()
         rawText = ""
         editableText = NSMutableAttributedString(string: "")
     }
     
+    /**
+     This will allow you to set the editable text of editor
+     */
     private func setEditable(editable: NSMutableAttributedString) {
         editable.append(NSMutableAttributedString(string: editable.string))
         self.editableText = editable
     }
     
+    /**
+     This will provide Set of TextSpanStyle applied on given index
+     - Parameters:
+     - index: index or location of text
+     */
     private func getRichSpanStyleByTextIndex(_ index: Int) -> Set<TextSpanStyle> {
         let styles = Set(spans.filter { index >= $0.from && index <= $0.to }.map { $0.style })
         return styles
     }
     
+    /**
+     This will provide Array of TextSpanStyle applied on given range
+     - Parameters:
+     - rnage: range of text which is of type NSRange
+     */
     private func getRichSpanStyleListByTextRange(_ range: NSRange) -> [TextSpanStyle] {
         return spans.filter({ range.closedRange.overlaps($0.closedRange) }).map { $0.style }
     }
     
+    /**
+     This will provide Array of RichTextSpan applied on given index
+     - Parameters:
+     - index: index or location of text
+     */
     private func getRichSpansByTextIndex(_ index: Int) -> [RichTextSpan] {
         return spans.filter({ index >= $0.from && index <= $0.to })
     }
     
+    /**
+     This will provide Array of RichTextSpan applied on given range
+     - Parameters:
+     - rnage: range of text which is of type NSRange
+     */
     private func getRichSpanListByTextRange(_ range: NSRange) -> [RichTextSpan] {
         return spans.filter({ range.closedRange.overlaps($0.closedRange) })
     }
-    
 }
 
 //MARK: Span helper methods
 extension RichEditorState {
+    /**
+     This will handle the newlly added character in editor
+     - Parameters:
+     - newValue: is of type NsMutableAttributedString
+     
+     This will generete break the span according to requirement to avoid duplication of the span.
+     */
     private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
         let typedChars = newValue.length - rawText.count
         let startTypeIndex = highlightedRange.location - typedChars

@@ -16,15 +16,12 @@ public struct RichEditor: View {
     
     public var body: some View {
         VStack(content: {
-            EditorToolBarView(appliedTools: state.activeStyles, onToolSelect: state.onToolSelection(_:))
+            EditorToolBarView(appliedTools: state.activeStyles,
+                              onToolSelect: state.onToolSelection(_:))
             
             TextViewWrapper(state: _state,
-                            text: $state.editableText,
-                            typingAttributes: $state.activeAttributes,
-                            attributesToApply:  $state.attributesToApply,
                             isScrollEnabled: true,
-                            fontStyle: state.curretFont,
-                            onTextViewEvent: state.onTextViewEvent(_:))
+                            fontStyle: state.curretFont)
         })
         .padding()
     }
