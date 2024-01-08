@@ -130,7 +130,7 @@ extension RichEditorState {
         
         if !highlightedRange.isCollapsed {
             applyStylesToSelectedText(style, range: highlightedRange)
-            applyStylesWithSpanToSelectedText(style)
+            createSpanForSelectedText(style)
         }
     }
     
@@ -144,6 +144,24 @@ extension RichEditorState {
     internal func onSelectionChanged(_ range: NSRange, newText: NSMutableAttributedString) {
         highlightedRange = range
         updateCurrentSpanStyle()
+    }
+    
+    /**
+     This medo will decide whether Charater is added or removed and perfom accordingly
+     - Parameters:
+     - newText: is updated NSMutableAttributedString
+     - selection: is the range of the selected text
+     */
+    private func onTextFieldValueChange(newText: NSMutableAttributedString, selection: NSRange) {
+        self.highlightedRange = selection
+        
+        if newText.length > rawText.count {
+            handleAddingCharacters(newText)
+        } else if newText.length < rawText.count {
+            handleRemovingCharacters(newText)
+        }
+        
+        rawText = newText.string
     }
     
     /**
@@ -183,24 +201,6 @@ extension RichEditorState {
         }
     }
     
-    /**
-     This medo will decide whether Charater is added or removed and perfom accordingly
-     - Parameters:
-     - newText: is updated NSMutableAttributedString
-     - selection: is the range of the selected text
-     */
-    private func onTextFieldValueChange(newText: NSMutableAttributedString, selection: NSRange) {
-        self.highlightedRange = selection
-        
-        if newText.length > rawText.count {
-            handleAddingCharacters(newText)
-        } else if newText.length < rawText.count {
-            handleRemovingCharacters(newText)
-        }
-        
-        rawText = newText.string
-    }
-    
     //MARK: - Add styles
     
     /**
@@ -215,7 +215,7 @@ extension RichEditorState {
         
         if !highlightedRange.isCollapsed {
             applyStylesToSelectedText(style, range: highlightedRange)
-            applyStylesWithSpanToSelectedText(style)
+            createSpanForSelectedText(style)
         }
         
         var attributes: [NSAttributedString.Key: Any] = [:]
@@ -264,7 +264,7 @@ extension RichEditorState {
         
         let selectedParts = spans.filter({ $0.from < toIndex && $0.to >= fromIndex && $0.style == style })
         
-        removeStylesWithSpanFromSelectedPart(selectedParts, fromIndex: fromIndex, toIndex: toIndex)
+        removeSpanForSelectedText(selectedParts, fromIndex: fromIndex, toIndex: toIndex)
     }
     
     /**
@@ -288,28 +288,6 @@ extension RichEditorState {
     private func removeAttributes(_ style: TextSpanStyle) {
         guard !highlightedRange.isCollapsed else { return }
         attributesToApply = (activeStyles: [style], range: highlightedRange, shouldApply: false)
-    }
-    
-    /**
-     This will remove header style form selected range of text
-     - Parameters:
-     - newText: it's NSmutableAttributedString
-     - range: is the NSRange
-     - newLineIndex: is string index of new line where is it located
-     */
-    private func handleRemoveHeaderStyle(newText: NSMutableAttributedString, at range: NSRange, newLineIndex: String.Index) {
-        let fromIndex = range.lowerBound
-        let toIndex = range.upperBound - 1
-        
-        let startIndex = max(newText.string.startIndex, newText.string.index(before: newLineIndex))
-        let endIndex = newText.string.index(after: newLineIndex)
-        
-        let selectedParts = spans.filter({ ((($0.from...$0.to).overlaps(fromIndex...toIndex))
-                                            && $0.style.isHeaderStyle) })
-        
-        spans.removeAll(where: { selectedParts.contains($0) })
-        
-        spans.append(RichTextSpan(from: startIndex.utf16Offset(in: newText.string), to: endIndex.utf16Offset(in: newText.string) - 1, style: .h1))
     }
 }
 
@@ -419,6 +397,14 @@ extension RichEditorState {
         }
     }
     
+    /**
+     This will handle the newlly added character in editor
+     - Parameters:
+     - startTypeIndex: is of type Int
+     - by: is of type Int
+     
+     This will update the span according to requirement, like breake, removed, merge or extend.
+     */
     private func processSpan(_ richTextSpan: RichTextSpan, typedChars: Int, startTypeIndex: Int, selectedStyles: inout Set<TextSpanStyle>, forward: Bool = false) {
         let newFromIndex = richTextSpan.from + typedChars
         let newToIndex = richTextSpan.to + typedChars
@@ -439,16 +425,32 @@ extension RichEditorState {
         }
     }
     
+    
+    /**
+     This will handle the newlly added character in editor
+     - Parameters:
+     - startTypeIndex: is of type Int
+     - step: is of type Int
+     
+     This will move the span according to it's position if it is after the typed character then it will move forward by number or typed character which is step.
+     */
     private func moveSpans(startTypeIndex: Int, by step: Int) {
         let filteredSpans = spans.filter { $0.from > startTypeIndex }
         
         filteredSpans.forEach { part in
             if let index = spans.firstIndex(of: part) {
-            spans[index] = RichTextSpan(from: part.from + step, to: part.to + step, style: part.style)
+                spans[index] = RichTextSpan(from: part.from + step, to: part.to + step, style: part.style)
             }
         }
     }
     
+    /**
+     This will handle the removing character in editor and from relative span
+     - Parameters:
+     - newText: is of type NsMutableAttributedString
+     
+     This will generete, break  and remove the span according to requirement to avoid duplication and untracked span.
+     */
     private func handleRemovingCharacters(_ newText: NSMutableAttributedString) {
         guard !newText.string.isEmpty else {
             spans.removeAll()
@@ -464,7 +466,7 @@ extension RichEditorState {
         let end = rawText.index(rawText.startIndex, offsetBy: endRemoveIndex)
         
         if startRemoveIndex != (endRemoveIndex - 1), let newLineIndex = rawText[start...end].firstIndex(of: "\n") {
-            handleRemoveHeaderStyle(newText: newText, removeRange: removeRange, newLineIndex: newLineIndex)
+            handleRemoveHeaderStyle(newText: newText, at: removeRange.nsRange, newLineIndex: newLineIndex)
         }
         
         let partsCopy = spans
@@ -486,7 +488,16 @@ extension RichEditorState {
             }
         }
     }
+}
+
+//MARK: - Header style's relatated methods
+extension RichEditorState {
     
+    /**
+        This will handle the adding header style in editor and to relative span
+        - Parameters:
+        - style: is of type TextSpanStyle
+     */
     private func handleAddHeaderStyle(_ style: TextSpanStyle) {
         guard !rawText.isEmpty else {
             return
@@ -510,7 +521,34 @@ extension RichEditorState {
         spans.append(RichTextSpan(from: startIndex, to: endIndex, style: style))
     }
     
-    private func applyStylesWithSpanToSelectedText(_ style: TextSpanStyle) {
+    /**
+     This will remove header style form selected range of text
+     - Parameters:
+     - newText: it's NSmutableAttributedString
+     - range: is the NSRange
+     - newLineIndex: is string index of new line where is it located
+     */
+    private func handleRemoveHeaderStyle(newText: NSMutableAttributedString, at range: NSRange, newLineIndex: String.Index) {
+        let fromIndex = range.lowerBound
+        let toIndex = range.upperBound - 1
+        
+        let startIndex = max(newText.string.startIndex, newText.string.index(before: newLineIndex))
+        let endIndex = newText.string.index(after: newLineIndex)
+        
+        let selectedParts = spans.filter({ ((($0.from...$0.to).overlaps(fromIndex...toIndex))
+                                            && $0.style.isHeaderStyle) })
+        
+        spans.removeAll(where: { selectedParts.contains($0) })
+        
+        spans.append(RichTextSpan(from: startIndex.utf16Offset(in: newText.string), to: endIndex.utf16Offset(in: newText.string) - 1, style: .h1))
+    }
+    
+    /**
+     This will create span for selected text with provided style
+     - Parameters:
+     - style: is of type TextSpanStyle
+     */
+    private func createSpanForSelectedText(_ style: TextSpanStyle) {
         guard !highlightedRange.isCollapsed else {
             return
         }
@@ -542,7 +580,14 @@ extension RichEditorState {
         }
     }
     
-    private func removeStylesWithSpanFromSelectedPart(_ selectedParts: [RichTextSpan], fromIndex: Int, toIndex: Int) {
+    /**
+     This will remove span for selected text
+        - Parameters:
+        - selectedParts: is of type [RichTextSpan]
+        - fromIndex: is of type Int and it's lower bound of selection range
+        - toIndex: is of type Int and it's upper bound of selection range
+     */
+    private func removeSpanForSelectedText(_ selectedParts: [RichTextSpan], fromIndex: Int, toIndex: Int) {
         selectedParts.forEach { part in
             if let index = spans.firstIndex(of: part) {
                 if part.from < fromIndex && part.to >= toIndex {
