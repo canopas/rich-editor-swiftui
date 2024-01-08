@@ -106,5 +106,5 @@
             "style": "underline"
         }
     ],
-    "text": "Rich Editor\nAndroid WYSIWYG Rich editor for Jetpack compose.\n\nFeatures\nThe editor offers the following options\n\n- Bold\n- Italic\n- Underline\n- Different headers\n\nCredits\nRich Editor for compose is owned and maintained by the canopas team\n\nThanks You ☺️\n"
+    "text": "Rich Editor\nAndroid WYSIWYG Rich editor for Jetpack compose.\n\nFeatures\nThe editor offers the following options\n\n- Bold\n- Italic\n- Underline\n- Different headers\n\nCredits\nRich Editor for swiftUI is owned and maintained by the canopas team\n\nThanks You ☺️\n"
 }

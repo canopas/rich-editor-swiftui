@@ -104,6 +104,35 @@ extension RichEditorState {
     }
     
     /**
+     This medo will decide whether Charater is added or removed and perfom accordingly
+     - Parameters:
+     - newText: is updated NSMutableAttributedString
+     - selection: is the range of the selected text
+     */
+    private func onTextFieldValueChange(newText: NSMutableAttributedString, selection: NSRange) {
+        self.highlightedRange = selection
+        
+        if newText.length > rawText.count {
+            handleAddingCharacters(newText)
+        } else if newText.length < rawText.count {
+            handleRemovingCharacters(newText)
+        }
+        
+        rawText = newText.string
+    }
+    
+    /**
+     Update the selection
+     - Parameters:
+     - range: is the range of the selected text
+     - newText: is updated NSMutableAttributedString
+     */
+    internal func onSelectionChanged(_ range: NSRange, newText: NSMutableAttributedString) {
+        highlightedRange = range
+        updateCurrentSpanStyle()
+    }
+    
+    /**
      Update the activeStyles
      - Parameters:
      - tool: is of type TextSpanStyle
@@ -132,36 +161,6 @@ extension RichEditorState {
             applyStylesToSelectedText(style, range: highlightedRange)
             createSpanForSelectedText(style)
         }
-    }
-    
-    /**
-     Update the selection
-     - Parameters:
-     - range: is the range of the selected text
-     - newText: is updated NSMutableAttributedString
-     
-     */
-    internal func onSelectionChanged(_ range: NSRange, newText: NSMutableAttributedString) {
-        highlightedRange = range
-        updateCurrentSpanStyle()
-    }
-    
-    /**
-     This medo will decide whether Charater is added or removed and perfom accordingly
-     - Parameters:
-     - newText: is updated NSMutableAttributedString
-     - selection: is the range of the selected text
-     */
-    private func onTextFieldValueChange(newText: NSMutableAttributedString, selection: NSRange) {
-        self.highlightedRange = selection
-        
-        if newText.length > rawText.count {
-            handleAddingCharacters(newText)
-        } else if newText.length < rawText.count {
-            handleRemovingCharacters(newText)
-        }
-        
-        rawText = newText.string
     }
     
     /**
@@ -393,6 +392,7 @@ extension RichEditorState {
         }
         
         selectedStyles.forEach { style in
+            let sp = RichTextSpan(from: startTypeIndex, to: startTypeIndex + typedChars - 1, style: style)
             spans.append(RichTextSpan(from: startTypeIndex, to: startTypeIndex + typedChars - 1, style: style))
         }
     }
@@ -472,12 +472,12 @@ extension RichEditorState {
         let partsCopy = spans
         
         for part in partsCopy {
-            if let index = partsCopy.firstIndex(of: part) {
+            if let index = spans.firstIndex(of: part) {
                 if removeRange.upperBound < part.from {
                     spans[index] = RichTextSpan(from: part.from - removedCharsCount, to: part.to - removedCharsCount, style: part.style)
                 } else if removeRange.lowerBound <= part.from && removeRange.upperBound >= part.to {
                     // Remove the element from the copy.
-                    spans.remove(at: index)
+                    spans.removeAll(where: { $0 == part })
                 } else if removeRange.lowerBound <= part.from {
                     spans[index] = RichTextSpan(from: max(0, removeRange.lowerBound), to: min(newText.length, part.to - removedCharsCount), style: part.style)
                 } else if removeRange.upperBound <= part.to {
@@ -530,7 +530,7 @@ extension RichEditorState {
      */
     private func handleRemoveHeaderStyle(newText: NSMutableAttributedString, at range: NSRange, newLineIndex: String.Index) {
         let fromIndex = range.lowerBound
-        let toIndex = range.upperBound - 1
+        let toIndex = range.upperBound
         
         let startIndex = max(newText.string.startIndex, newText.string.index(before: newLineIndex))
         let endIndex = newText.string.index(after: newLineIndex)
