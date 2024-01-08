@@ -89,7 +89,7 @@ extension RichEditorState {
         switch event {
         case .didChangeSelection(let textView):
             highlightedRange = textView.selectedRange
-            guard rawText.length == textView.attributedText.length && highlightedRange.isCollapsed else { return }
+            guard rawText.length == textView.attributedText.string.count && highlightedRange.isCollapsed else { return }
             onSelectionChanged(textView.selectedRange, newText: NSMutableAttributedString(attributedString: textView.attributedText))
         case .didBeginEditing(let textView):
             highlightedRange = textView.selectedRange
@@ -119,6 +119,7 @@ extension RichEditorState {
         }
         
         rawText = newText.string
+        updateCurrentSpanStyle()
     }
     
     /**
@@ -392,7 +393,6 @@ extension RichEditorState {
         }
         
         selectedStyles.forEach { style in
-            let sp = RichTextSpan(from: startTypeIndex, to: startTypeIndex + typedChars - 1, style: style)
             spans.append(RichTextSpan(from: startTypeIndex, to: startTypeIndex + typedChars - 1, style: style))
         }
     }
@@ -464,9 +464,9 @@ extension RichEditorState {
         let removeRange = startRemoveIndex..<endRemoveIndex
         let start = rawText.index(rawText.startIndex, offsetBy: startRemoveIndex)
         let end = rawText.index(rawText.startIndex, offsetBy: endRemoveIndex)
-        
-        if startRemoveIndex != (endRemoveIndex - 1), let newLineIndex = rawText[start...end].firstIndex(of: "\n") {
-            handleRemoveHeaderStyle(newText: newText, at: removeRange.nsRange, newLineIndex: newLineIndex)
+                
+        if startRemoveIndex != (endRemoveIndex - 1), let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
+            handleRemoveHeaderStyle(newText: newText.string, at: removeRange.nsRange, newLineIndex: newLineIndex)
         }
         
         let partsCopy = spans
@@ -507,7 +507,7 @@ extension RichEditorState {
         let toIndex = highlightedRange.isCollapsed ? fromIndex : highlightedRange.upperBound
         
         let startIndex = 0 //rawText.prefix(fromIndex).index(before: <#T##Substring.Index#>) max(0, rawText.lastIndex(of: "\n", before: fromIndex) ?? rawText.startIndex)
-        var endIndex = 0 //rawText.firstIndex(of: "\n", after: toIndex) ?? rawText.index(before: rawText.endIndex)
+        let endIndex = 0 //rawText.firstIndex(of: "\n", after: toIndex) ?? rawText.index(before: rawText.endIndex)
         
         if endIndex == (rawText.count - 1) {
             //            endIndex = rawText.index(before: endIndex)
@@ -528,19 +528,18 @@ extension RichEditorState {
      - range: is the NSRange
      - newLineIndex: is string index of new line where is it located
      */
-    private func handleRemoveHeaderStyle(newText: NSMutableAttributedString, at range: NSRange, newLineIndex: String.Index) {
+    private func handleRemoveHeaderStyle(newText: String? = nil, at range: NSRange, newLineIndex: Int) {
+//        guard spans.contains(where: { style in HeaderOptions.allCases.map({ $0.getTextSpanStyle() }).contains(where: { $0 == style.style }) }) else { return }
+        let text = newText ?? rawText
         let fromIndex = range.lowerBound
         let toIndex = range.upperBound
+        let startIndex = max(0, text.map({ $0 }).index(before: newLineIndex))
         
-        let startIndex = max(newText.string.startIndex, newText.string.index(before: newLineIndex))
-        let endIndex = newText.string.index(after: newLineIndex)
+        let endIndex = text.map({ $0 }).index(after: newLineIndex)
         
-        let selectedParts = spans.filter({ ((($0.from...$0.to).overlaps(fromIndex...toIndex))
-                                            && $0.style.isHeaderStyle) })
+        let selectedParts = spans.filter({ ($0.from < endIndex && $0.to >= startIndex && $0.style.isHeaderStyle) })
         
         spans.removeAll(where: { selectedParts.contains($0) })
-        
-        spans.append(RichTextSpan(from: startIndex.utf16Offset(in: newText.string), to: endIndex.utf16Offset(in: newText.string) - 1, style: .h1))
     }
     
     /**

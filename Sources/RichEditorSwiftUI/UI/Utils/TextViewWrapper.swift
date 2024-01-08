@@ -99,7 +99,9 @@ internal struct TextViewWrapper: UIViewRepresentable {
         if !attributes.contains(where: { $0.key == .font }) {
             attributes[.font] = fontStyle
         }
-        textView.typingAttributes = attributes
+        if textView.typingAttributes.contains(where: { $0.key != .font }) && attributes.contains(where: { $0.key == .font }) {
+            textView.typingAttributes = attributes
+        }
         
         //Update attributes in textStorage
         if let data = state.attributesToApply {
