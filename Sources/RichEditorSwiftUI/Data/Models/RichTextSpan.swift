@@ -32,3 +32,25 @@ extension RichTextSpan: Hashable {
         hasher.combine(style)
     }
 }
+
+extension RichTextSpan {
+    public var spanRange: NSRange {
+        let range = NSRange(location: from, length: (to - from))
+        guard range.length > 0 else { return .init(location: range.location, length: 0)}
+        return range
+    }
+    
+    public var closedRange: ClosedRange<Int> {
+        return from...to
+    }
+    
+    public var length: Int {
+        return to - from
+    }
+}
+
+extension RichTextSpan {
+    public func copy(from: Int? = nil, to: Int? = nil, style: TextSpanStyle? = nil) -> RichTextSpan {
+        return RichTextSpan(from: (from != nil ? from! : self.from), to: (to != nil ? to! : self.to), style: (style != nil ? style! : self.style))
+    }
+}

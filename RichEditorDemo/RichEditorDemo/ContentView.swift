@@ -9,7 +9,19 @@ import SwiftUI
 import RichEditorSwiftUI
 
 struct ContentView: View {
-    @ObservedObject var state: RichEditorState = .init(input: "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.")
+    @ObservedObject var state: RichEditorState
+    
+    init(state: RichEditorState? = nil) {
+        if let state {
+            self.state = state
+        } else {
+            if let richText = readJSONFromFile(fileName: "Sample_json", type: RichText.self) {
+                self.state = .init(input: richText.text, spans: richText.spans)
+            } else {
+                self.state = .init(input: "Hellow World!")
+            }
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -23,7 +35,7 @@ struct ContentView: View {
                         let spans = state.richText.spans
                         print("==== spans are \(spans.map({ ($0.from, $0.to, $0.style.rawValue) }))")
                     }, label: {
-                        Text("Save")
+                        Image(systemName: "checkmark")
                             .padding()
                     })
                 }
