@@ -34,9 +34,10 @@ public extension NSMutableAttributedString {
         let shouldAdd = newValue && !styles.hasStyle(style)
         let shouldRemove = !newValue && styles.hasStyle(style)
         guard shouldAdd || shouldRemove else { return }
+        let updatedFont = style.getFontWithUpdating(font: font)
         let newFont: FontRepresentable? = FontRepresentable(
-            descriptor: font.fontDescriptor.byTogglingStyle(style),
-            size: font.pointSize)
+            descriptor: updatedFont.fontDescriptor,
+            size: updatedFont.pointSize)
         guard let newFont = newFont else { return }
         setRichTextFont(newFont, at: range)
     }

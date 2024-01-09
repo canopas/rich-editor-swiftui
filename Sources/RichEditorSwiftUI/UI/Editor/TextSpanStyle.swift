@@ -25,28 +25,13 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         return self.rawValue
     }
     
-    var defaultAttributeValue: Any {
+    func defaultAttributeValue(font: UIFont? = nil) -> Any {
+        let font = font ?? .systemFont(ofSize: 16)
         switch self {
-        case .default: 
-            return UIFont()
-        case .bold:
-            return UIFont.boldSystemFont(ofSize: 16)
-        case .italic:
-            return UIFont.italicSystemFont(ofSize: 16)
         case .underline:
             return NSUnderlineStyle.single.rawValue
-        case .h1:
-            return UIFont.systemFont(ofSize: 24)
-        case .h2:
-            return UIFont.systemFont(ofSize: 22)
-        case .h3:
-            return UIFont.systemFont(ofSize: 20)
-        case .h4:
-            return UIFont.systemFont(ofSize: 18)
-        case .h5:
-            return UIFont.systemFont(ofSize: 16)
-        case .h6:
-            return UIFont.systemFont(ofSize: 14)
+        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
+            return getFontWithUpdating(font: font)
         }
     }
     
@@ -114,17 +99,17 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         case .underline:
             return font
         case .h1:
-            return font.updateFontSize(size: 24)
+            return font.updateFontSize(multiple: 1.5)
         case .h2:
-            return font.updateFontSize(size: 22)
+            return font.updateFontSize(multiple: 1.4)
         case .h3:
-            return font.updateFontSize(size: 20)
+            return font.updateFontSize(multiple: 1.3)
         case .h4:
-            return font.updateFontSize(size: 18)
+            return font.updateFontSize(multiple: 1.2)
         case .h5:
-            return font.updateFontSize(size: 16)
+            return font.updateFontSize(multiple: 1.1)
         case .h6:
-            return font.updateFontSize(size: 14)
+            return font.updateFontSize(multiple: 1)
         }
     }
     

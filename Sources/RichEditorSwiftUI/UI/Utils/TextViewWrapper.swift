@@ -12,7 +12,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
     
     @Binding private var text: NSMutableAttributedString
     @Binding private var typingAttributes: [NSAttributedString.Key: Any]?
-    @Binding private var attributesToApply: (activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)?
+    @Binding private var attributesToApply: (spans: [RichTextSpan], shouldApply: Bool)?
     private let isEditable: Bool
     private let isUserInteractionEnabled: Bool
     private let isScrollEnabled: Bool
@@ -26,7 +26,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
     public init(state: ObservedObject<RichEditorState>,
                 text: Binding<NSMutableAttributedString>,
                 typingAttributes: Binding<[NSAttributedString.Key: Any]?>? = nil,
-                attributesToApply: Binding<(activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)?>? = nil,
+                attributesToApply: Binding<(spans: [RichTextSpan], shouldApply: Bool)?>? = nil,
                 isEditable: Bool = true,
                 isUserInteractionEnabled: Bool = true,
                 isScrollEnabled: Bool = false,
@@ -117,7 +117,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         
         //Update attributes in textStorage
         if let data = attributesToApply {
-            applyAttributesToSelectedRange(textView, at: data.range, for: data.activeStyles, shouldApply: data.shouldApply)
+            applyAttributesToSelectedRange(textView, for: data.spans, shouldApply: data.shouldApply)
         }
 
         textView.reloadInputViews()
@@ -170,23 +170,19 @@ internal struct TextViewWrapper: UIViewRepresentable {
         return attributes
     }
     
-    internal func applyAttributesToSelectedRange(_ textView: TextViewOverRidden, at range: NSRange, for styles: [RichTextStyle], shouldApply: Bool = true) {
-        if shouldApply {
-            styles.forEach { style in
-                if style.attributedStringKey == .font {
-                    textView.textStorage.setRichTextStyle(style, to: shouldApply, at: range)
-                } else {
-                    textView.textStorage.addAttribute(style.attributedStringKey, value: style.defaultAttributeValue, range: range)
-                }
-            }
-        } else {
-            styles.forEach({ style in
-                if style.attributedStringKey == .font {
-                    textView.textStorage.setRichTextStyle(style, to: shouldApply, at: range)
+    internal func applyAttributesToSelectedRange(_ textView: TextViewOverRidden, for spans: [RichTextSpan], shouldApply: Bool = true) {
+        spans.forEach { span in
+            let range = span.spanRange
+            let style = span.style
+            if style.attributedStringKey == .font {
+                textView.textStorage.setRichTextStyle(style, to: shouldApply, at: range)
+            } else {
+                if shouldApply {
+                    textView.textStorage.addAttribute(style.attributedStringKey, value: style.defaultAttributeValue(font: fontStyle), range: range)
                 } else {
                     textView.textStorage.removeAttribute(style.attributedStringKey, range: range)
                 }
-            })
+            }
         }
         
         attributesToApply = nil

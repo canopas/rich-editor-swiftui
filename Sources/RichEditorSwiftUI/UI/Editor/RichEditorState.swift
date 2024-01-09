@@ -18,7 +18,7 @@ public class RichEditorState: ObservableObject {
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
     internal var curretFont: UIFont = .systemFont(ofSize: 16)
     
-    @Published internal var attributesToApply: (activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)? = nil
+    @Published internal var attributesToApply: (spans: [RichTextSpan], shouldApply: Bool)? = nil
     
     private var spans: [RichTextSpan]
     private var highlightedRange: NSRange
@@ -44,6 +44,7 @@ public class RichEditorState: ObservableObject {
         activeStyles = []
         
         rawText = richText.text
+        setSpans()
     }
     
     /**
@@ -71,6 +72,10 @@ public class RichEditorState: ObservableObject {
     
     public func updateStyle(style: TextSpanStyle) {
         setStyle(style)
+    }
+    
+    private func setSpans() {
+        applyStylesToSelectedText(spans)
     }
 }
 
@@ -156,7 +161,8 @@ extension RichEditorState {
         }
         
         if !highlightedRange.isCollapsed {
-            applyStylesToSelectedText(style, range: highlightedRange)
+            let span = RichTextSpan(from: highlightedRange.lowerBound, to: highlightedRange.upperBound - 1, style: style)
+            applyStylesToSelectedText([span])
             createSpanForSelectedText(style)
         }
     }
@@ -211,13 +217,13 @@ extension RichEditorState {
         activeStyles.insert(style)
         
         if !highlightedRange.isCollapsed {
-            applyStylesToSelectedText(style, range: highlightedRange)
+            applyStylesToSelectedText([RichTextSpan(from: highlightedRange.lowerBound, to: highlightedRange.upperBound, style: style)])
             createSpanForSelectedText(style)
         }
         
         var attributes: [NSAttributedString.Key: Any] = [:]
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font:curretFont)
         })
         
         activeAttributes = attributes
@@ -233,9 +239,8 @@ extension RichEditorState {
      - style: which is of type TextSpanStyle
      - range: is the range of the text on which you want to apply the style
      */
-    private func applyStylesToSelectedText(_ style: TextSpanStyle, range: NSRange) {
-        guard !range.isCollapsed else { return }
-        attributesToApply = (activeStyles: [style], range: range, shouldApply: true)
+    private func applyStylesToSelectedText(_ spans: [RichTextSpan]) {
+        attributesToApply = (spans: spans, shouldApply: true)
     }
     
     //MARK: - Remove Style
@@ -250,7 +255,7 @@ extension RichEditorState {
         guard activeStyles.contains(style) else { return }
         activeStyles.remove(style)
         updateTypingAttributes()
-        removeAttributes(style)
+        
         
         guard !highlightedRange.isCollapsed else {
             return
@@ -258,6 +263,9 @@ extension RichEditorState {
         
         let fromIndex = highlightedRange.lowerBound
         let toIndex = highlightedRange.upperBound
+        
+        let span = RichTextSpan(from: fromIndex, to: toIndex - 1, style: style)
+        removeAttributes([span])
         
         let selectedParts = spans.filter({ $0.from < toIndex && $0.to >= fromIndex && $0.style == style })
         
@@ -282,9 +290,8 @@ extension RichEditorState {
      - Parameters:
      - style:  which is of type of TextSpanStyle
      */
-    private func removeAttributes(_ style: TextSpanStyle) {
-        guard !highlightedRange.isCollapsed else { return }
-        attributesToApply = (activeStyles: [style], range: highlightedRange, shouldApply: false)
+    private func removeAttributes(_ spans: [RichTextSpan]) {
+        attributesToApply = (spans: spans, shouldApply: false)
     }
 }
 
@@ -528,8 +535,8 @@ extension RichEditorState {
     private func handleRemoveHeaderStyle(newText: String? = nil, at range: NSRange, newLineIndex: Int) {
 //        guard spans.contains(where: { style in HeaderOptions.allCases.map({ $0.getTextSpanStyle() }).contains(where: { $0 == style.style }) }) else { return }
         let text = newText ?? rawText
-        let fromIndex = range.lowerBound
-        let toIndex = range.upperBound
+//        let fromIndex = range.lowerBound
+//        let toIndex = range.upperBound
         let startIndex = max(0, text.map({ $0 }).index(before: newLineIndex))
         
         let endIndex = text.map({ $0 }).index(after: newLineIndex)
