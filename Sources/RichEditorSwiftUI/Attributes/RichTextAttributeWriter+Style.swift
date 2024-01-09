@@ -34,11 +34,18 @@ public extension NSMutableAttributedString {
         let shouldAdd = newValue && !styles.hasStyle(style)
         let shouldRemove = !newValue && styles.hasStyle(style)
         guard shouldAdd || shouldRemove else { return }
-        let updatedFont = style.getFontWithUpdating(font: font)
         let newFont: FontRepresentable? = FontRepresentable(
-            descriptor: updatedFont.fontDescriptor,
-            size: updatedFont.pointSize)
+            descriptor: font.fontDescriptor.byTogglingStyle(style),
+            size: byTogglingFontSizeFor(style: style, fontSize: font.pointSize, shouldAdd: shouldAdd))
         guard let newFont = newFont else { return }
         setRichTextFont(newFont, at: range)
+    }
+    
+    func byTogglingFontSizeFor(style: TextSpanStyle, fontSize: CGFloat, shouldAdd: Bool) -> CGFloat {
+        if shouldAdd {
+            return fontSize * style.fontSizeMultiplier
+        } else {
+            return fontSize / style.fontSizeMultiplier
+        }
     }
 }

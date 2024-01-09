@@ -113,6 +113,23 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         }
     }
     
+    var fontSizeMultiplier: CGFloat {
+        switch self {
+        case .h1:
+            return 1.5
+        case .h2:
+            return 1.4
+        case .h3:
+            return 1.3
+        case .h4:
+            return 1.2
+        case .h5:
+            return 1.1
+        default:
+            return 1
+        }
+    }
+    
     func getFontAfterRemovingStyle(font: UIFont) -> UIFont {
         switch self {
         case .bold, .italic:
