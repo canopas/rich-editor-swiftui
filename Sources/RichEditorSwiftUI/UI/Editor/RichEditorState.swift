@@ -30,9 +30,7 @@ public class RichEditorState: ObservableObject {
     public var richText: RichText {
         return getRichText()
     }
-    
-    private let spanProvider: SpanProvider
-    
+        
     public init(input: String, spans: [RichTextSpan] = []) {
         let adapter = DefaultAdapter()
         self.input = input
@@ -46,14 +44,13 @@ public class RichEditorState: ObservableObject {
         activeStyles = []
         
         rawText = richText.text
-        spanProvider = SpanProvider()
     }
     
     /**
      This will provide RichText which is encoded from input and editor text
      */
     private func getRichText() -> RichText {
-        return input.isEmpty ? RichText() : adapter.encode(input: input, spans: spanProvider.getSpansFromAttributedText(editableText))
+        return input.isEmpty ? RichText() : adapter.encode(input: input, spans: spans)
     }
     
     /**
