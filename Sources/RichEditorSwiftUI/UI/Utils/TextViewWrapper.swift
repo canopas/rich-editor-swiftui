@@ -174,15 +174,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         spans.forEach { span in
             let range = span.spanRange
             let style = span.style
-            if style.attributedStringKey == .font {
-                textView.textStorage.setRichTextStyle(style, to: shouldApply, at: range)
-            } else {
-                if shouldApply {
-                    textView.textStorage.addAttribute(style.attributedStringKey, value: style.defaultAttributeValue(font: fontStyle), range: range)
-                } else {
-                    textView.textStorage.removeAttribute(style.attributedStringKey, range: range)
-                }
-            }
+            textView.textStorage.setRichTextStyle(style, to: shouldApply, at: range)
         }
         
         attributesToApply = nil
