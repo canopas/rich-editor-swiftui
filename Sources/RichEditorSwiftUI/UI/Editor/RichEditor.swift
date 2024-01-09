@@ -20,8 +20,12 @@ public struct RichEditor: View {
                               onToolSelect: state.onToolSelection(_:))
             
             TextViewWrapper(state: _state,
+                            text: $state.editableText,
+                            typingAttributes: $state.activeAttributes,
+                            attributesToApply:  $state.attributesToApply,
                             isScrollEnabled: true,
-                            fontStyle: state.curretFont)
+                            fontStyle: state.curretFont,
+                            onTextViewEvent: state.onTextViewEvent(_:))
         })
         .padding()
     }

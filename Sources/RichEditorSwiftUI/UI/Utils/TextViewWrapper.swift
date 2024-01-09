@@ -10,6 +10,9 @@ import SwiftUI
 internal struct TextViewWrapper: UIViewRepresentable {
     @ObservedObject var state: RichEditorState
     
+    @Binding private var text: NSMutableAttributedString
+    @Binding private var typingAttributes: [NSAttributedString.Key: Any]?
+    @Binding private var attributesToApply: (activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)?
     private let isEditable: Bool
     private let isUserInteractionEnabled: Bool
     private let isScrollEnabled: Bool
@@ -18,8 +21,12 @@ internal struct TextViewWrapper: UIViewRepresentable {
     private let fontColor: Color
     private let backGroundColor: UIColor
     private let tag: Int?
+    private let onTextViewEvent: ((TextViewEvents) -> Void)?
     
     public init(state: ObservedObject<RichEditorState>,
+                text: Binding<NSMutableAttributedString>,
+                typingAttributes: Binding<[NSAttributedString.Key: Any]?>? = nil,
+                attributesToApply: Binding<(activeStyles: [TextSpanStyle], range: NSRange, shouldApply: Bool)?>? = nil,
                 isEditable: Bool = true,
                 isUserInteractionEnabled: Bool = true,
                 isScrollEnabled: Bool = false,
@@ -27,8 +34,12 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 fontStyle: UIFont? = nil,
                 fontColor: Color = .black,
                 backGroundColor: UIColor = .clear,
-                tag: Int? = nil) {
+                tag: Int? = nil,
+                onTextViewEvent: ((TextViewEvents) -> Void)?) {
         self._state = state
+        self._text = text
+        self._typingAttributes = typingAttributes != nil ? typingAttributes! : .constant(nil)
+        self._attributesToApply = attributesToApply != nil ? attributesToApply! : .constant(nil)
         
         self.isEditable = isEditable
         self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -38,6 +49,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         self.fontColor = fontColor
         self.backGroundColor = backGroundColor
         self.tag = tag
+        self.onTextViewEvent = onTextViewEvent
     }
     
     public func makeCoordinator() -> Coordinator {
@@ -58,10 +70,10 @@ internal struct TextViewWrapper: UIViewRepresentable {
         if let fontStyle {
             var fontAttr = AttributeContainer()
             fontAttr.font = fontStyle
-            let string = NSMutableAttributedString(string: state.editableText.string, attributes: [.font: fontStyle])
+            let string = NSMutableAttributedString(string: text.string, attributes: [.font: fontStyle])
             textView.attributedText = string
         } else {
-            textView.attributedText = state.editableText
+            textView.attributedText = text
         }
         
         textView.textColor = UIColor(fontColor)
@@ -70,7 +82,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         textView.showsHorizontalScrollIndicator = false
         textView.isSelectable = true
         
-        if let attributes = state.activeAttributes {
+        if let attributes = typingAttributes {
             textView.typingAttributes = attributes
         }
         
@@ -104,7 +116,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
         
         //Update attributes in textStorage
-        if let data = state.attributesToApply {
+        if let data = attributesToApply {
             applyAttributesToSelectedRange(textView, at: data.range, for: data.activeStyles, shouldApply: data.shouldApply)
         }
 
@@ -124,23 +136,23 @@ internal struct TextViewWrapper: UIViewRepresentable {
         
         func textViewDidChangeSelection(_ textView: UITextView) {
             //Invoked when selection change whether it is text lelected or pointer moved any were
-            parent.state.onTextViewEvent(.didChangeSelection(textView))
+            parent.onTextViewEvent?(.didChangeSelection(textView))
         }
         
         func textViewDidChange(_ textView: UITextView) {
             if textView.markedTextRange == nil {
-                parent.state.editableText = NSMutableAttributedString(attributedString: textView.attributedText)
+                parent.text = NSMutableAttributedString(attributedString: textView.attributedText)
             }
-            parent.state.onTextViewEvent(.didChange(textView))
+            parent.onTextViewEvent?(.didChange(textView))
         }
         
         func textViewDidBeginEditing(_ textView: UITextView) {
             //Invoked when text view start editing (TextView get focuse or become first responder)
-            parent.state.onTextViewEvent(.didBeginEditing(textView))
+            parent.onTextViewEvent?(.didBeginEditing(textView))
         }
         
         func textViewDidEndEditing(_ textView: UITextView) {
-            parent.state.onTextViewEvent(.didEndEditing(textView))
+            parent.onTextViewEvent?(.didEndEditing(textView))
         }
     }
     
@@ -177,7 +189,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
             })
         }
         
-        state.activeAttributes = nil
+        attributesToApply = nil
     }
 }
 
