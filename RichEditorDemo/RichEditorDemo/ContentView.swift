@@ -18,7 +18,7 @@ struct ContentView: View {
             if let richText = readJSONFromFile(fileName: "Sample_json", type: RichText.self) {
                 self.state = .init(input: richText.text, spans: richText.spans)
             } else {
-                self.state = .init(input: "Hellow World!")
+                self.state = .init(input: "Hello World!")
             }
         }
     }
