@@ -1,6 +1,6 @@
 //
 //  TextViewWrapper.swift
-//  
+//
 //
 //  Created by Divyesh Vekariya on 12/10/23.
 //
@@ -105,21 +105,18 @@ internal struct TextViewWrapper: UIViewRepresentable {
     
     public func updateUIView(_ textView: TextViewOverRidden, context: Context) {
         textView.textColor = UIColor(fontColor)
-        let fullRange = NSRange(location: 0, length: (textView.textStorage.length - 1))
         ///Set typing attributes
         var attributes = getTypingAttributesForStyles(state.activeStyles)
         if !attributes.contains(where: { $0.key == .font }) {
             attributes[.font] = fontStyle
         }
-        if textView.typingAttributes.contains(where: { $0.key != .font }) && attributes.contains(where: { $0.key == .font }) {
-            textView.typingAttributes = attributes
-        }
+        textView.typingAttributes = attributes
         
         //Update attributes in textStorage
         if let data = attributesToApply {
             applyAttributesToSelectedRange(textView, for: data.spans, shouldApply: data.shouldApply)
         }
-
+        
         textView.reloadInputViews()
     }
     
@@ -164,7 +161,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 font = font?.addFontStyle($0)
                 attributes[$0.attributedStringKey] = font
             } else {
-                attributes[$0.attributedStringKey] = $0.defaultAttributeValue
+                attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: fontStyle)
             }
         })
         return attributes

@@ -29,7 +29,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         let font = font ?? .systemFont(ofSize: 16)
         switch self {
         case .underline:
-            return NSUnderlineStyle.single.rawValue
+            return 1
         case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
             return getFontWithUpdating(font: font)
         }

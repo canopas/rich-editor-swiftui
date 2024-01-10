@@ -91,17 +91,14 @@ extension RichEditorState {
         switch event {
         case .didChangeSelection(let textView):
             highlightedRange = textView.selectedRange
-            guard rawText.length == textView.attributedText.string.count && highlightedRange.isCollapsed else { return }
+            guard rawText.count == textView.attributedText.string.count && highlightedRange.isCollapsed else { return }
             onSelectionChanged(textView.selectedRange, newText: NSMutableAttributedString(attributedString: textView.attributedText))
         case .didBeginEditing(let textView):
             highlightedRange = textView.selectedRange
-            return
         case .didChange:
             onTextFieldValueChange(newText: editableText, selection: highlightedRange)
-            return
         case .didEndEditing:
             highlightedRange = .init(location: 0, length: 0)
-            return
         }
     }
     
@@ -114,9 +111,9 @@ extension RichEditorState {
     private func onTextFieldValueChange(newText: NSMutableAttributedString, selection: NSRange) {
         self.highlightedRange = selection
         
-        if newText.length > rawText.count {
+        if newText.string.count > rawText.count {
             handleAddingCharacters(newText)
-        } else if newText.length < rawText.count {
+        } else if newText.string.count < rawText.count {
             handleRemovingCharacters(newText)
         }
         
@@ -184,7 +181,7 @@ extension RichEditorState {
         activeStyles = newStyles
         var attributes: [NSAttributedString.Key: Any] = [:]
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: curretFont)
         })
         
         activeAttributes = attributes
@@ -279,7 +276,7 @@ extension RichEditorState {
         var attributes: [NSAttributedString.Key: Any] = [:]
         
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: curretFont)
         })
         
         activeAttributes = attributes
@@ -362,7 +359,7 @@ extension RichEditorState {
      This will generete break the span according to requirement to avoid duplication of the span.
      */
     private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
-        let typedChars = newValue.length - rawText.count
+        let typedChars = newValue.string.count - rawText.count
         let startTypeIndex = highlightedRange.location - typedChars
         let startTypeChar = newValue.string[startTypeIndex]
         
@@ -464,12 +461,12 @@ extension RichEditorState {
         
         let removedCharsCount = rawText.count - newText.string.count
         let startRemoveIndex = highlightedRange.location
-        let endRemoveIndex = highlightedRange.location + removedCharsCount
-        let removeRange = startRemoveIndex..<endRemoveIndex
+        let endRemoveIndex = highlightedRange.location + removedCharsCount - 1
+        let removeRange = startRemoveIndex...endRemoveIndex
         let start = rawText.index(rawText.startIndex, offsetBy: startRemoveIndex)
         let end = rawText.index(rawText.startIndex, offsetBy: endRemoveIndex)
                 
-        if startRemoveIndex != (endRemoveIndex - 1), let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
+        if startRemoveIndex != endRemoveIndex, let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
             handleRemoveHeaderStyle(newText: newText.string, at: removeRange.nsRange, newLineIndex: newLineIndex)
         }
         
@@ -483,7 +480,7 @@ extension RichEditorState {
                     // Remove the element from the copy.
                     spans.removeAll(where: { $0 == part })
                 } else if removeRange.lowerBound <= part.from {
-                    spans[index] = RichTextSpan(from: max(0, removeRange.lowerBound), to: min(newText.length, part.to - removedCharsCount), style: part.style)
+                    spans[index] = RichTextSpan(from: max(0, removeRange.lowerBound), to: min(newText.string.count, part.to - removedCharsCount), style: part.style)
                 } else if removeRange.upperBound <= part.to {
                     spans[index] = RichTextSpan(from: part.from, to: part.to - removedCharsCount, style: part.style)
                 } else if removeRange.lowerBound < part.to {
