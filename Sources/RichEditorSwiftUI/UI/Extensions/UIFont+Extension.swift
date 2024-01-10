@@ -100,6 +100,17 @@ extension UIFont {
             return self
         }
     }
+    
+    func updateFontSize(multiple: CGFloat) -> UIFont {
+        if pointSize != multiple * pointSize {
+            let size = multiple * pointSize
+            let fontDesc = fontDescriptor
+            fontDesc.withFamily(familyName)
+            return UIFont(descriptor: fontDesc, size: size)
+        } else {
+            return self
+        }
+    }
 }
 
 public extension UIFont {

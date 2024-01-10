@@ -17,6 +17,12 @@ extension NSRange {
     }
 }
 
+extension ClosedRange<Int> {
+    var nsRange: NSRange {
+        return NSRange(location: lowerBound, length: upperBound - lowerBound)
+    }
+}
+
 extension Range<Int> {
     var nsRange: NSRange {
         return NSRange(location: lowerBound, length: upperBound - lowerBound)

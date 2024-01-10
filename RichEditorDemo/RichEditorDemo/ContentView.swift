@@ -18,7 +18,7 @@ struct ContentView: View {
             if let richText = readJSONFromFile(fileName: "Sample_json", type: RichText.self) {
                 self.state = .init(input: richText.text, spans: richText.spans)
             } else {
-                self.state = .init(input: "Hellow World!")
+                self.state = .init(input: "Hello World!")
             }
         }
     }
@@ -32,8 +32,7 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        let spans = state.richText.spans
-                        print("==== spans are \(spans.map({ ($0.from, $0.to, $0.style.rawValue) }))")
+                        print("Export JSON")
                     }, label: {
                         Image(systemName: "checkmark")
                             .padding()

@@ -35,7 +35,7 @@ extension RichTextSpan: Hashable {
 
 extension RichTextSpan {
     public var spanRange: NSRange {
-        let range = NSRange(location: from, length: (to - from))
+        let range = NSRange(location: from, length: (to - from) + 1)
         guard range.length > 0 else { return .init(location: range.location, length: 0)}
         return range
     }
