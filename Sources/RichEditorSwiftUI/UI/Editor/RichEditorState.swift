@@ -18,11 +18,13 @@ public class RichEditorState: ObservableObject {
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
     internal var curretFont: UIFont = .systemFont(ofSize: 16)
     
-    @Published internal var attributesToApply: (spans: [RichTextSpan], shouldApply: Bool)? = nil
+    @Published internal var attributesToApply: ((spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: () -> Void))? = nil
     
     private var spans: [RichTextSpan]
     private var highlightedRange: NSRange
     private var rawText: String
+    
+    private var updateAttributesQueue: [(span:RichTextSpan, shouldApply: Bool)] = []
     
     /**
      This will provide encoded text which is of type RichText
@@ -30,7 +32,7 @@ public class RichEditorState: ObservableObject {
     public var richText: RichText {
         return getRichText()
     }
-        
+    
     public init(input: String, spans: [RichTextSpan] = []) {
         let adapter = DefaultAdapter()
         self.input = input
@@ -44,7 +46,7 @@ public class RichEditorState: ObservableObject {
         activeStyles = []
         
         rawText = richText.text
-        setSpans()
+        setUpSpans()
     }
     
     /**
@@ -63,18 +65,26 @@ public class RichEditorState: ObservableObject {
     
     /**
      This will toggle the style
-        - Parameters:
-        - style: is of type TextSpanStyle
+     - Parameters:
+     - style: is of type TextSpanStyle
      */
     public func toggleStyle(style: TextSpanStyle) {
         toggleStyle(style)
     }
     
+    /**
+     This will update the style
+     - Parameters:
+     - style: is of type TextSpanStyle
+     */
     public func updateStyle(style: TextSpanStyle) {
         setStyle(style)
     }
     
-    private func setSpans() {
+    /**
+     This will setup edittor according to pasns provided in init
+     */
+    private func setUpSpans() {
         applyStylesToSelectedText(spans)
     }
 }
@@ -83,8 +93,8 @@ public class RichEditorState: ObservableObject {
 extension RichEditorState {
     /**
      Handle UITextView's delegate methods calles
-        - Parameters:
-        - event: is of type TextVIewEvents
+     - Parameters:
+     - event: is of type TextVIewEvents
      This will switch on event and call respective method
      */
     internal func onTextViewEvent(_ event: TextViewEvents) {
@@ -133,16 +143,6 @@ extension RichEditorState {
     }
     
     /**
-     Update the activeStyles
-     - Parameters:
-     - tool: is of type TextSpanStyle
-     This will update the active style accordig to tool selected and toggle the style if needed
-     */
-    internal func onToolSelection(_ tool: TextSpanStyle) {
-        toggleStyle(tool)
-    }
-    
-    /**
      Set the activeStyles
      - Parameters:
      - style: is of type TextSpanStyle
@@ -154,14 +154,15 @@ extension RichEditorState {
         
         if style.isHeaderStyle || style.isDefault {
             handleAddHeaderStyle(style)
-            return
-        }
-        
-        if !highlightedRange.isCollapsed {
+        } else if !highlightedRange.isCollapsed {
             let span = RichTextSpan(from: highlightedRange.lowerBound, to: highlightedRange.upperBound - 1, style: style)
             applyStylesToSelectedText([span])
-            createSpanForSelectedText(style)
+            if !style.isDefault {
+                createSpanForSelectedText(style)
+            }
         }
+        
+        updateCurrentSpanStyle()
     }
     
     /**
@@ -213,31 +214,48 @@ extension RichEditorState {
         guard !activeStyles.contains(style) else { return }
         activeStyles.insert(style)
         
-        if !highlightedRange.isCollapsed {
-            applyStylesToSelectedText([RichTextSpan(from: highlightedRange.lowerBound, to: highlightedRange.upperBound, style: style)])
+        if (style.isHeaderStyle || style.isDefault) {
+            handleAddHeaderStyle(style)
+        } else if !highlightedRange.isCollapsed {
+            let fromIndex = highlightedRange.location
+            let toIdex = highlightedRange.upperBound - 1
+            applyStylesToSelectedText([RichTextSpan(from: fromIndex, to: toIdex, style: style)])
             createSpanForSelectedText(style)
         }
         
-        var attributes: [NSAttributedString.Key: Any] = [:]
-        activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font:curretFont)
-        })
-        
-        activeAttributes = attributes
-        
-        if (style.isHeaderStyle || style.isDefault) && !highlightedRange.isCollapsed {
-            handleAddHeaderStyle(style)
-        }
+        updateCurrentSpanStyle()
     }
     
     /**
-        This will add style to the range of text
+     This will add style to the range of text
      - Parameters:
      - style: which is of type TextSpanStyle
      - range: is the range of the text on which you want to apply the style
      */
     private func applyStylesToSelectedText(_ spans: [RichTextSpan]) {
-        attributesToApply = (spans: spans, shouldApply: true)
+        updateAttributes(spans: spans.map({ ($0, true) }))
+    }
+    
+    
+    /**
+     This will update editor text according to span provided in  argument
+     - Parameters:
+     - spans: Which is of type Tuple of  RichTextSpan and Bool
+     
+     Where Bool is indicate wheter this style is need to add or remove.
+     */
+    private func updateAttributes(spans: [(RichTextSpan, shouldApply: Bool)]) {
+        if attributesToApply == nil {
+            attributesToApply = (spans: spans, onCompletion: { [weak self] in
+                self?.attributesToApply = nil
+                if let updateQueue = self?.updateAttributesQueue, !updateQueue.isEmpty {
+                    self?.updateAttributes(spans: updateQueue)
+                    self?.updateAttributesQueue.removeAll(where: { item in updateQueue.contains(where: { $0.span == item.span && $0.shouldApply == item.shouldApply })})
+                }
+            })
+        } else {
+            updateAttributesQueue.append(contentsOf: spans)
+        }
     }
     
     //MARK: - Remove Style
@@ -288,7 +306,7 @@ extension RichEditorState {
      - style:  which is of type of TextSpanStyle
      */
     private func removeAttributes(_ spans: [RichTextSpan]) {
-        attributesToApply = (spans: spans, shouldApply: false)
+        updateAttributes(spans: spans.map({ ($0, false) }))
     }
 }
 
@@ -426,7 +444,6 @@ extension RichEditorState {
         }
     }
     
-    
     /**
      This will handle the newlly added character in editor
      - Parameters:
@@ -465,7 +482,7 @@ extension RichEditorState {
         let removeRange = startRemoveIndex...endRemoveIndex
         let start = rawText.index(rawText.startIndex, offsetBy: startRemoveIndex)
         let end = rawText.index(rawText.startIndex, offsetBy: endRemoveIndex)
-                
+        
         if startRemoveIndex != endRemoveIndex, let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
             handleRemoveHeaderStyle(newText: newText.string, at: removeRange.nsRange, newLineIndex: newLineIndex)
         }
@@ -495,9 +512,9 @@ extension RichEditorState {
 extension RichEditorState {
     
     /**
-        This will handle the adding header style in editor and to relative span
-        - Parameters:
-        - style: is of type TextSpanStyle
+     This will handle the adding header style in editor and to relative span
+     - Parameters:
+     - style: is of type TextSpanStyle
      */
     private func handleAddHeaderStyle(_ style: TextSpanStyle) {
         guard !rawText.isEmpty else {
@@ -507,19 +524,32 @@ extension RichEditorState {
         let fromIndex = highlightedRange.lowerBound
         let toIndex = highlightedRange.isCollapsed ? fromIndex : highlightedRange.upperBound
         
-        let startIndex = 0 //rawText.prefix(fromIndex).index(before: <#T##Substring.Index#>) max(0, rawText.lastIndex(of: "\n", before: fromIndex) ?? rawText.startIndex)
-        let endIndex = 0 //rawText.firstIndex(of: "\n", after: toIndex) ?? rawText.index(before: rawText.endIndex)
+        let startIndex = max(0, rawText.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n") ?? 0)
+        let newLineAfterToIndex = rawText.suffix(from: rawText.index(rawText.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n")
+        var endIndex =  (toIndex - 1 ) + (newLineAfterToIndex ?? 0)
         
-        if endIndex == (rawText.count - 1) {
-            //            endIndex = rawText.index(before: endIndex)
+        if newLineAfterToIndex == nil {
+            endIndex = (rawText.count - 1)
         }
         
-        let selectedParts = spans.filter { (($0.from...$0.to).overlaps(fromIndex...toIndex))
+        let range = startIndex...endIndex
+        let selectedParts = spans.filter { ($0.closedRange.overlaps(range))
             && $0.style.isHeaderStyle }
         
         spans.removeAll(where: { selectedParts.contains($0) })
+        let span = RichTextSpan(from: startIndex, to: endIndex, style: style)
+        if !style.isDefault{
+            spans.append(span)
+        }
         
-        spans.append(RichTextSpan(from: startIndex, to: endIndex, style: style))
+        applyStylesToSelectedText([span])
+        
+        /// Fonts are update for header which removes older style which is applyed to it so need to apply again.
+        let spansToReapply = spans.filter({ $0.closedRange.overlaps(range) && !$0.style.isHeaderStyle })
+        
+        if !spansToReapply.isEmpty {
+            applyStylesToSelectedText(spansToReapply)
+        }
     }
     
     /**
@@ -530,10 +560,7 @@ extension RichEditorState {
      - newLineIndex: is string index of new line where is it located
      */
     private func handleRemoveHeaderStyle(newText: String? = nil, at range: NSRange, newLineIndex: Int) {
-//        guard spans.contains(where: { style in HeaderOptions.allCases.map({ $0.getTextSpanStyle() }).contains(where: { $0 == style.style }) }) else { return }
         let text = newText ?? rawText
-//        let fromIndex = range.lowerBound
-//        let toIndex = range.upperBound
         let startIndex = max(0, text.map({ $0 }).index(before: newLineIndex))
         
         let endIndex = text.map({ $0 }).index(after: newLineIndex)
@@ -582,10 +609,10 @@ extension RichEditorState {
     
     /**
      This will remove span for selected text
-        - Parameters:
-        - selectedParts: is of type [RichTextSpan]
-        - fromIndex: is of type Int and it's lower bound of selection range
-        - toIndex: is of type Int and it's upper bound of selection range
+     - Parameters:
+     - selectedParts: is of type [RichTextSpan]
+     - fromIndex: is of type Int and it's lower bound of selection range
+     - toIndex: is of type Int and it's upper bound of selection range
      */
     private func removeSpanForSelectedText(_ selectedParts: [RichTextSpan], fromIndex: Int, toIndex: Int) {
         selectedParts.forEach { part in

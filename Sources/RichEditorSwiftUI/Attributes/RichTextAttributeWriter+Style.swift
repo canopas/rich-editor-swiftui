@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 public extension NSMutableAttributedString {
     
@@ -34,19 +35,31 @@ public extension NSMutableAttributedString {
         let shouldAdd = newValue && !styles.hasStyle(style)
         let shouldRemove = !newValue && styles.hasStyle(style)
         guard shouldAdd || shouldRemove || style.isHeaderStyle else { return }
-            let newFont: FontRepresentable? = FontRepresentable(
-                descriptor: font.fontDescriptor.byTogglingStyle(style),
-                size: byTogglingFontSizeFor(style: style, fontSize: font.pointSize, shouldAdd: newValue))
-            guard let newFont = newFont else { return }
-            setRichTextFont(newFont, at: range)
+        var descriptor = font.fontDescriptor
+        if !style.isDefault && !style.isHeaderStyle {
+            descriptor = descriptor.byTogglingStyle(style)
+        }
+        let newFont: FontRepresentable? = FontRepresentable(
+            descriptor: descriptor,
+            size: byTogglingFontSizeFor(style: style, font: font, shouldAdd: newValue))
+        guard let newFont = newFont else { return }
+        setRichTextFont(newFont, at: range)
     }
     
-    private func byTogglingFontSizeFor(style: TextSpanStyle, fontSize: CGFloat, shouldAdd: Bool) -> CGFloat {
-        guard style.isHeaderStyle else { return fontSize }
+    /**
+     This will reset font size befor multiplying new size
+     */
+    private func byTogglingFontSizeFor(style: TextSpanStyle, font: UIFont, shouldAdd: Bool) -> CGFloat {
+        guard style.isHeaderStyle || style.isDefault else { return  font.pointSize }
+        
+        let cleanFont = style.getFontAfterRemovingStyle(font: font)
+//        if style.isDefault {
+//            return cleanFont.pointSize
+//        }
         if shouldAdd {
-            return fontSize * style.fontSizeMultiplier
+            return cleanFont.pointSize * style.fontSizeMultiplier
         } else {
-            return fontSize / style.fontSizeMultiplier
+            return font.pointSize / style.fontSizeMultiplier
         }
     }
 }

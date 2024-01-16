@@ -13,7 +13,7 @@ extension NSRange {
     }
     
     var closedRange: ClosedRange<Int> {
-        return lowerBound...upperBound
+        return lowerBound...(upperBound - (length > 0 ? 1 : 0))
     }
 }
 
