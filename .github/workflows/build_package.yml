@@ -1,10 +1,13 @@
 name: build_package
+
 run-name: build
+
 on: [push]
+
 jobs:
-  test:
+  build:
     name: Swiftlint checks
-    runs-on: macOS-latest
+    runs-on: [macOS-latest]
     steps:
-        run: 
-          - xcodebuild -xcodeproj RichEditorSwiftUI.xcodeproj -scheme "RichEditorSwiftui" clean archive -sdk iphoneos
+        - run:
+            -xcodebuild -xcodeproj RichEditorSwiftUI.xcodeproj -scheme "RichEditorSwiftui" clean archive -sdk iphoneos
