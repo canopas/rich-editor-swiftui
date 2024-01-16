@@ -157,7 +157,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         
         Set(styles).forEach({
             if $0.attributedStringKey == .font {
-                font = $0.getFontWithUpdating(font: font ?? .systemFont(ofSize: 16))
+                font = $0.getFontWithUpdating(font: font ?? .systemFont(ofSize: .standardRichTextFontSize))
                 attributes[$0.attributedStringKey] = font
             } else {
                 attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: fontStyle)

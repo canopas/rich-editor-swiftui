@@ -26,7 +26,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
     }
     
     func defaultAttributeValue(font: UIFont? = nil) -> Any {
-        let font = font ?? .systemFont(ofSize: 16)
+        let font = font ?? .systemFont(ofSize: .standardRichTextFontSize)
         switch self {
         case .underline:
             return 1
@@ -137,7 +137,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         case .underline:
             return font
         case .default, .h1, .h2, .h3, .h4, .h5, .h6:
-            return font.updateFontSize(size: 16)
+            return font.updateFontSize(size: .standardRichTextFontSize)
         }
     }
 }
