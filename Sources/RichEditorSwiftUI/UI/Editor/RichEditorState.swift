@@ -222,8 +222,6 @@ extension RichEditorState {
             applyStylesToSelectedText([RichTextSpan(from: fromIndex, to: toIdex, style: style)])
             createSpanForSelectedText(style)
         }
-        
-        updateCurrentSpanStyle()
     }
     
     /**
