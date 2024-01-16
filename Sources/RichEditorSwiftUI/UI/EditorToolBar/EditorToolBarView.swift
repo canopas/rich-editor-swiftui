@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct EditorToolBarView: View {
-    
-    let appliedTools: Set<TextSpanStyle>
-    let onToolSelect: (TextSpanStyle) -> Void
+    @ObservedObject var state: RichEditorState
     
     var body: some View {
         LazyHStack(spacing: 5, content: {
             ForEach(EditorTool.allCases, id: \.self) { tool in
-                EditorToolBarCell(tool: tool, appliedTools: appliedTools, onToolSelect: onToolSelect)
+                if tool.isContainManu {
+                    TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
+                } else {
+                    ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
+                }
             }
         })
         .frame(height: 50)
@@ -24,7 +26,7 @@ struct EditorToolBarView: View {
     }
 }
 
-private struct EditorToolBarCell: View {
+private struct ToggleStyleButton: View {
     
     let tool: EditorTool
     let appliedTools: Set<TextSpanStyle>
@@ -34,62 +36,70 @@ private struct EditorToolBarCell: View {
         tool.isSelected(appliedTools)
     }
     
-    @State var isExpanded: Bool = false
     
     var body: some View {
-        if !tool.isContainManu {
         Button(action: {
-            isExpanded.toggle()
-            if !tool.isContainManu {
-                onToolSelect(tool.getTextSpanStyle())
-            }
+            onToolSelect(tool.getTextSpanStyle())
         }, label: {
                 HStack(alignment: .center, spacing: 4, content: {
                     Image(systemName: tool.systemImageName)
                         .font(.title)
-                    if tool.isContainManu {
-                        Image(systemName: "chevron.down")
-                            .font(.subheadline)
-                            .rotationEffect(.degrees(isExpanded ? 0 : 180))
-                            .animation(.spring(), value: isExpanded)
-                    }
                 })
                 .foregroundColor(isSelected ? .blue : .black)
-                .frame(width: tool.isContainManu ? 60 : 45, height: 50, alignment: .center)
+                .frame(width: 45, height: 50, alignment: .center)
                 .padding(.horizontal, 3)
                 .background(isSelected ? .gray.opacity(0.1) : .clear)
         })
-        } else {
-            Menu(content: {
-                ForEach(HeaderOptions.allCases, id: \.self) { header in
-                    Button(action: {
-                        isExpanded = false
-                        onToolSelect(EditorTool.header(header).getTextSpanStyle())
-                    }, label: {
+    }
+}
+
+struct TitleStyleButton: View {
+    let tool: EditorTool
+    let appliedTools: Set<TextSpanStyle>
+    let setStyle: (TextSpanStyle) -> Void
+    
+    private var isSelected: Bool {
+        tool.isSelected(appliedTools)
+    }
+    
+    @State var isExpanded: Bool = false
+    
+    var body: some View {
+        
+        Menu(content: {
+            ForEach(HeaderOptions.allCases, id: \.self) { header in
+                Button(action: {
+                    isExpanded = false
+                    setStyle(EditorTool.header(header).getTextSpanStyle())
+                }, label: {
+                    if hasStayle(header.getTextSpanStyle()) {
+                        Label(header.title, systemImage:"checkmark")
+                            .foregroundColor(.blue)
+                    } else {
                         Text(header.title)
-                            .font(header.fontStyle)
-                            .foregroundColor(appliedTools.contains(where: { $0.key == header.getTextSpanStyle().key }) ? .blue : .black)
-                    })
-                }
-            }, label: {
-                HStack(alignment: .center, spacing: 4, content: {
-                    Image(systemName: tool.systemImageName)
-                        .font(.title)
-                    if tool.isContainManu {
-                        Image(systemName: "chevron.down")
-                            .font(.subheadline)
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                            .animation(.spring(), value: isExpanded)
                     }
                 })
-                .foregroundColor(isSelected ? .blue : .black)
-                .frame(width: tool.isContainManu ? 60 : 45, height: 50, alignment: .center)
-                .padding(.horizontal, 3)
-                .background(isSelected ? .gray.opacity(0.1) : .clear)
-            })
-            .onTapGesture {
-                isExpanded.toggle()
             }
+        }, label: {
+            HStack(alignment: .center, spacing: 4, content: {
+                Image(systemName: tool.systemImageName)
+                    .font(.title)
+                
+                Image(systemName: "chevron.down")
+                    .font(.subheadline)
+            })
+            .foregroundColor(isSelected ? .blue : .black)
+            .frame(width: 60, height: 50, alignment: .center)
+            .padding(.horizontal, 3)
+            .background(isSelected ? .gray.opacity(0.1) : .clear)
+        })
+        .onTapGesture {
+            isExpanded.toggle()
         }
+        
+    }
+    
+    func hasStayle(_ style: TextSpanStyle) -> Bool {
+        return appliedTools.contains(where: { $0.key == style.key })
     }
 }

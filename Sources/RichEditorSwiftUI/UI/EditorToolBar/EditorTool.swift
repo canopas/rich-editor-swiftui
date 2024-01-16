@@ -36,6 +36,7 @@ enum EditorTool: CaseIterable, Hashable {
         switch self {
         case .header(let headerOptions):
             switch headerOptions {
+            case .default: return .default
             case .h1: return .h1
             case .h2: return .h2
             case .h3: return .h3
@@ -43,7 +44,7 @@ enum EditorTool: CaseIterable, Hashable {
             case .h5: return .h5
             case .h6: return .h6
             case .none:
-                return .h6
+                return .default
             }
         case .bold:
             return .bold
@@ -82,38 +83,30 @@ enum EditorTool: CaseIterable, Hashable {
 }
 
 enum HeaderOptions: CaseIterable {
-    case h1, h2, h3, h4, h5, h6
+    case `default`, h1, h2, h3, h4, h5, h6
     
     var title: String {
         switch self {
+        case .default:
+            return "Normal Text"
         case .h1:
-            return "h1"
+            return "Header 1"
         case .h2:
-            return "h2"
+            return "Header 2"
         case .h3:
-            return "h3"
+            return "Header 3"
         case .h4:
-            return "h4"
+            return "Header 4"
         case .h5:
-            return "h5"
+            return "Header 5"
         case .h6:
-            return "h6"
-        }
-    }
-    
-    var fontStyle: Font {
-        switch self {
-        case .h1: return Font.headline
-        case .h2: return Font.title
-        case .h3: return Font.title2
-        case .h4: return Font.title3
-        case .h5: return Font.body
-        case .h6: return Font.callout
+            return "Header 6"
         }
     }
     
     func getTextSpanStyle() -> TextSpanStyle {
         switch self {
+        case .default: return .default
         case .h1: return .h1
         case .h2: return .h2
         case .h3: return .h3

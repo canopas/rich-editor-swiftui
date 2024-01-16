@@ -28,7 +28,7 @@ struct ContentView: View {
             VStack {
                 RichEditor(state: _state)
             }
-            .padding()
+            .padding(10)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {

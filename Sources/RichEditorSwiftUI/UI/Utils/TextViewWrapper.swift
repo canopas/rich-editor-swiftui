@@ -11,7 +11,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
     @ObservedObject var state: RichEditorState
     
     @Binding private var typingAttributes: [NSAttributedString.Key: Any]?
-    @Binding private var attributesToApply: (spans: [RichTextSpan], shouldApply: Bool)?
+    @Binding private var attributesToApply: ((spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: () -> Void))?
     
     private let isEditable: Bool
     private let isUserInteractionEnabled: Bool
@@ -25,7 +25,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
     
     public init(state: ObservedObject<RichEditorState>,
                 typingAttributes: Binding<[NSAttributedString.Key: Any]?>? = nil,
-                attributesToApply: Binding<(spans: [RichTextSpan], shouldApply: Bool)?>? = nil,
+                attributesToApply: Binding<(spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: () -> Void)?>? = nil,
                 isEditable: Bool = true,
                 isUserInteractionEnabled: Bool = true,
                 isScrollEnabled: Bool = false,
@@ -112,7 +112,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         
         //Update attributes in textStorage
         if let data = attributesToApply {
-            applyAttributesToSelectedRange(textView, for: data.spans, shouldApply: data.shouldApply)
+            applyAttributesToSelectedRange(textView, spans: data.spans, onCompletion: data.onCompletion)
         }
         
         textView.reloadInputViews()
@@ -154,9 +154,10 @@ internal struct TextViewWrapper: UIViewRepresentable {
     internal func getTypingAttributesForStyles(_ styles : Set<RichTextStyle>) -> RichTextAttributes {
         var font = fontStyle
         var attributes: RichTextAttributes = [:]
-        styles.forEach({
+        
+        Set(styles).forEach({
             if $0.attributedStringKey == .font {
-                font = font?.addFontStyle($0)
+                font = $0.getFontWithUpdating(font: font ?? .systemFont(ofSize: .standardRichTextFontSize))
                 attributes[$0.attributedStringKey] = font
             } else {
                 attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: fontStyle)
@@ -165,12 +166,13 @@ internal struct TextViewWrapper: UIViewRepresentable {
         return attributes
     }
     
-    internal func applyAttributesToSelectedRange(_ textView: TextViewOverRidden, for spans: [RichTextSpan], shouldApply: Bool = true) {
-        spans.forEach {
-            textView.textStorage.setRichTextStyle($0.style, to: shouldApply, at: $0.spanRange)
+    internal func applyAttributesToSelectedRange(_ textView: TextViewOverRidden, spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: (() -> Void)? = nil) {
+        var spansToUpdate = spans.filter({ $0.span.style.isHeaderStyle })
+        spansToUpdate.append(contentsOf: spans.filter({ !$0.span.style.isHeaderStyle }))
+        spansToUpdate.forEach {
+            textView.textStorage.setRichTextStyle($0.span.style, to: $0.shouldApply, at: $0.span.spanRange)
         }
-        
-        attributesToApply = nil
+        onCompletion?()
     }
 }
 

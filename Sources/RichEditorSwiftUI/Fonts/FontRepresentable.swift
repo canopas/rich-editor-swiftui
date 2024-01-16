@@ -24,3 +24,14 @@ import AppKit
  */
 public typealias FontRepresentable = NSFont
 #endif
+
+public extension FontRepresentable {
+    
+    /**
+     The standard font to use for rich text.
+     
+     You can change this value to affect all types that make
+     use of the value.
+     */
+    static var standardRichTextFont = systemFont(ofSize: .standardRichTextFontSize)
+}
