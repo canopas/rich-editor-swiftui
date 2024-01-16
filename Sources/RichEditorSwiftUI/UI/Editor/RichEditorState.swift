@@ -236,7 +236,6 @@ extension RichEditorState {
         updateAttributes(spans: spans.map({ ($0, true) }))
     }
     
-    
     /**
      This will update editor text according to span provided in  argument
      - Parameters:
@@ -372,16 +371,16 @@ extension RichEditorState {
     /**
      This will handle the newlly added character in editor
      - Parameters:
-     - newValue: is of type NsMutableAttributedString
+     - newValue: is of type NSMutableAttributedString
      
      This will generete break the span according to requirement to avoid duplication of the span.
      */
     private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
-        let typedChars = newValue.string.count - rawText.count
+        let typedChars = newValue.string.utf16.count - rawText.utf16.count
         let startTypeIndex = highlightedRange.location - typedChars
-        let startTypeChar = newValue.string[startTypeIndex]
+        let startTypeChar = newValue.string.utf16.map({ $0 })[startTypeIndex]
         
-        if startTypeChar == "\n",
+        if startTypeChar == "\n".utf16.first && startTypeChar == "\n".utf16.last,
            activeStyles.contains(where: { $0.isHeaderStyle }) {
             activeStyles.removeAll()
         }
@@ -480,8 +479,8 @@ extension RichEditorState {
         let startRemoveIndex = highlightedRange.location
         let endRemoveIndex = highlightedRange.location + removedCharsCount - 1
         let removeRange = startRemoveIndex...endRemoveIndex
-        let start = rawText.index(rawText.startIndex, offsetBy: startRemoveIndex)
-        let end = rawText.index(rawText.startIndex, offsetBy: endRemoveIndex)
+        let start = rawText.utf16.index(rawText.startIndex, offsetBy: startRemoveIndex)
+        let end = rawText.utf16.index(rawText.startIndex, offsetBy: endRemoveIndex)
         
         if startRemoveIndex != endRemoveIndex, let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
             handleRemoveHeaderStyle(newText: newText.string, at: removeRange.nsRange, newLineIndex: newLineIndex)
@@ -523,9 +522,8 @@ extension RichEditorState {
         
         let fromIndex = highlightedRange.lowerBound
         let toIndex = highlightedRange.isCollapsed ? fromIndex : highlightedRange.upperBound
-        
-        let startIndex = max(0, rawText.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n") ?? 0)
-        let newLineAfterToIndex = rawText.suffix(from: rawText.index(rawText.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n")
+        let startIndex = max(0, rawText.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0)
+        let newLineAfterToIndex = rawText.utf16.suffix(from: rawText.utf16.index(rawText.utf16.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n".utf16.last)
         var endIndex =  (toIndex - 1 ) + (newLineAfterToIndex ?? 0)
         
         if newLineAfterToIndex == nil {
