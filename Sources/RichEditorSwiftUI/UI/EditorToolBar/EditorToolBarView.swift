@@ -22,7 +22,7 @@ struct EditorToolBarView: View {
         })
         .frame(height: 50)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.gray.opacity(0.1))
+        .background(Color.gray.opacity(0.1))
     }
 }
 
@@ -48,7 +48,7 @@ private struct ToggleStyleButton: View {
                 .foregroundColor(isSelected ? .blue : .black)
                 .frame(width: 45, height: 50, alignment: .center)
                 .padding(.horizontal, 3)
-                .background(isSelected ? .gray.opacity(0.1) : .clear)
+                .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
         })
     }
 }
@@ -91,7 +91,7 @@ struct TitleStyleButton: View {
             .foregroundColor(isSelected ? .blue : .black)
             .frame(width: 60, height: 50, alignment: .center)
             .padding(.horizontal, 3)
-            .background(isSelected ? .gray.opacity(0.1) : .clear)
+            .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
         })
         .onTapGesture {
             isExpanded.toggle()
