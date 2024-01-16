@@ -2,7 +2,10 @@
 
 iOS WYSIWYG Rich editor for SwiftUI.
 
-<img src="./docs/sample.gif" height="640" />
+<p align="center">
+    <img src="./docs/sample.gif" height="640" />
+</p>
+
 
 ## Features
 
