@@ -10,4 +10,4 @@ jobs:
     runs-on: [macOS-latest]
     steps:
         - run:
-            -xcodebuild -xcodeproj RichEditorSwiftUI.xcodeproj -scheme "RichEditorSwiftui" clean archive -sdk iphoneos
+            -xcodebuild -xcodeproj RichEditorSwiftUI.xcodeproj -scheme "RichEditorSwiftUI" clean archive -sdk iphoneos
