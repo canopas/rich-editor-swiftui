@@ -2,8 +2,7 @@
 
 iOS WYSIWYG Rich editor for SwiftUI.
 
-![Sample](https://github.com/canopas/rich-editor-swiftui/assets/83937721/7c5a25ef-9d5f-48c5-b239-7e1d91be4153)
-
+<img src="./docs/sample.gif" height="640" />
 
 ## Features
 
