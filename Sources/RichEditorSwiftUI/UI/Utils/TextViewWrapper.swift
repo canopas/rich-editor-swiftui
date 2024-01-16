@@ -66,8 +66,6 @@ internal struct TextViewWrapper: UIViewRepresentable {
             textView.typingAttributes = [.font: fontStyle]
         }
         if let fontStyle {
-            var fontAttr = AttributeContainer()
-            fontAttr.font = fontStyle
             let string = NSMutableAttributedString(string: state.editableText.string, attributes: [.font: fontStyle])
             textView.attributedText = string
         } else {
