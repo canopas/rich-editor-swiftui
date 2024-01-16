@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
 
   s.homepage         = "https://github.com/canopas/RichEditorSwiftUI"
   s.license          = { :type => "MIT", :file => "LICENSE.md" }
-  s.author           = { "Divyesh" => "divyesh.v@canopas.com" }
+  s.author           = { "Jimmy" => "jimmy@canopas.com" }
   s.source           = { :git => "https://github.com/canopas/rich-editor-swiftui.git", :tag => s.version.to_s }
   s.source_files     = "Sources/RichEditorSwiftUI/*.swift"
   s.social_media_url = 'https://twitter.com/canopassoftware'
