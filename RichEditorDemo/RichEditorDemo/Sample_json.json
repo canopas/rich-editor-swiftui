@@ -1,0 +1,110 @@
+{
+    "spans": [
+        {
+            "from": 0,
+            "to": 10,
+            "style": "h1"
+        },
+        {
+            "from": 0,
+            "to": 10,
+            "style": "bold"
+        },
+        {
+            "from": 27,
+            "to": 35,
+            "style": "bold"
+        },
+        {
+            "from": 52,
+            "to": 61,
+            "style": "bold"
+        },
+        {
+            "from": 52,
+            "to": 59,
+            "style": "italic"
+        },
+        {
+            "from": 52,
+            "to": 61,
+            "style": "underline"
+        },
+        {
+            "from": 61,
+            "to": 69,
+            "style": "h3"
+        },
+        {
+            "from": 62,
+            "to": 69,
+            "style": "bold"
+        },
+        {
+            "from": 103,
+            "to": 118,
+            "style": "bold"
+        },
+        {
+            "from": 119,
+            "to": 126,
+            "style": "italic"
+        },
+        {
+            "from": 130,
+            "to": 138,
+            "style": "underline"
+        },
+        {
+            "from": 160,
+            "to": 167,
+            "style": "h3"
+        },
+        {
+            "from": 161,
+            "to": 167,
+            "style": "bold"
+        },
+        {
+            "from": 169,
+            "to": 180,
+            "style": "bold"
+        },
+        {
+            "from": 224,
+            "to": 235,
+            "style": "bold"
+        },
+        {
+            "from": 224,
+            "to": 235,
+            "style": "italic"
+        },
+        {
+            "from": 224,
+            "to": 235,
+            "style": "underline"
+        },
+        {
+            "from": 237,
+            "to": 250,
+            "style": "h4"
+        },
+        {
+            "from": 238,
+            "to": 250,
+            "style": "bold"
+        },
+        {
+            "from": 238,
+            "to": 250,
+            "style": "italic"
+        },
+        {
+            "from": 238,
+            "to": 250,
+            "style": "underline"
+        }
+    ],
+    "text": "Rich Editor\nApple iOS/macOS WYSIWYG Rich editor for SwiftUI.\n\nFeatures\nThe editor offers the following options\n\n- Bold\n- Italic\n- Underline\n- Different headers\n\nCredits\nRich Editor for swiftUI is owned and maintained by the canopas team\n\nThanks You ☺️\n"
+}
