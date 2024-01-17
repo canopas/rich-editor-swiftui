@@ -5,9 +5,7 @@
 //  Created by Divyesh Vekariya on 11/12/23.
 //
 
-
 import Foundation
-import UIKit
 
 public class RichEditorState: ObservableObject {
     private let input: String
