@@ -17,7 +17,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
     private let isUserInteractionEnabled: Bool
     private let isScrollEnabled: Bool
     private let linelimit: Int?
-    private let fontStyle: UIFont?
+    private let fontStyle: FontRepresentable?
     private let fontColor: Color
     private let backGroundColor: UIColor
     private let tag: Int?
@@ -30,7 +30,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 isUserInteractionEnabled: Bool = true,
                 isScrollEnabled: Bool = false,
                 linelimit: Int? = nil,
-                fontStyle: UIFont? = nil,
+                fontStyle: FontRepresentable? = nil,
                 fontColor: Color = .black,
                 backGroundColor: UIColor = .clear,
                 tag: Int? = nil,

@@ -44,7 +44,7 @@ internal struct NSFontTraitMask: OptionSet {
 extension NSMutableAttributedString {
     internal func applyFontTraits(_ traitMask: NSFontTraitMask, range: NSRange) {
         enumerateAttribute(.font, in: range, options: [.longestEffectiveRangeNotRequired]) { (attr, attrRange, stop) in
-            guard let font = attr as? UIFont else { return }
+            guard let font = attr as? FontRepresentable else { return }
             let descriptor = font.fontDescriptor
             var symbolicTraits = descriptor.symbolicTraits
             if traitMask.contains(.boldFontMask) {
@@ -60,7 +60,7 @@ extension NSMutableAttributedString {
                 symbolicTraits.remove(.traitItalic)
             }
             guard let newDescriptor = descriptor.withSymbolicTraits(symbolicTraits) else { return }
-            let newFont = UIFont(descriptor: newDescriptor, size: font.pointSize)
+            let newFont = FontRepresentable(descriptor: newDescriptor, size: font.pointSize)
             self.addAttribute(.font, value: newFont, range: attrRange)
         }
     }
