@@ -145,17 +145,18 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
 extension TextSpanStyle {
     
     /// The symbolic font traits for the style, if any.
-    var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
+    var symbolicTraits: FontTraitsRepresentable? {
         switch self {
-        case .bold: 
+        case .bold:
             return .traitBold
         case .italic:
             return .traitItalic
-        default: 
+        default:
             return nil
         }
     }
 }
+
 
 public extension Collection where Element == RichTextStyle {
     
