@@ -1,11 +1,10 @@
 # RichEditorSwiftUI
 
-iOS WYSIWYG Rich editor for SwiftUI.
+iOS RichEditorSwiftUI for SwiftUI.
 
 <p align="center">
     <img src="./docs/sample.gif" height="640" />
 </p>
-
 
 ## Features
 
@@ -21,7 +20,7 @@ The editor offers the following <b>options</b>:
 Add the dependency
 
 ```
- import XYZRichEditor
+ import RichEditorSwiftUI
 ```
 
 ## How to use ?
