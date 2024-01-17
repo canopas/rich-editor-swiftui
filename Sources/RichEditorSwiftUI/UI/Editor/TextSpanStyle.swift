@@ -25,7 +25,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         return self.rawValue
     }
     
-    func defaultAttributeValue(font: UIFont? = nil) -> Any {
+    func defaultAttributeValue(font: FontRepresentable? = nil) -> Any {
         let font = font ?? .systemFont(ofSize: .standardRichTextFontSize)
         switch self {
         case .underline:
@@ -90,7 +90,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         }
     }
     
-    func getFontWithUpdating(font: UIFont) -> UIFont {
+    func getFontWithUpdating(font: FontRepresentable) -> FontRepresentable {
         switch self {
         case .default:
             return font
@@ -130,7 +130,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         }
     }
     
-    func getFontAfterRemovingStyle(font: UIFont) -> UIFont {
+    func getFontAfterRemovingStyle(font: FontRepresentable) -> FontRepresentable {
         switch self {
         case .bold, .italic:
             return font.removeFontStyle(self)

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 public extension NSMutableAttributedString {
     
@@ -49,13 +48,10 @@ public extension NSMutableAttributedString {
     /**
      This will reset font size befor multiplying new size
      */
-    private func byTogglingFontSizeFor(style: TextSpanStyle, font: UIFont, shouldAdd: Bool) -> CGFloat {
+    private func byTogglingFontSizeFor(style: TextSpanStyle, font: FontRepresentable, shouldAdd: Bool) -> CGFloat {
         guard style.isHeaderStyle || style.isDefault else { return  font.pointSize }
         
         let cleanFont = style.getFontAfterRemovingStyle(font: font)
-//        if style.isDefault {
-//            return cleanFont.pointSize
-//        }
         if shouldAdd {
             return cleanFont.pointSize * style.fontSizeMultiplier
         } else {
