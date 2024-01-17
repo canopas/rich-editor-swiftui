@@ -157,7 +157,6 @@ extension TextSpanStyle {
     }
 }
 
-
 public extension Collection where Element == RichTextStyle {
     
     /**
