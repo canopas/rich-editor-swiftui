@@ -1,6 +1,12 @@
 # RichEditorSwiftUI
 
-iOS RichEditorSwiftUI for SwiftUI.
+![RichEditorSwiftUI (1)](https://github.com/canopas/rich-editor-swiftui/assets/73588408/8c3013ae-8a27-4ebc-a511-51e726825c4b)
+
+
+**Rich text edit for SwiftUI apps.**
+
+A swift-based  library to make rich text editing very easy with SwiftUI.
+
 
 <img src="./docs/sample.gif" height="640" />
 
