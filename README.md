@@ -1,3 +1,6 @@
+
+<img width="930" alt="mobile apps banner" src="https://github.com/canopas/rich-editor-swiftui/assets/73588408/84c94bbd-7952-45cb-9bfb-95e0687b37b0">
+
 # RichEditorSwiftUI
 
 ![RichEditorSwiftUI (1)](https://github.com/canopas/rich-editor-swiftui/assets/73588408/8c3013ae-8a27-4ebc-a511-51e726825c4b)
@@ -47,7 +50,7 @@ Add the dependency
  import RichEditorSwiftUI
 ```
 
-## How to use ?
+## How to use?
 
 ```
 struct EditorView: View {
@@ -63,15 +66,17 @@ struct EditorView: View {
 [Sample](https://github.com/canopas/rich-editor-swiftui/tree/main/RichEditorDemo) app demonstrates how simple the usage of the library actually is.
 
 # Bugs and Feedback
-For bugs, questions and discussions please use the [Github Issues](https://github.com/canopas/rich-editor-swiftui/issues).
+For bugs, questions, and discussions please use the [Github Issues](https://github.com/canopas/rich-editor-swiftui/issues).
 
 
 ## Credits
 RichEditor for SwiftUI is owned and maintained by the [Canopas team](https://canopas.com/). For project updates and releases, you can follow them on Twitter at [@canopassoftware](https://twitter.com/canopassoftware).
 
-Similar library is also available for Android in Jetpack Compose [here](https://github.com/canopas/rich-editor-compose)
+A similar library is also available for Android in Jetpack Compose [here](https://github.com/canopas/rich-editor-compose).
 
 RichTextKit: https://github.com/danielsaidi/RichTextKit
+
+<a href="https://canopas.com/contact"><img src="https://github.com/canopas/rich-editor-swiftui/assets/73588408/068b53f5-80a7-43aa-93ca-a69f02f1c24d" width=400></a>
 
 # Licence
 
