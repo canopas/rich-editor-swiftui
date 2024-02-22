@@ -76,7 +76,7 @@ A similar library is also available for Android in Jetpack Compose [here](https:
 
 RichTextKit: https://github.com/danielsaidi/RichTextKit
 
-<a href="https://canopas.com/contact"><img src="https://github.com/canopas/rich-editor-swiftui/assets/73588408/068b53f5-80a7-43aa-93ca-a69f02f1c24d" width=400></a>
+<a href="https://canopas.com/contact"><img src="https://github.com/canopas/rich-editor-swiftui/assets/73588408/068b53f5-80a7-43aa-93ca-a69f02f1c24d" width=350></a>
 
 # Licence
 
