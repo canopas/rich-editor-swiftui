@@ -23,7 +23,11 @@ public class RichEditorState: ObservableObject {
     private var rawText: String
     
     private var updateAttributesQueue: [(span:RichTextSpan, shouldApply: Bool)] = []
-    
+
+    public var attributedText: NSAttributedString {
+        return editableText.attributedString
+    }
+
     /**
      This will provide encoded text which is of type RichText
      */
