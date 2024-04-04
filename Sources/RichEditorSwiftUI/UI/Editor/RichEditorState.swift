@@ -28,6 +28,10 @@ public class RichEditorState: ObservableObject {
 
     private var updateAttributesQueue: [(span:RichTextSpanInternal, shouldApply: Bool)] = []
 
+    public var attributedText: NSAttributedString {
+        return editableText.attributedString
+    }
+
     /**
      This will provide encoded text which is of type RichText
      */
@@ -39,10 +43,7 @@ public class RichEditorState: ObservableObject {
         return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes)})
     }
 
-    func getStringWith(from: Int, to: Int) -> String {
-        return editableText.string.substring(from: .init(location: from, length: (to - from)))
-    }
-
+    //MARK: - Initializers
     /**
      Init with richText which is of type RichText
      */
@@ -86,6 +87,13 @@ public class RichEditorState: ObservableObject {
 
         rawText = input
         setUpSpans()
+    }
+}
+
+//MARK: - Public Methods
+extension RichEditorState {
+    func getStringWith(from: Int, to: Int) -> String {
+        return editableText.string.substring(from: .init(location: from, length: (to - from)))
     }
 
     /**
