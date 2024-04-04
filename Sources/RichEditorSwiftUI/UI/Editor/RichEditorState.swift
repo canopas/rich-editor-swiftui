@@ -13,7 +13,7 @@ public class RichEditorState: ObservableObject {
     @Published internal var editableText: NSMutableAttributedString
     @Published internal var activeStyles: Set<TextSpanStyle> = []
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
-    internal var curretFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
+    internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
 
     @Published internal var attributesToApply: ((spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
 
@@ -158,7 +158,7 @@ extension RichEditorState {
     }
 
     /**
-     This  will decide whether Character is added or removed and perform accordingly
+     This will decide whether Character is added or removed and perform accordingly
      - Parameters:
      - newText: is updated NSMutableAttributedString
      - selection: is the range of the selected text
@@ -226,7 +226,7 @@ extension RichEditorState {
         activeStyles = newStyles
         var attributes: [NSAttributedString.Key: Any] = [:]
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: curretFont)
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: currentFont)
         })
 
         activeAttributes = attributes
@@ -339,7 +339,7 @@ extension RichEditorState {
         var attributes: [NSAttributedString.Key: Any] = [:]
 
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: curretFont)
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: currentFont)
         })
 
         activeAttributes = attributes
@@ -387,7 +387,7 @@ extension RichEditorState {
     /**
      This will provide Array of TextSpanStyle applied on given range
      - Parameters:
-     - rnage: range of text which is of type NSRange
+     - range: range of text which is of type NSRange
      */
     private func getRichSpanStyleListByTextRange(_ range: NSRange) -> [TextSpanStyle] {
         return internalSpans.filter({ range.closedRange.overlaps($0.closedRange) }).map { $0.attributes?.styles() ?? [] }.flatMap({ $0 })
@@ -445,6 +445,8 @@ extension RichEditorState {
                     internalSpans[index] = part.copy(to: part.to + typedChars)
                     selectedStyles.removeAll()
                 }
+            } else {
+
             }
         }
 
@@ -456,16 +458,10 @@ extension RichEditorState {
             processSpan(part, typedChars: typedChars, startTypeIndex: startTypeIndex, selectedStyles: &selectedStyles)
         }
 
+
+        guard !internalSpans.contains(where: { $0.closedRange.contains(startTypeIndex) }) else { return }
         let span = RichTextSpanInternal(from: startTypeIndex, to: startTypeIndex + typedChars - 1, attributes: getRichAttributesFor(styles: Array(selectedStyles)))
-
-        guard internalSpans.isEmpty else { return }
-
-        if let index = internalSpans.lastIndex(where: { $0.to < startTypeIndex }) {
-            internalSpans.insert(span, at: index + 1)
-            internalSpans.append(RichTextSpanInternal(from: startTypeIndex, to: startTypeIndex + typedChars - 1, attributes: getRichAttributesFor(styles: Array(selectedStyles))))
-        } else {
-            internalSpans.append(span)
-        }
+        internalSpans.append(span)
     }
 
     /**
@@ -560,7 +556,7 @@ extension RichEditorState {
     }
 }
 
-//MARK: - Header style's related methods
+//MARK: - Header style's retaliated methods
 extension RichEditorState {
     /**
      This will handle the adding header style in editor and to relative span

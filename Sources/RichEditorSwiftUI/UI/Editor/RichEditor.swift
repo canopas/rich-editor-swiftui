@@ -21,7 +21,7 @@ public struct RichEditor: View {
             TextViewWrapper(state: _state,
                             attributesToApply:  $state.attributesToApply,
                             isScrollEnabled: true,
-                            fontStyle: state.curretFont,
+                            fontStyle: state.currentFont,
                             onTextViewEvent: state.onTextViewEvent(_:))
         })
     }
