@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditorToolBarView: View {
     @ObservedObject var state: RichEditorState
-    
+
     var body: some View {
         LazyHStack(spacing: 5, content: {
             ForEach(EditorTool.allCases, id: \.self) { tool in
@@ -27,28 +27,28 @@ struct EditorToolBarView: View {
 }
 
 private struct ToggleStyleButton: View {
-    
+
     let tool: EditorTool
     let appliedTools: Set<TextSpanStyle>
     let onToolSelect: (TextSpanStyle) -> Void
-    
+
     private var isSelected: Bool {
         tool.isSelected(appliedTools)
     }
-    
-    
+
+
     var body: some View {
         Button(action: {
             onToolSelect(tool.getTextSpanStyle())
         }, label: {
-                HStack(alignment: .center, spacing: 4, content: {
-                    Image(systemName: tool.systemImageName)
-                        .font(.title)
-                })
-                .foregroundColor(isSelected ? .blue : .black)
-                .frame(width: 45, height: 50, alignment: .center)
-                .padding(.horizontal, 3)
-                .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
+            HStack(alignment: .center, spacing: 4, content: {
+                Image(systemName: tool.systemImageName)
+                    .font(.title)
+            })
+            .foregroundColor(isSelected ? .blue : .black)
+            .frame(width: 45, height: 50, alignment: .center)
+            .padding(.horizontal, 3)
+            .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
         })
     }
 }
@@ -57,22 +57,22 @@ struct TitleStyleButton: View {
     let tool: EditorTool
     let appliedTools: Set<TextSpanStyle>
     let setStyle: (TextSpanStyle) -> Void
-    
+
     private var isSelected: Bool {
         tool.isSelected(appliedTools)
     }
-    
+
     @State var isExpanded: Bool = false
-    
+
     var body: some View {
-        
+
         Menu(content: {
-            ForEach(HeaderOptions.allCases, id: \.self) { header in
+            ForEach(HeaderType.allCases, id: \.self) { header in
                 Button(action: {
                     isExpanded = false
                     setStyle(EditorTool.header(header).getTextSpanStyle())
                 }, label: {
-                    if hasStayle(header.getTextSpanStyle()) {
+                    if hasStyle(header.getTextSpanStyle()) {
                         Label(header.title, systemImage:"checkmark")
                             .foregroundColor(.blue)
                     } else {
@@ -84,7 +84,7 @@ struct TitleStyleButton: View {
             HStack(alignment: .center, spacing: 4, content: {
                 Image(systemName: tool.systemImageName)
                     .font(.title)
-                
+
                 Image(systemName: "chevron.down")
                     .font(.subheadline)
             })
@@ -96,10 +96,10 @@ struct TitleStyleButton: View {
         .onTapGesture {
             isExpanded.toggle()
         }
-        
+
     }
-    
-    func hasStayle(_ style: TextSpanStyle) -> Bool {
+
+    func hasStyle(_ style: TextSpanStyle) -> Bool {
         return appliedTools.contains(where: { $0.key == style.key })
     }
 }

@@ -13,6 +13,7 @@ extension CGFloat: StandardFontSizeProvider {}
 
 extension Double: StandardFontSizeProvider {}
 
+//extension RichEditorState: StandardFontSizeProvider {}
 extension RichEditorState: StandardFontSizeProvider {}
 
 #if iOS || macOS || os(tvOS)

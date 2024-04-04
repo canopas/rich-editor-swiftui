@@ -20,11 +20,11 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
     case h4          = "h4"
     case h5          = "h5"
     case h6          = "h6"
-    
+
     var key: String {
         return self.rawValue
     }
-    
+
     func defaultAttributeValue(font: FontRepresentable? = nil) -> Any {
         let font = font ?? .systemFont(ofSize: .standardRichTextFontSize)
         switch self {
@@ -34,7 +34,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return getFontWithUpdating(font: font)
         }
     }
-    
+
     var attributedStringKey: NSAttributedString.Key {
         switch self {
         case .underline: return .underlineStyle
@@ -42,11 +42,11 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return .font
         }
     }
-    
+
     public static func == (lhs: TextSpanStyle, rhs: TextSpanStyle) -> Bool {
         return lhs.key == rhs.key
     }
-    
+
     var editorTools: EditorTool? {
         switch self {
         case .default:
@@ -71,7 +71,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return .header(.h6)
         }
     }
-    
+
     var isHeaderStyle: Bool {
         switch self {
         case .h1, .h2, .h3, .h4, .h5, .h6:
@@ -80,7 +80,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return false
         }
     }
-    
+
     var isDefault: Bool {
         switch self {
         case .default:
@@ -89,7 +89,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return false
         }
     }
-    
+
     func getFontWithUpdating(font: FontRepresentable) -> FontRepresentable {
         switch self {
         case .default:
@@ -112,7 +112,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return font.updateFontSize(multiple: 1)
         }
     }
-    
+
     var fontSizeMultiplier: CGFloat {
         switch self {
         case .h1:
@@ -129,7 +129,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return 1
         }
     }
-    
+
     func getFontAfterRemovingStyle(font: FontRepresentable) -> FontRepresentable {
         switch self {
         case .bold, .italic:
@@ -143,7 +143,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
 }
 
 extension TextSpanStyle {
-    
+
     /// The symbolic font traits for the style, if any.
     var symbolicTraits: FontTraitsRepresentable? {
         switch self {
@@ -157,12 +157,39 @@ extension TextSpanStyle {
     }
 }
 
+extension TextSpanStyle {
+    func getRichAttribute() -> RichAttributes? {
+        switch self {
+        case .default:
+            return nil
+        case .bold:
+            return RichAttributes(bold: true)
+        case .italic:
+            return RichAttributes(italic: true)
+        case .underline:
+            return RichAttributes(underline: true)
+        case .h1:
+            return RichAttributes(header: .h1)
+        case .h2:
+            return RichAttributes(header: .h2)
+        case .h3:
+            return RichAttributes(header: .h3)
+        case .h4:
+            return RichAttributes(header: .h4)
+        case .h5:
+            return RichAttributes(header: .h5)
+        case .h6:
+            return RichAttributes(header: .h6)
+        }
+    }
+}
+
 
 public extension Collection where Element == RichTextStyle {
-    
+
     /**
      Whether or not the collection contains a certain style.
-     
+
      - Parameters:
      - style: The style to look for.
      */
