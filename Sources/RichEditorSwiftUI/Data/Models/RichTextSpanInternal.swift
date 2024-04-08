@@ -18,7 +18,7 @@ public struct RichTextSpanInternal {
                 from: Int,
                 to: Int,
                 //                insert: String,
-                attributes: RichAttributes? = nil) {
+                attributes: RichAttributes? = RichAttributes()) {
         self.id = id
         self.from = from
         self.to = to

@@ -87,6 +87,17 @@ extension RichAttributes {
             //            list: (list != nil ? list! : self.list)
         )
     }
+    
+    public func copy(with styles: [TextSpanStyle]) -> RichAttributes {
+        let att = getRichAttributesFor(styles: styles)
+        return RichAttributes(
+            bold: (att.bold != nil ? att.bold! : self.bold),
+            italic: (att.italic != nil ? att.italic! : self.italic),
+            underline: (att.underline != nil ? att.underline! : self.underline),
+            header: (att.header != nil ? att.header! : self.header)
+            //            list: (list != nil ? list! : self.list)
+        )
+    }
 }
 
 extension RichAttributes {

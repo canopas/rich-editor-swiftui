@@ -34,6 +34,11 @@ public class RichEditorState: ObservableObject {
     public var richText: RichText {
         return getRichText()
     }
+
+    public var attributedText: NSAttributedString {
+        return editableText.attributedString
+    }
+
     private var spans: RichTextSpans {
         return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes)})
     }
@@ -77,7 +82,7 @@ public class RichEditorState: ObservableObject {
         self.adapter = adapter
         self.editableText = NSMutableAttributedString(string: input)
 
-        self.internalSpans = [.init(from: 0, to: input.count > 0 ? input.count - 1 : 0)]
+        self.internalSpans = [.init(from: 0, to: input.count > 0 ? input.count - 1 : 0, attributes: RichAttributes())]
 
         highlightedRange = NSRange(location: 0, length: 0)
         activeStyles = []
@@ -90,9 +95,8 @@ public class RichEditorState: ObservableObject {
 //MARK: - Public Methods
 extension RichEditorState {
     func getStringWith(from: Int, to: Int) -> String {
-        let length = from == to ? 1 : to - from
-        guard length > 0 else { return "" }
-        return editableText.string.substring(from: .init(location: from, length: length))
+        guard (to - from) >= 0 else { return "" }
+        return editableText.string.substring(from: .init(location: from, length: (to - from)))
     }
 
     /**
@@ -206,11 +210,7 @@ extension RichEditorState {
         if style.isHeaderStyle || style.isDefault {
             handleAddHeaderStyle(style)
         } else if !highlightedRange.isCollapsed {
-            let span = RichTextSpanInternal(from: highlightedRange.lowerBound, to: highlightedRange.upperBound - 1, attributes: .init())
-            applyStylesToSelectedText([span])
-            if !style.isDefault {
-                createSpanForSelectedText(style)
-            }
+            processExistingSpanFor(new: [style], in: highlightedRange)
         }
 
         updateCurrentSpanStyle()
@@ -268,26 +268,7 @@ extension RichEditorState {
         if (style.isHeaderStyle || style.isDefault) {
             handleAddHeaderStyle(style)
         } else if !highlightedRange.isCollapsed {
-            processSpanForSelectedText(style)
-        }
-    }
-
-    /**
-     This will process the span for selected text
-        - Parameters:
-        - style: which is of type TextSpanStyle
-     */
-    func processSpanForSelectedText(_ style: TextSpanStyle) {
-        let fromIndex = highlightedRange.location
-        let toIndex = highlightedRange.upperBound
-
-        let overlappingSpans = internalSpans.filter({ $0.closedRange.overlaps((fromIndex...toIndex))})
-        if overlappingSpans.isEmpty {
-            applyStylesToSelectedText([RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style.getRichAttribute())])
-            createSpanForSelectedText(style)
-        } else {
-            let newSpan = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style.getRichAttribute())
-            createSpanForSelectedText(style)
+            processExistingSpanFor(new: [style], in: highlightedRange)
         }
     }
 
@@ -352,7 +333,7 @@ extension RichEditorState {
 
         let selectedParts = internalSpans.filter({ $0.from < toIndex && $0.to >= fromIndex && $0.attributes == style.getRichAttribute() })
 
-        removeSpanForSelectedText(selectedParts, fromIndex: fromIndex, toIndex: toIndex)
+        removeStyleForSelectedText(selectedParts, fromIndex: fromIndex, toIndex: toIndex)
     }
 
     /**
@@ -468,8 +449,6 @@ extension RichEditorState {
                     internalSpans[index] = part.copy(to: part.to + typedChars)
                     selectedStyles.removeAll()
                 }
-            } else {
-
             }
         }
 
@@ -643,64 +622,107 @@ extension RichEditorState {
     /**
      This will create span for selected text with provided style
      - Parameters:
-     - style: is of type TextSpanStyle
+     - styles: is of type [TextSpanStyle]
+     - range: is of type NSRange
      */
-    private func createSpanForSelectedText(_ style: TextSpanStyle) {
-        guard !highlightedRange.isCollapsed else {
+
+    private func processExistingSpanFor(new styles: [RichTextStyle], in range: NSRange) {
+        guard !range.isCollapsed else {
             return
         }
 
-        let fromIndex = highlightedRange.lowerBound
-        let toIndex = highlightedRange.upperBound
+        var processedSpans: [RichTextSpanInternal] = []
 
-        // Filter spans that overlap with the highlighted range
-        let overlappingSpans = internalSpans.filter { $0.from < toIndex && $0.to >= fromIndex }
+        let fromIndex = range.lowerBound
+        let toIndex = range.upperBound
 
-        // Check if any overlapping span has the same style
-        if let matchingSpan = overlappingSpans.first(where: { $0.attributes == style.getRichAttribute() }) {
-            // Expand the matching span to cover the entire highlighted range
-            let expandedSpan = matchingSpan.copy(from: min(fromIndex, matchingSpan.from), to: max(toIndex - 1, matchingSpan.to))
+        let completeOverlap = getCompleteOverlappingSpans(for: range)
+        let partialOverlap = getPartialOverlappingSpans(for: range)
+        let sameSpans = getSameSpans(for: range)
 
-            // Remove overlapping spans and insert the expanded span
-            internalSpans.removeAll { overlappingSpans.contains($0) }
-            internalSpans.append(expandedSpan)
-        } else {
-            // Break any overlapping spans that have different styles
-            for span in overlappingSpans {
-                if span.attributes != style.getRichAttribute() {
-                    // Split the span into two parts at the highlighted range
-                    let leftPart = span.copy(to: fromIndex - 1)
-                    let rightPart = span.copy(from: toIndex)
+        processedSpans.append(contentsOf: processPartialOverlappingSpans(partialOverlap, range: range, styles: styles))
+        processedSpans.append(contentsOf: processCompleteOverlappingSpans(completeOverlap, range: range, styles: styles))
+        processedSpans.append(contentsOf: processSameSpans(sameSpans, range: range, styles: styles))
 
-                    // Remove the original span and insert the split parts
-                    internalSpans.removeAll { $0 == span }
-                    if leftPart.from <= leftPart.to {
-                        internalSpans.append(leftPart)
-                    }
-                    if rightPart.from <= rightPart.to {
-                        internalSpans.append(rightPart)
-                    }
-                }
-            }
+        processedSpans = mergeSameStyledSpans(processedSpans)
 
-            // Create a new span for the highlighted range with the specified style
-            internalSpans.append(RichTextSpanInternal(from: fromIndex, to: toIndex - 1, attributes: style.getRichAttribute()))
-        }
+        let overlappingSpans = getOverlappingSpans(for: range)
+
+        internalSpans.removeAll(where: { overlappingSpans.contains($0) })
+        internalSpans.append(contentsOf:  processedSpans)
+        internalSpans.sort(by: { $0.from < $1.from })
 
         let spansToUpdate = internalSpans.filter { $0.from < toIndex && $0.to >= fromIndex }
         applyStylesToSelectedText(spansToUpdate)
-        // Ensure that spans are not overlapping after processing
-        internalSpans.sort { $0.from < $1.from }
-        mergeOverlappingSpans()
     }
 
-    private func mergeOverlappingSpans() {
+
+    private func processCompleteOverlappingSpans(_ spans: [RichTextSpanInternal], range: NSRange, styles: [RichTextStyle]) -> [RichTextSpanInternal] {
+        var processedSpans: [RichTextSpanInternal] = []
+
+        for span in spans {
+            if span.closedRange.isInRange(range.closedRange) {
+                processedSpans.append(span.copy(attributes: span.attributes?.copy(with: styles)))
+            } else {
+                if span.from < (range.lowerBound - 1) {
+                    let leftPart = span.copy(to: range.lowerBound - 1)
+                    processedSpans .append(leftPart)
+                }
+
+                if span.from <= (range.lowerBound) && span.to >= (range.upperBound - 1) {
+                    let centerPart = span.copy(from: range.lowerBound, to: range.upperBound - 1, attributes: span.attributes?.copy(with: styles))
+                    processedSpans.append(centerPart)
+                }
+
+                if span.to > (range.upperBound - 1) {
+                    let rightPart = span.copy(from: range.upperBound)
+                    processedSpans.append(rightPart)
+                }
+            }
+        }
+
+        processedSpans = mergeSameStyledSpans(processedSpans)
+
+        return processedSpans
+    }
+
+    private func processPartialOverlappingSpans(_ spans: [RichTextSpanInternal], range: NSRange, styles: [RichTextStyle]) -> [RichTextSpanInternal] {
+        var processedSpans: [RichTextSpanInternal] = []
+
+        for span in spans {
+            if span.from < range.location {
+                let leftPart = span.copy(to: range.lowerBound - 1)
+                let rightPart = span.copy(from: range.lowerBound, attributes: span.attributes?.copy(with: styles))
+                processedSpans.append(leftPart)
+                processedSpans.append(rightPart)
+            } else {
+                let leftPart = span.copy(to: min(span.to, range.upperBound), attributes: span.attributes?.copy(with: styles))
+                let rightPart = span.copy(from: range.location)
+                processedSpans.append(leftPart)
+                processedSpans.append(rightPart)
+            }
+        }
+
+        processedSpans = mergeSameStyledSpans(processedSpans)
+        return processedSpans
+    }
+
+    private func processSameSpans(_ spans: [RichTextSpanInternal], range: NSRange, styles: [RichTextStyle]) -> [RichTextSpanInternal] {
+        var processedSpans: [RichTextSpanInternal] = []
+
+        processedSpans = spans.map({ $0.copy(attributes: $0.attributes?.copy(with: styles)) })
+
+        processedSpans = mergeSameStyledSpans(processedSpans)
+        return processedSpans
+    }
+
+    private func mergeSameStyledSpans(_ spans: [RichTextSpanInternal]) -> [RichTextSpanInternal] {
         var mergedSpans: [RichTextSpanInternal] = []
         var currentSpan: RichTextSpanInternal?
 
-        for span in internalSpans {
+        for span in spans.sorted(by: { $0.from < $1.from}) {
             if let current = currentSpan {
-                if span.from <= current.to {
+                if span.from <= current.to && Set(arrayLiteral: span.attributes?.styles()) == Set(arrayLiteral: current.attributes?.styles()) {
                     // Merge overlapping spans
                     currentSpan = current.copy(to: max(current.to, span.to))
                 } else {
@@ -717,7 +739,7 @@ extension RichEditorState {
             mergedSpans.append(lastSpan)
         }
 
-        internalSpans = mergedSpans
+        return mergedSpans.sorted(by: { $0.from < $1.from })
     }
 
     /**
@@ -727,7 +749,7 @@ extension RichEditorState {
      - fromIndex: is of type Int and it's lower bound of selection range
      - toIndex: is of type Int and it's upper bound of selection range
      */
-    private func removeSpanForSelectedText(_ selectedParts: [RichTextSpanInternal], fromIndex: Int, toIndex: Int) {
+    private func removeStyleForSelectedText(_ selectedParts: [RichTextSpanInternal], fromIndex: Int, toIndex: Int) {
         selectedParts.forEach { part in
             if let index = internalSpans.firstIndex(of: part) {
                 if part.from < fromIndex && part.to >= toIndex {
@@ -742,5 +764,47 @@ extension RichEditorState {
                 }
             }
         }
+    }
+}
+
+//MARK: - RichTextSpanInternal Helper
+extension RichEditorState {
+    /**
+     This will provide overlapping span for range
+     - Parameters:
+     - selectedRange:  is of type NSRange
+     */
+
+    private func getOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
+        return internalSpans.filter { $0.from < selectedRange.upperBound && $0.to >= selectedRange.lowerBound }
+    }
+
+    /**
+     This will provide partial overlapping span for range
+     - Parameters:
+     - selectedRange: selectedRange is of type NSRange
+     */
+
+    func getPartialOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
+        return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isPartialOverlap(selectedRange.closedRange) })
+    }
+
+    /**
+     This will provide complete overlapping span for range
+     - Parameters:
+     - selectedRange: selectedRange is of type NSRange
+     */
+    func getCompleteOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
+        return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isInRange(selectedRange.closedRange) || selectedRange.closedRange.isInRange($0.closedRange)})
+    }
+
+    /**
+     This will provide same span for range
+     - Parameters:
+     - selectedRange: selectedRange is of type NSRange
+     */
+
+    func getSameSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
+        return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isSameAs(selectedRange.closedRange) })
     }
 }
