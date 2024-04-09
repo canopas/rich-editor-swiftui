@@ -65,12 +65,13 @@ extension RichAttributes: Hashable {
 extension RichAttributes: Equatable {
     public static func == (lhs: RichAttributes,
                            rhs: RichAttributes) -> Bool {
-        return
+        return(
         //        lhs.id == rhs.id
         lhs.bold == rhs.bold
         && lhs.header == rhs.header
         && lhs.italic == rhs.italic
         //        && lhs.list == rhs.list
+        )
     }
 }
 
@@ -88,14 +89,14 @@ extension RichAttributes {
         )
     }
     
-    public func copy(with styles: [TextSpanStyle]) -> RichAttributes {
+    public func copy(with styles: [TextSpanStyle], byAdding: Bool = true) -> RichAttributes {
         let att = getRichAttributesFor(styles: styles)
         return RichAttributes(
-            bold: (att.bold != nil ? att.bold! : self.bold),
-            italic: (att.italic != nil ? att.italic! : self.italic),
-            underline: (att.underline != nil ? att.underline! : self.underline),
-            header: (att.header != nil ? att.header! : self.header)
-            //            list: (list != nil ? list! : self.list)
+            bold: (att.bold != nil ? (byAdding ? att.bold! : nil) : self.bold),
+            italic: (att.italic != nil ? (byAdding ? att.italic! : nil) : self.italic),
+            underline: (att.underline != nil ? (byAdding ? att.underline! : nil) : self.underline),
+            header: (att.header != nil ? (byAdding ? att.header! : nil) : self.header)
+            //            list: (att.list != nil ? (byAdding ? att.list! : nil) : self.list)
         )
     }
 }
