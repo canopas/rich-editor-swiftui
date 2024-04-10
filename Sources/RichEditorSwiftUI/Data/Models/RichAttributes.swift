@@ -89,6 +89,10 @@ extension RichAttributes {
         )
     }
     
+    public func copy(with style: TextSpanStyle, byAdding: Bool = true) -> RichAttributes {
+        return copy(with: [style], byAdding: byAdding)
+    }
+
     public func copy(with styles: [TextSpanStyle], byAdding: Bool = true) -> RichAttributes {
         let att = getRichAttributesFor(styles: styles)
         return RichAttributes(
@@ -155,7 +159,9 @@ extension RichAttributes {
     }
 }
 
-
+internal func getRichAttributesFor(style: RichTextStyle) -> RichAttributes {
+    return getRichAttributesFor(styles: [style])
+}
 
 internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
     guard !styles.isEmpty else { return RichAttributes() }
@@ -186,8 +192,8 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
             header = .h6
             //            case .list(let listType):
             //                list = listType
-        default:
-            break
+        case .default:
+            header = .default
         }
     }
     return RichAttributes(bold: bold,
