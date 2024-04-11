@@ -68,8 +68,9 @@ extension RichAttributes: Equatable {
         return(
         //        lhs.id == rhs.id
         lhs.bold == rhs.bold
-        && lhs.header == rhs.header
         && lhs.italic == rhs.italic
+        && lhs.underline == rhs.underline
+        && lhs.header == rhs.header
         //        && lhs.list == rhs.list
         )
     }
@@ -79,7 +80,9 @@ extension RichAttributes {
     public func copy(bold: Bool? = nil,
                      header: HeaderType? = nil,
                      italic: Bool? = nil,
-                     list: ListType? = nil) -> RichAttributes {
+                     underline: Bool? = nil
+//                     list: ListType? = nil
+    ) -> RichAttributes {
         return RichAttributes(
             bold: (bold != nil ? bold! : self.bold),
             italic: (italic != nil ? italic! : self.italic),
@@ -122,6 +125,26 @@ extension RichAttributes {
         }
         //        if let list = list {
         //            styles.append(.list(list))
+        //        }
+        return styles
+    }
+
+    public func stylesSet() -> Set<TextSpanStyle> {
+        var styles: Set<TextSpanStyle> = []
+        if let bold = bold, bold {
+            styles.insert(.bold)
+        }
+        if let italic = italic, italic {
+            styles.insert(.italic)
+        }
+        if let underline = underline, underline {
+            styles.insert(.underline)
+        }
+        if let header = header {
+            styles.insert(header.getTextSpanStyle())
+        }
+        //        if let list = list {
+        //            styles.insert(.list(list))
         //        }
         return styles
     }
