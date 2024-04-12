@@ -538,19 +538,21 @@ extension RichEditorState {
 
         let partsCopy = internalSpans
 
+        let lowerBound = removeRange.lowerBound - (highlightedRange.length < removedCharsCount ? 1 : 0)
+
         for part in partsCopy {
             if let index = internalSpans.firstIndex(of: part) {
                 if removeRange.upperBound < part.from {
-                    internalSpans[index] = part.copy(from: part.from - removedCharsCount, to: part.to - removedCharsCount)
-                } else if removeRange.lowerBound <= part.from && removeRange.upperBound >= part.to {
+                    internalSpans[index] = part.copy(from: part.from - (removedCharsCount), to: part.to - (removedCharsCount))
+                } else if lowerBound <= part.from && removeRange.upperBound >= part.to {
                     // Remove the element from the copy.
                     internalSpans.removeAll(where: { $0 == part })
-                } else if removeRange.lowerBound <= part.from {
-                    internalSpans[index] = part.copy(from: max(0, removeRange.lowerBound), to: min(newText.string.count, part.to - removedCharsCount))
+                } else if lowerBound <= part.from {
+                    internalSpans[index] = part.copy(from: max(0, lowerBound - 1), to: min(newText.string.count, part.to - removedCharsCount))
                 } else if removeRange.upperBound <= part.to {
                     internalSpans[index] = part.copy(to: part.to - removedCharsCount)
-                } else if removeRange.lowerBound < part.to {
-                    internalSpans[index] = part.copy(to: removeRange.lowerBound)
+                } else if lowerBound < part.to {
+                    internalSpans[index] = part.copy(to: lowerBound)
                 }
             }
         }
