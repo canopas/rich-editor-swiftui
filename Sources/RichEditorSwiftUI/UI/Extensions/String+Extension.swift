@@ -29,7 +29,10 @@ extension String {
     }
 
     func substring(from range: NSRange) -> String {
-        return String(self[range.lowerBound...range.upperBound])
+        let from = String.Index(utf16Offset: range.lowerBound, in: self)
+        let to = String.Index(utf16Offset: range.upperBound, in: self)
+        let utf16Range = from..<to
+        return String(self[utf16Range.lowerBound...utf16Range.upperBound])
     }
 }
 
