@@ -30,7 +30,3 @@ public struct RichTextSpan: Codable {
     }
 }
 
-public enum ListType: String, Codable {
-    case bullet = "bullet"
-    case ordered = "ordered"
-}
