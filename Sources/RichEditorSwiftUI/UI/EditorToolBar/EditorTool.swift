@@ -11,9 +11,9 @@ enum EditorTool: CaseIterable, Hashable {
     static var allCases: [EditorTool] {
         return [.header(), .bold, .italic, .underline]
     }
-    
-    case header(HeaderOptions? = nil), bold, italic, underline
-    
+
+    case header(HeaderType? = nil), bold, italic, underline
+
     var systemImageName: String {
         switch self {
         case .header: return "textformat.size"
@@ -22,7 +22,7 @@ enum EditorTool: CaseIterable, Hashable {
         case .underline: return "underline"
         }
     }
-    
+
     var isContainManu: Bool {
         switch self {
         case .header:
@@ -31,7 +31,7 @@ enum EditorTool: CaseIterable, Hashable {
             return false
         }
     }
-    
+
     func getTextSpanStyle() -> TextSpanStyle {
         switch self {
         case .header(let headerOptions):
@@ -54,7 +54,7 @@ enum EditorTool: CaseIterable, Hashable {
             return .underline
         }
     }
-    
+
     func isSelected(_ currentStyle: Set<TextSpanStyle>) -> Bool {
         switch self {
         case .header:
@@ -67,7 +67,7 @@ enum EditorTool: CaseIterable, Hashable {
             return currentStyle.contains(.underline)
         }
     }
-    
+
     var key: String {
         switch self {
         case .header:
@@ -82,9 +82,15 @@ enum EditorTool: CaseIterable, Hashable {
     }
 }
 
-enum HeaderOptions: CaseIterable {
-    case `default`, h1, h2, h3, h4, h5, h6
-    
+public enum HeaderType: Int, CaseIterable, Codable {
+    case `default` = 0
+    case h1 = 1
+    case h2 = 2
+    case h3 = 3
+    case h4 = 4
+    case h5 = 5
+    case h6 = 6
+
     var title: String {
         switch self {
         case .default:
@@ -103,7 +109,7 @@ enum HeaderOptions: CaseIterable {
             return "Header 6"
         }
     }
-    
+
     func getTextSpanStyle() -> TextSpanStyle {
         switch self {
         case .default: return .default

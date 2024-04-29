@@ -131,7 +131,7 @@ public extension FontRepresentable {
     }
     
     /// Get a new font by toggling a text style.
-    func byToggalingFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
+    func byTogglingFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
         let fontDesc = fontDescriptor.byTogglingStyle(style)
         fontDesc.withFamily(familyName)
         return FontRepresentable(descriptor: fontDesc, size: pointSize)

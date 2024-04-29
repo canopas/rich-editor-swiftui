@@ -2,19 +2,35 @@
 //  RichText.swift
 //
 //
-//  Created by Divyesh Vekariya on 24/10/23.
+//  Created by Divyesh Vekariya on 12/02/24.
 //
 
 import Foundation
 
+typealias RichTextSpans = [RichTextSpan]
+
 public struct RichText: Codable {
-    public let text: String
     public let spans: [RichTextSpan]
-    
-    public init(text: String = "", spans: [RichTextSpan] = []) {
-        self.text = text
+
+    public init(spans: [RichTextSpan] = []) {
         self.spans = spans
     }
 }
 
+public struct RichTextSpan: Codable {
+    //    public var id: String = UUID().uuidString
+    public let insert: String
+    public let attributes: RichAttributes?
 
+    public init(insert: String,
+                attributes: RichAttributes? = nil) {
+        //        self.id = id
+        self.insert = insert
+        self.attributes = attributes
+    }
+}
+
+public enum ListType: String, Codable {
+    case bullet = "bullet"
+    case ordered = "ordered"
+}

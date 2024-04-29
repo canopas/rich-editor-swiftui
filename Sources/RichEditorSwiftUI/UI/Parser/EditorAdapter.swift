@@ -6,18 +6,29 @@
 //
 
 import Foundation
-
 protocol EditorAdapter {
-    func encode(input: String, spans: [RichTextSpan]) -> RichText
-    func decode(editorValue: RichText) -> String
+    func encode<T: Encodable>(type model: T) throws -> String?
+    func decode<T: Decodable>(from jsonString: String) throws -> T?
 }
 
 class DefaultAdapter: EditorAdapter {
-    func encode(input: String, spans: [RichTextSpan] = []) -> RichText {
-        return RichText(text: input, spans: spans)
+    func encode<T: Encodable>(type model: T) throws -> String? {
+        do {
+            let jsonData = try JSONEncoder().encode(model)
+            let jsonString = String(data: jsonData, encoding: .utf8)
+            return jsonString
+        } catch {
+            throw error
+        }
     }
-    
-    func decode(editorValue: RichText) -> String {
-        return editorValue.text
+
+    func decode<T: Decodable>(from jsonString: String) throws -> T? {
+        guard let data = jsonString.data(using: .utf8) else { return nil }
+        do {
+            let content = try JSONDecoder().decode(T.self, from: data)
+            return content
+        } catch {
+            throw error
+        }
     }
 }

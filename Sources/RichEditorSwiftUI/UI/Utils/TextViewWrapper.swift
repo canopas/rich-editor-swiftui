@@ -9,10 +9,10 @@ import SwiftUI
 
 internal struct TextViewWrapper: UIViewRepresentable {
     @ObservedObject var state: RichEditorState
-    
+
     @Binding private var typingAttributes: [NSAttributedString.Key: Any]?
-    @Binding private var attributesToApply: ((spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: () -> Void))?
-    
+    @Binding private var attributesToApply: ((spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))?
+
     private let isEditable: Bool
     private let isUserInteractionEnabled: Bool
     private let isScrollEnabled: Bool
@@ -22,10 +22,10 @@ internal struct TextViewWrapper: UIViewRepresentable {
     private let backGroundColor: UIColor
     private let tag: Int?
     private let onTextViewEvent: ((TextViewEvents) -> Void)?
-    
+
     public init(state: ObservedObject<RichEditorState>,
                 typingAttributes: Binding<[NSAttributedString.Key: Any]?>? = nil,
-                attributesToApply: Binding<(spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: () -> Void)?>? = nil,
+                attributesToApply: Binding<(spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void)?>? = nil,
                 isEditable: Bool = true,
                 isUserInteractionEnabled: Bool = true,
                 isScrollEnabled: Bool = false,
@@ -38,7 +38,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         self._state = state
         self._typingAttributes = typingAttributes != nil ? typingAttributes! : .constant(nil)
         self._attributesToApply = attributesToApply != nil ? attributesToApply! : .constant(nil)
-        
+
         self.isEditable = isEditable
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.isScrollEnabled = isScrollEnabled
@@ -49,11 +49,11 @@ internal struct TextViewWrapper: UIViewRepresentable {
         self.tag = tag
         self.onTextViewEvent = onTextViewEvent
     }
-    
+
     public func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     public func makeUIView(context: Context) -> TextViewOverRidden {
         let textView = TextViewOverRidden()
         textView.delegate = context.coordinator
@@ -71,34 +71,34 @@ internal struct TextViewWrapper: UIViewRepresentable {
         } else {
             textView.attributedText = state.editableText
         }
-        
+
         textView.textColor = UIColor(fontColor)
         textView.textContainer.lineFragmentPadding = 0
         textView.showsVerticalScrollIndicator = false
         textView.showsHorizontalScrollIndicator = false
         textView.isSelectable = true
-        
+
         if let attributes = typingAttributes {
             textView.typingAttributes = attributes
         }
-        
+
         if let tag = tag {
             textView.tag = tag
         }
-        
+
         if let linelimit = linelimit {
             textView.textContainer.maximumNumberOfLines = linelimit
         }
-        
+
         if let fontStyle = fontStyle {
             let scaledFontSize = UIFontMetrics.default.scaledValue(for: fontStyle.pointSize)
             let scaledFont = fontStyle.withSize(scaledFontSize)
             textView.font = scaledFont
         }
-        
+
         return textView
     }
-    
+
     public func updateUIView(_ textView: TextViewOverRidden, context: Context) {
         textView.textColor = UIColor(fontColor)
         ///Set typing attributes
@@ -107,52 +107,52 @@ internal struct TextViewWrapper: UIViewRepresentable {
             attributes[.font] = fontStyle
         }
         textView.typingAttributes = attributes
-        
+
         //Update attributes in textStorage
         if let data = attributesToApply {
             applyAttributesToSelectedRange(textView, spans: data.spans, onCompletion: data.onCompletion)
         }
-        
+
         textView.reloadInputViews()
     }
-    
+
     internal class Coordinator: NSObject, UITextViewDelegate {
         var parent: TextViewWrapper
-        
+
         init(_ uiTextView: TextViewWrapper) {
             self.parent = uiTextView
         }
-        
+
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
             return true
         }
-        
+
         func textViewDidChangeSelection(_ textView: UITextView) {
-            //Invoked when selection change whether it is text lelected or pointer moved any were
+            //Invoked when selection change whether it is text selected or pointer moved any were
             parent.onTextViewEvent?(.didChangeSelection(textView))
         }
-        
+
         func textViewDidChange(_ textView: UITextView) {
             if textView.markedTextRange == nil {
                 parent.state.editableText = NSMutableAttributedString(attributedString: textView.attributedText)
             }
             parent.onTextViewEvent?(.didChange(textView))
         }
-        
+
         func textViewDidBeginEditing(_ textView: UITextView) {
-            //Invoked when text view start editing (TextView get focuse or become first responder)
+            //Invoked when text view start editing (TextView get focused or become first responder)
             parent.onTextViewEvent?(.didBeginEditing(textView))
         }
-        
+
         func textViewDidEndEditing(_ textView: UITextView) {
             parent.onTextViewEvent?(.didEndEditing(textView))
         }
     }
-    
+
     internal func getTypingAttributesForStyles(_ styles : Set<RichTextStyle>) -> RichTextAttributes {
         var font = fontStyle
         var attributes: RichTextAttributes = [:]
-        
+
         Set(styles).forEach({
             if $0.attributedStringKey == .font {
                 font = $0.getFontWithUpdating(font: font ?? .systemFont(ofSize: .standardRichTextFontSize))
@@ -163,12 +163,14 @@ internal struct TextViewWrapper: UIViewRepresentable {
         })
         return attributes
     }
-    
-    internal func applyAttributesToSelectedRange(_ textView: TextViewOverRidden, spans: [(span:RichTextSpan, shouldApply: Bool)], onCompletion: (() -> Void)? = nil) {
-        var spansToUpdate = spans.filter({ $0.span.style.isHeaderStyle })
-        spansToUpdate.append(contentsOf: spans.filter({ !$0.span.style.isHeaderStyle }))
-        spansToUpdate.forEach {
-            textView.textStorage.setRichTextStyle($0.span.style, to: $0.shouldApply, at: $0.span.spanRange)
+
+    internal func applyAttributesToSelectedRange(_ textView: TextViewOverRidden, spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: (() -> Void)? = nil) {
+        var spansToUpdate = spans.filter({ $0.span.attributes?.header != nil })
+        spansToUpdate.append(contentsOf: spans.filter({ $0.span.attributes?.header == nil }))
+        spansToUpdate.forEach { span in
+            span.span.attributes?.styles().forEach({ style in
+                textView.textStorage.setRichTextStyle(style, to: span.shouldApply, at: span.span.spanRange)
+            })
         }
         onCompletion?()
     }

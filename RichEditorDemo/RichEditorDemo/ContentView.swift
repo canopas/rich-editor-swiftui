@@ -10,19 +10,20 @@ import RichEditorSwiftUI
 
 struct ContentView: View {
     @ObservedObject var state: RichEditorState
-    
+
     init(state: RichEditorState? = nil) {
         if let state {
             self.state = state
         } else {
-            if let richText = readJSONFromFile(fileName: "Sample_json", type: RichText.self) {
-                self.state = .init(input: richText.text, spans: richText.spans)
+            if let richText = readJSONFromFile(fileName: "Sample_json",
+                                               type: RichText.self) {
+                self.state = .init(richText: richText)
             } else {
                 self.state = .init(input: "Hello World!")
             }
         }
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack {
@@ -32,7 +33,8 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        print("Export JSON")
+
+                        print("Export JSON == \(state.output())")
                     }, label: {
                         Image(systemName: "checkmark")
                             .padding()

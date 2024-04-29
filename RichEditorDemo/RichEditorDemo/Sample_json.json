@@ -1,110 +1,123 @@
 {
     "spans": [
         {
-            "from": 0,
-            "to": 10,
-            "style": "h1"
+            "insert": "RichEditor",
+            "attributes": {
+                "bold": true,
+                "header": 1
+            }
         },
         {
-            "from": 0,
-            "to": 10,
-            "style": "bold"
+            "insert": "\niOS ",
+            "attributes": {}
         },
         {
-            "from": 27,
-            "to": 35,
-            "style": "bold"
+            "insert": "RichEditorSwiftUI ",
+            "attributes": {
+                "bold": true,
+                "italic": true
+            }
         },
         {
-            "from": 52,
-            "to": 61,
-            "style": "bold"
+            "insert": "Rich editor for ",
+            "attributes": {}
         },
         {
-            "from": 52,
-            "to": 59,
-            "style": "italic"
+            "insert": "SwiftUI.\n\n",
+            "attributes": {
+                "bold": true,
+                "underline": true
+            }
         },
         {
-            "from": 52,
-            "to": 61,
-            "style": "underline"
+            "insert": "Features",
+            "attributes": {
+                "bold": true,
+                "header": 3
+            }
         },
         {
-            "from": 61,
-            "to": 69,
-            "style": "h3"
+            "insert": "\nThe editor offers the following ",
+            "attributes": {}
         },
         {
-            "from": 62,
-            "to": 69,
-            "style": "bold"
+            "insert": "options:\n",
+            "attributes": {
+                "bold": true,
+                "italic": true,
+                "underline": true
+            }
         },
         {
-            "from": 103,
-            "to": 118,
-            "style": "bold"
+            "insert": "\n",
+            "attributes": {}
         },
         {
-            "from": 119,
-            "to": 126,
-            "style": "italic"
+            "insert": "Bold\n",
+            "attributes": {
+                "bold": true
+            }
         },
         {
-            "from": 130,
-            "to": 138,
-            "style": "underline"
+            "insert": "Italic\n",
+            "attributes": {
+                "italic": true
+            }
         },
         {
-            "from": 160,
-            "to": 167,
-            "style": "h3"
+            "insert": "Underline\n",
+            "attributes": {
+                "underline": true
+            }
         },
         {
-            "from": 161,
-            "to": 167,
-            "style": "bold"
+            "insert": "Different ",
+            "attributes": {}
         },
         {
-            "from": 169,
-            "to": 180,
-            "style": "bold"
+            "insert": "Headings\n\n",
+            "attributes": {
+                "bold": true,
+                "italic": true,
+                "underline": true
+            }
         },
         {
-            "from": 224,
-            "to": 235,
-            "style": "bold"
+            "insert": "\n",
+            "attributes": {}
         },
         {
-            "from": 224,
-            "to": 235,
-            "style": "italic"
+            "insert": "Credits",
+            "attributes": {
+                "bold": true,
+                "header": 3
+            }
         },
         {
-            "from": 224,
-            "to": 235,
-            "style": "underline"
+            "insert": "\n\n",
+            "attributes": {}
         },
         {
-            "from": 237,
-            "to": 250,
-            "style": "h4"
+            "insert": "RichEditor ",
+            "attributes": {
+                "bold": true
+            }
         },
         {
-            "from": 238,
-            "to": 250,
-            "style": "bold"
+            "insert": "for SwiftUI is developed and maintained by the ",
+            "attributes": {}
         },
         {
-            "from": 238,
-            "to": 250,
-            "style": "italic"
+            "insert": "Canopas Team.\n\n",
+            "attributes": {
+                "bold": true,
+                "italic": true,
+                "underline": true
+            }
         },
         {
-            "from": 238,
-            "to": 250,
-            "style": "underline"
+            "insert": "Thank You! 😊\n\n",
+            "attributes": {}
         }
-    ],
-    "text": "Rich Editor\nApple iOS/macOS WYSIWYG Rich editor for SwiftUI.\n\nFeatures\nThe editor offers the following options\n\n- Bold\n- Italic\n- Underline\n- Different headers\n\nCredits\nRich Editor for swiftUI is owned and maintained by the canopas team\n\nThanks You ☺️\n"
+    ]
 }
