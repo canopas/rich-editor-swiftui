@@ -20,6 +20,8 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
     case h4          = "h4"
     case h5          = "h5"
     case h6          = "h6"
+    case bullet      = "bullet"
+//    case ordered     = "ordered"
 
     var key: String {
         return self.rawValue
@@ -30,7 +32,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         switch self {
         case .underline:
             return 1
-        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
+        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .bullet:
             return getFontWithUpdating(font: font)
         }
     }
@@ -38,7 +40,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
     var attributedStringKey: NSAttributedString.Key {
         switch self {
         case .underline: return .underlineStyle
-        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
+        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .bullet:
             return .font
         }
     }
@@ -57,6 +59,8 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return .italic
         case .underline:
             return .underline
+        case .bullet:
+            return .list(.bullet)
         case .h1:
             return .header(.h1)
         case .h2:
@@ -98,6 +102,8 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return font.addFontStyle(self)
         case .underline:
             return font
+        case .bullet:
+            return font
         case .h1:
             return font.updateFontSize(multiple: 1.5)
         case .h2:
@@ -132,7 +138,7 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
 
     func getFontAfterRemovingStyle(font: FontRepresentable) -> FontRepresentable {
         switch self {
-        case .bold, .italic:
+        case .bold, .italic, .bullet:
             return font.removeFontStyle(self)
         case .underline:
             return font
@@ -168,6 +174,8 @@ extension TextSpanStyle {
             return RichAttributes(italic: true)
         case .underline:
             return RichAttributes(underline: true)
+        case .bullet:
+            return RichAttributes(list: .bullet)
         case .h1:
             return RichAttributes(header: .h1)
         case .h2:
