@@ -31,8 +31,8 @@ extension String {
     func substring(from range: NSRange) -> String {
         let from = String.Index(utf16Offset: range.lowerBound, in: self)
         let to = String.Index(utf16Offset: range.upperBound, in: self)
-        let utf16Range = from..<to
-        return String(self[utf16Range.lowerBound...utf16Range.upperBound])
+        let utf16Range = from...to
+        return String(self[utf16Range])
     }
 }
 
@@ -132,5 +132,15 @@ private extension BidirectionalCollection {
             limitedBy: index(before: endIndex))
         else { return nil }
         return self[index]
+    }
+}
+
+
+internal extension String {
+    /**
+     This will provide length of string with UTF16 character count
+     */
+    var utf16Length: Int {
+        return self.utf16.count
     }
 }

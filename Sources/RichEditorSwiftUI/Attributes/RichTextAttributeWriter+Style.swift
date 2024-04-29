@@ -46,7 +46,7 @@ public extension NSMutableAttributedString {
     }
     
     /**
-     This will reset font size befor multiplying new size
+     This will reset font size before multiplying new size
      */
     private func byTogglingFontSizeFor(style: TextSpanStyle, font: FontRepresentable, shouldAdd: Bool) -> CGFloat {
         guard style.isHeaderStyle || style.isDefault else { return  font.pointSize }

@@ -418,7 +418,7 @@ extension RichEditorState {
      This will generate break the span according to requirement to avoid duplication of the span.
      */
     private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
-        let typedChars = newValue.string.utf16.count - rawText.utf16.count
+        let typedChars = newValue.string.utf16Length - rawText.utf16Length
         let startTypeIndex = highlightedRange.location - typedChars
         let startTypeChar = newValue.string.utf16.map({ $0 })[startTypeIndex]
 
@@ -546,7 +546,7 @@ extension RichEditorState {
             return
         }
 
-        let removedCharsCount = rawText.count - newText.string.count
+        let removedCharsCount = rawText.utf16Length - newText.string.utf16Length
         let startRemoveIndex = highlightedRange.location
         let endRemoveIndex = highlightedRange.location + removedCharsCount - 1
         let removeRange = startRemoveIndex...endRemoveIndex
@@ -625,7 +625,7 @@ extension RichEditorState {
         var endIndex = (toIndex - 1) + (newLineEndIndex ?? 0)
 
         if newLineEndIndex == nil {
-            endIndex = (text.count)
+            endIndex = (text.utf16Length)
         }
 
         let range = startIndex...endIndex
@@ -686,9 +686,9 @@ extension RichEditorState {
         internalSpans = mergeSameStyledSpans(internalSpans)
         internalSpans.sort(by: { $0.from < $1.from })
 
-        if addStyle || style.isDefault {
-            var spansToUpdate = getOverlappingSpans(for: range)
 
+        var spansToUpdate = getOverlappingSpans(for: range)
+        if addStyle || style.isDefault {
             if style.isDefault {
                 /// This will help to apply header style without loosing other style
                 let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default) : getRichAttributesFor(style: style))
@@ -703,6 +703,8 @@ extension RichEditorState {
         } else {
             let span = RichTextSpanInternal(from: fromIndex, to: (toIndex - 1), attributes: getRichAttributesFor(style: style))
             removeAttributes([span])
+            //To apply style as remove span is removing other styles as well.
+            applyStylesToSelectedText(spansToUpdate)
         }
     }
 

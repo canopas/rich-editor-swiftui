@@ -46,7 +46,7 @@ public extension RichTextReader {
      always be valid for the current rich text.
      */
     var richTextRange: NSRange {
-        let range = NSRange(location: 0, length: richText.string.count)
+        let range = NSRange(location: 0, length: richText.string.utf16Length)
         let safeRange = safeRange(for: range)
         return safeRange
     }
@@ -80,7 +80,7 @@ public extension RichTextReader {
         for range: NSRange,
         isAttributeOperation: Bool = false
     ) -> NSRange {
-        let length = attributedString.string.count
+        let length = attributedString.string.utf16Length
         let subtract = isAttributeOperation ? 1 : 0
         return NSRange(
             location: max(0, min(length - subtract, range.location)),
