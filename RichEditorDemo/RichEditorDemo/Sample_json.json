@@ -8,11 +8,11 @@
             }
         },
         {
-            "insert": "\nAndroid ",
+            "insert": "\niOS ",
             "attributes": {}
         },
         {
-            "insert": "WYSIWYG ",
+            "insert": "RichEditorSwiftUI ",
             "attributes": {
                 "bold": true,
                 "italic": true
@@ -23,7 +23,7 @@
             "attributes": {}
         },
         {
-            "insert": "Jetpack compose.\n\n",
+            "insert": "SwiftUI.\n\n",
             "attributes": {
                 "bold": true,
                 "underline": true
@@ -104,11 +104,11 @@
             }
         },
         {
-            "insert": "for compose is developed and maintained by the ",
+            "insert": "for SwiftUI is developed and maintained by the ",
             "attributes": {}
         },
         {
-            "insert": "canopas team.\n\n",
+            "insert": "Canopas Team.\n\n",
             "attributes": {
                 "bold": true,
                 "italic": true,
