@@ -146,6 +146,7 @@ extension RichEditorState {
     }
 }
 
+//MARK: - TextView Helper Methods
 extension RichEditorState {
     /**
      Handle UITextView's delegate methods calles
@@ -253,9 +254,10 @@ extension RichEditorState {
             addStyle(style)
         }
     }
+}
 
-    //MARK: - Add styles
-
+//MARK: - Add styles
+extension RichEditorState {
     /**
      This will add style to the selected text
      - Parameters:
@@ -351,65 +353,9 @@ extension RichEditorState {
     }
 }
 
-//MARK: - Helper Methods
+//MARK: - Add character
 extension RichEditorState {
-    /**
-     This will reset the editor. It will remove all the text form the editor.
-     */
-    public func reset() {
-        internalSpans.removeAll()
-        rawText = ""
-        editableText = NSMutableAttributedString(string: "")
-    }
 
-    /**
-     This will allow you to set the editable text of editor
-     */
-    private func setEditable(editable: NSMutableAttributedString) {
-        editable.append(NSMutableAttributedString(string: editable.string))
-        self.editableText = editable
-    }
-
-    /**
-     This will provide Set of TextSpanStyle applied on given index
-     - Parameters:
-     - index: index or location of text
-     */
-    private func getRichSpanStyleByTextIndex(_ index: Int) -> Set<TextSpanStyle> {
-        let styles = Set(internalSpans.filter { index >= $0.from && index <= $0.to }.map { $0.attributes?.styles() ?? []}.flatMap({ $0 }))
-        return styles
-    }
-
-    /**
-     This will provide Array of TextSpanStyle applied on given range
-     - Parameters:
-     - range: range of text which is of type NSRange
-     */
-    private func getRichSpanStyleListByTextRange(_ range: NSRange) -> [TextSpanStyle] {
-        return internalSpans.filter({ range.closedRange.overlaps($0.closedRange) }).map { $0.attributes?.styles() ?? [] }.flatMap({ $0 })
-    }
-
-    /**
-     This will provide Array of RichTextSpan applied on given index
-     - Parameters:
-     - index: index or location of text
-     */
-    private func getRichSpansByTextIndex(_ index: Int) -> [RichTextSpanInternal] {
-        return internalSpans.filter({ index >= $0.from && index <= $0.to })
-    }
-
-    /**
-     This will provide Array of RichTextSpan applied on given range
-     - Parameters:
-     - range: range of text which is of type NSRange
-     */
-    private func getRichSpanListByTextRange(_ range: NSRange) -> [RichTextSpanInternal] {
-        return internalSpans.filter({ range.closedRange.overlaps($0.closedRange) })
-    }
-}
-
-//MARK: Span helper methods
-extension RichEditorState {
     /**
      This will handle the newly added character in editor
      - Parameters:
@@ -531,7 +477,10 @@ extension RichEditorState {
             }
         }
     }
+}
 
+//MARK: - Remove Character
+extension RichEditorState {
     /**
      This will handle the removing character in editor and from relative span
      - Parameters:
@@ -600,6 +549,7 @@ extension RichEditorState {
 
 //MARK: - Header style's related methods
 extension RichEditorState {
+    //MARK: - Remove Header style
     /**
      This will handle the adding header style in editor and to relative span
      - Parameters:
@@ -650,6 +600,7 @@ extension RichEditorState {
         internalSpans.removeAll(where: { selectedParts.contains($0) })
     }
 
+    //MARK: - Add Header style
     /**
      This will create span for selected text with provided style
      - Parameters:
@@ -835,5 +786,37 @@ extension RichEditorState {
 
     func getSameSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
         return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isSameAs(selectedRange.closedRange) })
+    }
+}
+
+
+//MARK: - Helper Methods
+extension RichEditorState {
+    /**
+     This will reset the editor. It will remove all the text form the editor.
+     */
+    public func reset() {
+        internalSpans.removeAll()
+        rawText = ""
+        editableText = NSMutableAttributedString(string: "")
+    }
+
+    /**
+     This will provide Set of TextSpanStyle applied on given index
+     - Parameters:
+     - index: index or location of text
+     */
+    private func getRichSpanStyleByTextIndex(_ index: Int) -> Set<TextSpanStyle> {
+        let styles = Set(internalSpans.filter { index >= $0.from && index <= $0.to }.map { $0.attributes?.styles() ?? []}.flatMap({ $0 }))
+        return styles
+    }
+
+    /**
+     This will provide Array of TextSpanStyle applied on given range
+     - Parameters:
+     - range: range of text which is of type NSRange
+     */
+    private func getRichSpanStyleListByTextRange(_ range: NSRange) -> [TextSpanStyle] {
+        return internalSpans.filter({ range.closedRange.overlaps($0.closedRange) }).map { $0.attributes?.styles() ?? [] }.flatMap({ $0 })
     }
 }
