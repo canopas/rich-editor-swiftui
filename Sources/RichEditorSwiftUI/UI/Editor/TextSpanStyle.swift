@@ -85,6 +85,15 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         }
     }
 
+    var isList: Bool {
+        switch self {
+        case .bullet:
+            return true
+        default:
+            return false
+        }
+    }
+
     var isDefault: Bool {
         switch self {
         case .default:

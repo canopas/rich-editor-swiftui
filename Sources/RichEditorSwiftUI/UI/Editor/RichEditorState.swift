@@ -41,7 +41,7 @@ public class RichEditorState: ObservableObject {
     }
 
     private var spans: RichTextSpans {
-        return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes)})
+        return internalSpans.map({ .init(insert: $0.attributes?.list != nil ? (getStringWith(from: $0.from, to: $0.to).removeListIndicatorsFor(listType: $0.attributes!.list!)) : getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes) })
     }
 
     //MARK: - Initializers
@@ -518,7 +518,6 @@ extension RichEditorState {
                 if removeRange.upperBound < part.from {
                     internalSpans[index] = part.copy(from: part.from - (removedCharsCount), to: part.to - (removedCharsCount))
                 } else if lowerBound <= part.from && removeRange.upperBound >= part.to {
-                    /// Remove the element from the copy.
                     internalSpans.removeAll(where: { $0 == part })
                 } else if lowerBound <= part.from {
                     internalSpans[index] = part.copy(from: max(0, lowerBound), to: min(newText.string.count, part.to - removedCharsCount))
