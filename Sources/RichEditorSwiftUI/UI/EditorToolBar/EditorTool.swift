@@ -8,11 +8,20 @@
 import SwiftUI
 
 enum EditorTool: CaseIterable, Hashable {
-    static var allCases: [EditorTool] {
-        return [.header(), .bold, .italic, .underline, .list(.bullet)]
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(key)
+        if case .list(let listType) = self {
+            hasher.combine(listType?.key)
+            hasher.combine(listType?.getIndent())
+        }
     }
 
-    case header(HeaderType? = nil), bold, italic, underline, list(ListType? = .bullet)
+    static var allCases: [EditorTool] {
+        return [.header(), .bold, .italic, .underline, .list(.bullet())]
+    }
+
+    case header(HeaderType? = nil), bold, italic, underline, list(ListType? = .bullet())
 
     var systemImageName: String {
         switch self {
@@ -74,7 +83,7 @@ enum EditorTool: CaseIterable, Hashable {
         case .underline:
             return currentStyle.contains(.underline)
         case .list:
-            return currentStyle.contains(.bullet)
+            return currentStyle.contains(.bullet())
         }
     }
 

@@ -144,6 +144,9 @@ internal struct TextViewWrapper: UIViewRepresentable {
             applyAttributesToSelectedRange(textView, spans: data.spans, onCompletion: data.onCompletion)
         }
 
+//        if let insertTextAt = state.insertTextAt {
+//            insertText(textView: textView, list: insertTextAt.list, onCompletion: insertTextAt.onCompletion)
+//        }
         textView.reloadInputViews()
     }
 
@@ -203,6 +206,23 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 textView.textStorage.setRichTextStyle(style, to: span.shouldApply, at: span.span.spanRange)
             })
         }
+        onCompletion?()
+    }
+
+    internal func insertText(textView: TextViewOverRidden, list: [(text: String, atIndex: [Int], shouldInsert: Bool)], onCompletion : (() -> Void)? = nil) {
+        textView.textStorage.beginEditing()
+        list.forEach { (text, ranges, shouldInsert) in
+            ranges.sorted().forEach({
+                if shouldInsert {
+                    textView.textStorage.insert(.init(string: text), at: $0)
+                } else {
+                    textView.textStorage.replaceText(in: .init(location: $0, length: text.utf16Length), with: "")
+                }
+            })
+        }
+
+        textView.textStorage.endEditing()
+
         onCompletion?()
     }
 }

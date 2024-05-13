@@ -15,6 +15,7 @@ public struct RichAttributes: Codable {
     public let underline: Bool?
     public let header: HeaderType?
     public let list: ListType?
+    public let indent: Int?
 
     public init(
         //        id: String = UUID().uuidString,
@@ -22,7 +23,8 @@ public struct RichAttributes: Codable {
         italic: Bool? = nil,
         underline: Bool? = nil,
         header: HeaderType? = nil,
-        list: ListType? = nil
+        list: ListType? = nil,
+        indent: Int? = nil
     ) {
         //        self.id = id
         self.bold = bold
@@ -30,6 +32,7 @@ public struct RichAttributes: Codable {
         self.underline = underline
         self.header = header
         self.list = list
+        self.indent = indent
     }
 
     enum CodingKeys: String, CodingKey {
@@ -38,6 +41,7 @@ public struct RichAttributes: Codable {
         case underline = "underline"
         case header = "header"
         case list = "list"
+        case indent = "indent"
     }
 
     public init(from decoder: Decoder) throws {
@@ -48,6 +52,7 @@ public struct RichAttributes: Codable {
         self.underline = try values.decodeIfPresent(Bool.self, forKey: .underline)
         self.header = try values.decodeIfPresent(HeaderType.self, forKey: .header)
         self.list = try values.decodeIfPresent(ListType.self, forKey: .list)
+        self.indent = try values.decodeIfPresent(Int.self, forKey: .indent)
     }
 }
 
@@ -59,6 +64,7 @@ extension RichAttributes: Hashable {
         hasher.combine(underline)
         hasher.combine(header)
         hasher.combine(list)
+        hasher.combine(indent)
     }
 }
 
@@ -72,6 +78,7 @@ extension RichAttributes: Equatable {
         && lhs.underline == rhs.underline
         && lhs.header == rhs.header
         && lhs.list == rhs.list
+        && lhs.indent == rhs.indent
         )
     }
 }
@@ -81,14 +88,16 @@ extension RichAttributes {
                      header: HeaderType? = nil,
                      italic: Bool? = nil,
                      underline: Bool? = nil,
-                     list: ListType? = nil
+                     list: ListType? = nil,
+                     indent: Int? = nil
     ) -> RichAttributes {
         return RichAttributes(
             bold: (bold != nil ? bold! : self.bold),
             italic: (italic != nil ? italic! : self.italic),
             underline: (underline != nil ? underline! : self.underline),
             header: (header != nil ? header! : self.header),
-            list: (list != nil ? list! : self.list)
+            list: (list != nil ? list! : self.list),
+            indent: (indent != nil ? indent! : self.indent)
         )
     }
     
@@ -103,7 +112,8 @@ extension RichAttributes {
             italic: (att.italic != nil ? (byAdding ? att.italic! : nil) : self.italic),
             underline: (att.underline != nil ? (byAdding ? att.underline! : nil) : self.underline),
             header: (att.header != nil ? (byAdding ? att.header! : nil) : self.header),
-            list: (att.list != nil ? (byAdding ? att.list! : nil) : self.list)
+            list: (att.list != nil ? (byAdding ? att.list! : nil) : self.list),
+            indent: (att.indent != nil ? (byAdding ? att.indent! : nil) : self.indent)
         )
     }
 }
@@ -174,7 +184,7 @@ extension RichAttributes {
         case .h6:
             return header == .h6
         case .bullet:
-            return list == .bullet
+            return list == .bullet(indent)
         }
     }
 }
@@ -190,6 +200,7 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
     var underline: Bool? = nil
     var header: HeaderType? = nil
     var list: ListType? = nil
+    var indent: Int? = nil
 
     for style in styles {
         switch style {
@@ -211,8 +222,9 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
             header = .h5
         case .h6:
             header = .h6
-        case .bullet:
-            list = .bullet
+        case .bullet(let indentIndex):
+            list = .bullet(indentIndex)
+            indent = indentIndex
         case .default:
             header = .default
         }
@@ -221,6 +233,7 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
                           italic: italic,
                           underline: underline,
                           header: header,
-                          list: list
+                          list: list,
+                          indent: indent
     )
 }

@@ -9,22 +9,58 @@ import SwiftUI
 
 public typealias RichTextStyle = TextSpanStyle
 
-public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
-    case `default`   = "default"
-    case bold        = "bold"
-    case italic      = "italic"
-    case underline   = "underline"
-    case h1          = "h1"
-    case h2          = "h2"
-    case h3          = "h3"
-    case h4          = "h4"
-    case h5          = "h5"
-    case h6          = "h6"
-    case bullet      = "bullet"
-//    case ordered     = "ordered"
+public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
+    
+    public static var allCases: [TextSpanStyle] = [.`default`, .bold, .italic, .underline, .h1, .h2, .h3, .h4, .h5, .h6, .bullet()]
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(key)
+        
+        if case .bullet(let indent) = self {
+            hasher.combine(indent)
+        }
+    }
+
+    case `default`
+    case bold
+    case italic
+    case underline
+    case h1
+    case h2
+    case h3
+    case h4
+    case h5
+    case h6
+    case bullet(_ indent: Int? = nil)
+//    case ordered(_ indent: Int? = nil)
 
     var key: String {
-        return self.rawValue
+        switch self {
+        case .default:
+            return "default"
+        case .bold:
+            return "bold"
+        case .italic:
+            return "italic"
+        case .underline:
+            return "underline"
+        case .h1:
+            return "h1"
+        case .h2:
+            return "h2"
+        case .h3:
+            return "h3"
+        case .h4:
+            return "h4"
+        case .h5:
+            return "h5"
+        case .h6:
+            return "h6"
+        case .bullet:
+            return "bullet"
+//        case .ordered:
+//            return "ordered"
+        }
     }
 
     func defaultAttributeValue(font: FontRepresentable? = nil) -> Any {
@@ -32,16 +68,20 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
         switch self {
         case .underline:
             return 1
-        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .bullet:
+        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
             return getFontWithUpdating(font: font)
+        case .bullet:
+            return NSAttributedString.Key.paragraphStyle
         }
     }
 
     var attributedStringKey: NSAttributedString.Key {
         switch self {
         case .underline: return .underlineStyle
-        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .bullet:
+        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
             return .font
+        case .bullet:
+            return NSAttributedString.Key.paragraphStyle
         }
     }
 
@@ -59,8 +99,8 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return .italic
         case .underline:
             return .underline
-        case .bullet:
-            return .list(.bullet)
+        case .bullet(let indent):
+            return .list(.bullet(indent))
         case .h1:
             return .header(.h1)
         case .h2:
@@ -73,6 +113,15 @@ public enum TextSpanStyle: String, Equatable, Codable, CaseIterable {
             return .header(.h5)
         case .h6:
             return .header(.h6)
+        }
+    }
+
+    var listType: ListType? {
+        switch self {
+        case .bullet(let indent):
+            return .bullet(indent)
+        default:
+            return nil
         }
     }
 
@@ -184,7 +233,7 @@ extension TextSpanStyle {
         case .underline:
             return RichAttributes(underline: true)
         case .bullet:
-            return RichAttributes(list: .bullet)
+            return RichAttributes(list: .bullet())
         case .h1:
             return RichAttributes(header: .h1)
         case .h2:
