@@ -20,19 +20,8 @@ internal extension String.Element {
     
     /// Get the string element for a ` ` space.
     static var space: String.Element { " " }
-
-    /// Get the string element for a `•` round bullet
-    static var roundBullet: String.Element { "•" }
 }
 
-extension String {
-    func removeListIndicatorsFor(listType: ListType) -> String {
-        switch listType {
-        case .bullet:
-            return self.replacingOccurrences(of: .roundBullet + .space, with: "")
-        }
-    }
-}
 
 internal extension String {
     
@@ -47,7 +36,4 @@ internal extension String {
     
     /// Get the string for a ` ` space.
     static let space = String(.space)
-
-    /// Get the string element for a `•` round bullet
-    static var roundBullet = String(.roundBullet)
 }
