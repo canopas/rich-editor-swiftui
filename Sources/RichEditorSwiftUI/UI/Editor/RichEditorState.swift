@@ -17,7 +17,6 @@ public class RichEditorState: ObservableObject {
     internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
 
     @Published internal var attributesToApply: ((spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
-    @Published internal var insertTextAt: (list: [(text: String, atIndex: [Int], shouldInsert: Bool)], onCompletion: (() -> Void))? = nil
 
     private var activeSpans: RichTextSpans = []
 
@@ -25,10 +24,9 @@ public class RichEditorState: ObservableObject {
 
     private var internalSpans: [RichTextSpanInternal] = []
 
-    private var highlightedRange: NSRange
-    private var rawText: String
+    internal var highlightedRange: NSRange
+    internal var rawText: String
 
-    private var insertTextQueue: [(text: String, atIndex: [Int], shouldInsert: Bool)] = []
     private var updateAttributesQueue: [(span:RichTextSpanInternal, shouldApply: Bool)] = []
 
     /**
@@ -59,8 +57,8 @@ public class RichEditorState: ObservableObject {
         var tempSpans: [RichTextSpanInternal] = []
         var text = ""
         richText.spans.forEach({
-            let span = RichTextSpanInternal(from: text.count,
-                                            to: (text.count + $0.insert.count - 1),
+            let span = RichTextSpanInternal(from: text.utf16Length,
+                                            to: (text.utf16Length + $0.insert.utf16Length - 1),
                                             attributes: $0.attributes)
             tempSpans.append(span)
             text += $0.insert
@@ -85,7 +83,7 @@ public class RichEditorState: ObservableObject {
         self.adapter = adapter
         self.editableText = NSMutableAttributedString(string: input)
 
-        self.internalSpans = [.init(from: 0, to: input.count > 0 ? input.count - 1 : 0, attributes: RichAttributes())]
+        self.internalSpans = [.init(from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0, attributes: RichAttributes())]
 
         highlightedRange = NSRange(location: 0, length: 0)
         activeStyles = []
@@ -161,9 +159,6 @@ extension RichEditorState {
         switch event {
         case .didChangeSelection(let textView):
             highlightedRange = textView.selectedRange
-            print("==== selection is \(highlightedRange)")
-            print("===== spans are \(spans.map({ ($0.insert, $0.attributes?.styles().map({ $0.key })) }))")
-            print("===== internal spans \(internalSpans.map({ ("\($0.from)...\($0.to)" ) }))")
             guard rawText.count == textView.attributedText.string.count && highlightedRange.isCollapsed else { return }
             onSelectionDidChanged()
         case .didBeginEditing(let textView):
@@ -215,8 +210,8 @@ extension RichEditorState {
         activeAttributes = [:]
         activeStyles.insert(style)
 
-        if style.isHeaderStyle || style.isDefault {
-            handleAddOrRemoveHeaderStyle(in: highlightedRange, style: style, byAdding: !style.isDefault)
+        if style.isHeaderStyle || style.isDefault || style.isList {
+            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style, byAdding: !style.isDefault)
         } else if !highlightedRange.isCollapsed {
             processSpansFor(new: style, in: highlightedRange)
         }
@@ -274,10 +269,8 @@ extension RichEditorState {
         guard !activeStyles.contains(style) else { return }
         activeStyles.insert(style)
 
-        if (style.isHeaderStyle || style.isDefault) {
-            handleAddOrRemoveHeaderStyle(in: highlightedRange, style: style)
-//        } else if style.isList {
-//            handleAddOrRemoveListStyle(in: highlightedRange, style: style)
+        if (style.isHeaderStyle || style.isDefault || style.isList) {
+            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style)
         } else if !highlightedRange.isCollapsed {
             processSpansFor(new: style, in: highlightedRange)
         }
@@ -333,10 +326,8 @@ extension RichEditorState {
         activeStyles.remove(style)
         updateTypingAttributes()
 
-        if style.isHeaderStyle || style.isDefault {
-            handleAddOrRemoveHeaderStyle(in: highlightedRange, style: style, byAdding: false)
-//        } else if style.isList {
-//            handleAddOrRemoveListStyle(in: highlightedRange, style: style, byAdding: false)
+        if style.isHeaderStyle || style.isDefault || style.isList {
+            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style, byAdding: false)
         } else if !highlightedRange.isCollapsed {
             processSpansFor(new: style, in: highlightedRange, addStyle: false)
         }
@@ -376,7 +367,6 @@ extension RichEditorState {
      This will generate break the span according to requirement to avoid duplication of the span.
      */
     private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
-        guard !highlightedRange.isCollapsed else { return }
         let typedChars = newValue.string.utf16Length - rawText.utf16Length
         let startTypeIndex = highlightedRange.location - typedChars
         let startTypeChar = newValue.string.utf16.map({ $0 })[startTypeIndex]
@@ -385,17 +375,6 @@ extension RichEditorState {
            activeStyles.contains(where: { $0.isHeaderStyle }) {
             activeStyles.removeAll()
         }
-//        if startTypeChar == "\n".utf16.first && startTypeChar == "\n".utf16.last {
-//            if activeStyles.contains(where: { $0.isHeaderStyle }) {
-//                activeStyles.removeAll()
-//            }
-//        }
-//
-//        defer {
-//            if activeStyles.contains(.bullet) && startTypeChar == "\n".utf16.first && startTypeChar == "\n".utf16.last {
-//                insertTextAt = (text: "\u{2022}", atIndex: startTypeIndex + typedChars, onComplete: {})
-//            }
-//        }
 
         var selectedStyles = activeStyles
 
@@ -526,9 +505,6 @@ extension RichEditorState {
         let start = rawText.utf16.index(rawText.startIndex, offsetBy: startRemoveIndex)
         let end = rawText.utf16.index(rawText.startIndex, offsetBy: endRemoveIndex)
 
-//        if !activeStyles.contains(.bullet) {
-            //            handleRemoveBulletStyle()
-//        } else 
         if startRemoveIndex != endRemoveIndex, let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
             handleRemoveHeaderStyle(newText: newText.string, at: removeRange.nsRange, newLineIndex: newLineIndex)
         }
@@ -544,7 +520,7 @@ extension RichEditorState {
                 } else if lowerBound <= part.from && removeRange.upperBound >= part.to {
                     internalSpans.removeAll(where: { $0 == part })
                 } else if lowerBound <= part.from {
-                    internalSpans[index] = part.copy(from: max(0, lowerBound), to: min(newText.string.count, part.to - removedCharsCount))
+                    internalSpans[index] = part.copy(from: max(0, lowerBound), to: min(newText.string.utf16Length, part.to - removedCharsCount))
                 } else if removeRange.upperBound <= part.to {
                     internalSpans[index] = part.copy(to: part.to - removedCharsCount)
                 } else if lowerBound < part.to {
@@ -581,10 +557,10 @@ extension RichEditorState {
      - Parameters:
      - style: is of type TextSpanStyle
      */
-    private func handleAddOrRemoveHeaderStyle(in range: NSRange, style: TextSpanStyle, byAdding: Bool = true) {
+    private func handleAddOrRemoveHeaderOrListStyle(in range: NSRange, style: TextSpanStyle, byAdding: Bool = true) {
         guard !rawText.isEmpty else { return }
 
-        let range = getHeaderRangeFor(range, in: rawText)
+        let range = style.isList ? getListRangeFor(range, in: rawText) : getHeaderRangeFor(range, in: rawText)
         processSpansFor(new: style, in: range, addStyle: byAdding)
     }
 
@@ -672,8 +648,8 @@ extension RichEditorState {
                 /// This will help to apply header style without loosing other style
                 let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default) : getRichAttributesFor(style: style))
                 spansToUpdate.append(span)
-            } else if !style.isHeaderStyle {
-                //When selected range's is surrounded with same styled text it helps to update selected text in editor
+            } else if !style.isHeaderStyle && !style.isList {
+                ///When selected range's is surrounded with same styled text it helps to update selected text in editor
                 let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: getRichAttributesFor(style: style))
                 spansToUpdate.append(span)
             }
@@ -682,7 +658,7 @@ extension RichEditorState {
         } else {
             let span = RichTextSpanInternal(from: fromIndex, to: (toIndex - 1), attributes: getRichAttributesFor(style: style))
             removeAttributes([span])
-            //To apply style as remove span is removing other styles as well.
+            ///To apply style as remove span is removing other styles as well.
             applyStylesToSelectedText(spansToUpdate)
         }
     }
@@ -777,129 +753,30 @@ extension RichEditorState {
 
 //MARK: - Add Bullet list
 extension RichEditorState {
-    /**
-     This will add bullet style to selected text
-     */
-    func addBulletStyle(style: TextSpanStyle, selectedRange: NSRange) {
-    }
+    private func getListRangeFor(_ range: NSRange, in text: String) -> NSRange {
+        guard !text.isEmpty else { return range }
+        let lineRange = currentLine.lineRange
+        let location = max(0, lineRange.location - (lineRange.location > 0 ? 1 : 0))
+        let length = min(text.utf16Length, lineRange.length + (lineRange.location > 0 ? 1 : 0))
+        let LR = lineRange.length > 0 ? NSRange(location: location, length: length) : lineRange
 
-    /**
-     This will handle adding or removing bullet style from selected text
-     */
-    private func handleAddOrRemoveListStyle(in range: NSRange, style: TextSpanStyle, byAdding: Bool = true) {
-        guard !range.isCollapsed else { return }
-        var listIndicatorTextCount = 0
+        guard !range.isCollapsed else { return LR }
 
-        if let listType = style.listType {
-//            listIndicatorTextCount = listType.getListIndicator().utf16Length
+        let fromIndex = range.lowerBound
+        let toIndex = range.isCollapsed ? fromIndex : range.upperBound
+
+        let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
+        let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n".utf16.last)
+
+        let startIndex = max(0, newLineStartIndex)
+        var endIndex = (toIndex - 1) + (newLineEndIndex ?? 0)
+
+        if newLineEndIndex == nil {
+            endIndex = (text.utf16Length)
         }
 
-        let listItems: [NSRange] = getListItemsRangesFor(range, in: rawText).enumerated().map({ NSRange(location: $0.element.location + (byAdding ? ($0.offset * listIndicatorTextCount) : 0), length: $0.element.length) })
-
-        print("===== creteList \(listItems.map({ "\($0.lowerBound)...\($0.upperBound)" }))")
-
-        let ranges = listItems.enumerated().map({ NSRange(location: $0.element.location, length: ($0.element.length + listIndicatorTextCount)) })
-
-        print("===== Ranges \(ranges.map({ "\($0.lowerBound)...\($0.upperBound)" }))")
-
-        ranges.forEach({
-            processSpansFor(new: style, in: $0, addStyle: byAdding)
-        })
-
-        if let listType = style.listType {
-            if byAdding {
-                createListFor(listItems, with: listType)
-            } else {
-                removeListFor(listItems, with: listType)
-            }
-        }
-
-        print("====== processedSpans \(internalSpans.map({ "\($0.from)...\($0.to)" }))")
-
-        print("==== spans AF \(spans.map({ "\($0.insert), " }))")
-    }
-
-//    ===== Ranges ["5...12", "13...20", "21...28", "29...36", "37...42"]
-
-    func createListFor(_ ranges: [NSRange], with style: ListType) {
-//        insertOrRemoveText(list: [(text: style.getListIndicator(), atIndex: ranges.map({ $0.location }), shouldInsert: true)])
-    }
-
-    func getListItemsRangesFor(_ range: NSRange, in text: String) -> [NSRange] {
-        let newLineRange = getHeaderRangeFor(range, in: text)
-        var listItemsRanges: [NSRange] = []
-
-        // Define your regex pattern to match list items, assuming a simple pattern for demonstration
-        let regexPattern = "\n" // This is a basic pattern matching bullet points followed by text
-
-        // Create a regular expression object
-        guard let regex = try? NSRegularExpression(pattern: regexPattern, options: []) else {
-            return []
-        }
-
-        // Iterate through matches in the specified range
-        regex.enumerateMatches(in: text, options: [], range: newLineRange) { match, _, _ in
-            if let matchRange = match?.range {
-                listItemsRanges.append(matchRange)
-            }
-        }
-
-        var lastRange: NSRange? = nil
-        var listRanges: [NSRange] = []
-
-        listItemsRanges.forEach({ item in
-            if let previousRange = lastRange {
-                listRanges.append(.init(location: previousRange.location + 1, length: (item.location - previousRange.location)))
-                lastRange = item
-            } else {
-                lastRange = item
-            }
-        })
-
-        if let lastRange = lastRange {
-            listRanges.append(.init(location: lastRange.location + 1, length: (range.upperBound - lastRange.location)))
-        }
-
-        print("===== listItems \(listRanges.map({ "\($0.location)" }))")
-
-        return listRanges
-    }
-
-    /**
-        This will inert or remove text at specified index
-     */
-    private func insertOrRemoveText(list: [(text: String, atIndex: [Int], shouldInsert: Bool)]) {
-        guard !list.isEmpty else { return }
-
-        if insertTextAt == nil {
-            insertTextAt = (list: list, onCompletion: { [weak self] in
-                self?.insertTextAt = nil
-                if let insertOrRemoveQueue = self?.insertTextQueue, !insertOrRemoveQueue.isEmpty {
-                    self?.insertOrRemoveText(list: insertOrRemoveQueue)
-                    self?.insertTextQueue.removeAll(where: { item in
-                        insertOrRemoveQueue.contains(where: { $0.text == item.text
-                            && $0.atIndex == item.atIndex && $0.shouldInsert == item.shouldInsert
-                        })
-                    })
-                }
-            })
-        } else {
-            insertTextQueue.append(contentsOf: list)
-        }
-    }
-}
-
-
-//MARK: - Remove Bullet list
-extension RichEditorState {
-
-    /**
-     This will remove bullet style from selected text
-     */
-    func removeBulletStyle() {
-    }
-
-    func removeListFor(_ ranges: [NSRange], with style: ListType) {
+        let range = startIndex...endIndex
+        return range.nsRange
     }
 }
 

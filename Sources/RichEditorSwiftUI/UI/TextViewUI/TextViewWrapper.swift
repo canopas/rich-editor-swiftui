@@ -137,17 +137,19 @@ internal struct TextViewWrapper: UIViewRepresentable {
         if !attributes.contains(where: { $0.key == .font }) {
             attributes[.font] = fontStyle
         }
+        if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }){
+            if let paragraph = textView.typingAttributes[.paragraphStyle] as? NSMutableParagraphStyle, let paragraphToSet = attributes[.paragraphStyle] as? NSMutableParagraphStyle {
+                if paragraph.textLists.count == paragraphToSet.textLists.count {
+                    attributes[.paragraphStyle] = paragraph
+                }
+            }
+        }
         textView.typingAttributes = attributes
 
         //Update attributes in textStorage
         if let data = attributesToApply {
             applyAttributesToSelectedRange(textView, spans: data.spans, onCompletion: data.onCompletion)
         }
-
-//        if let insertTextAt = state.insertTextAt {
-//            insertText(textView: textView, list: insertTextAt.list, onCompletion: insertTextAt.onCompletion)
-//        }
-        textView.reloadInputViews()
     }
 
     internal class Coordinator: NSObject, UITextViewDelegate {
@@ -195,6 +197,9 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: fontStyle)
             }
         })
+        if !attributes.contains(where: { $0.key == .paragraphStyle }) {
+            attributes[.paragraphStyle] = nil
+        }
         return attributes
     }
 
@@ -206,23 +211,6 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 textView.textStorage.setRichTextStyle(style, to: span.shouldApply, at: span.span.spanRange)
             })
         }
-        onCompletion?()
-    }
-
-    internal func insertText(textView: TextViewOverRidden, list: [(text: String, atIndex: [Int], shouldInsert: Bool)], onCompletion : (() -> Void)? = nil) {
-        textView.textStorage.beginEditing()
-        list.forEach { (text, ranges, shouldInsert) in
-            ranges.sorted().forEach({
-                if shouldInsert {
-                    textView.textStorage.insert(.init(string: text), at: $0)
-                } else {
-                    textView.textStorage.replaceText(in: .init(location: $0, length: text.utf16Length), with: "")
-                }
-            })
-        }
-
-        textView.textStorage.endEditing()
-
         onCompletion?()
     }
 }
