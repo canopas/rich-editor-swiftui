@@ -70,8 +70,8 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
             return 1
         case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
             return getFontWithUpdating(font: font)
-        case .bullet:
-            return NSAttributedString.Key.paragraphStyle
+        case .bullet(let indent):
+            return getListStyleAttributeValue(listType ?? .bullet(), indent: indent)
         }
     }
 
@@ -81,7 +81,7 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
             return .font
         case .bullet:
-            return NSAttributedString.Key.paragraphStyle
+            return .paragraphStyle
         }
     }
 
@@ -203,6 +203,14 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         case .default, .h1, .h2, .h3, .h4, .h5, .h6:
             return font.updateFontSize(size: .standardRichTextFontSize)
         }
+    }
+
+    func getListStyleAttributeValue(_ listType: ListType, indent: Int? = nil) -> NSMutableParagraphStyle {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .left
+        let listItem = NSTextList(markerFormat: listType.getMarkerFormat(), options: 0)
+        paragraphStyle.textLists = Array(repeating: listItem, count: (indent ?? 0) + 1)
+        return paragraphStyle
     }
 }
 

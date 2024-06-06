@@ -97,11 +97,11 @@ public extension StringProtocol {
     }
 
     subscript(_ range: Range<Int>) -> SubSequence {
-        prefix(range.lowerBound+range.count).suffix(range.count)
+        prefix(range.lowerBound + range.count).suffix(range.count)
     }
 
     subscript(_ range: ClosedRange<Int>) -> SubSequence {
-        prefix(range.lowerBound+range.count).suffix(range.count)
+        prefix(range.lowerBound + range.count).suffix(range.count)
     }
 
     subscript(_ range: PartialRangeThrough<Int>) -> SubSequence {
