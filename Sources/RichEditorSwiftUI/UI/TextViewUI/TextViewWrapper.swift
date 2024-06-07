@@ -160,7 +160,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-            return true
+            return parent.state.textView(textView, shouldChangeTextIn: range, replacementText: text)
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {

@@ -222,7 +222,7 @@ extension RichEditorState {
     /**
      Update the activeStyles and activeAttributes
      */
-    private func updateCurrentSpanStyle() {
+    internal func updateCurrentSpanStyle() {
         guard !editableText.string.isEmpty else { return }
         var newStyles: Set<TextSpanStyle> = []
 
