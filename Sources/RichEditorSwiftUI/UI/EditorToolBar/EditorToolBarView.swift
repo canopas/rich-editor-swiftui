@@ -20,8 +20,9 @@ struct EditorToolBarView: View {
                 }
             }
         })
-        .frame(height: 50)
+        .frame(height: 55)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 5)
         .background(Color.gray.opacity(0.1))
     }
 }
@@ -41,14 +42,15 @@ private struct ToggleStyleButton: View {
         Button(action: {
             onToolSelect(tool.getTextSpanStyle())
         }, label: {
-            HStack(alignment: .center, spacing: 4, content: {
+            HStack(alignment: .center, spacing: 5, content: {
                 Image(systemName: tool.systemImageName)
                     .font(.title)
             })
             .foregroundColor(isSelected ? .blue : .black)
-            .frame(width: 45, height: 50, alignment: .center)
-            .padding(.horizontal, 3)
+            .frame(width: 45, height: 45, alignment: .center)
             .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
+            .cornerRadius(6)
+            .padding(.vertical, 5)
         })
     }
 }
@@ -89,9 +91,11 @@ struct TitleStyleButton: View {
                     .font(.subheadline)
             })
             .foregroundColor(isSelected ? .blue : .black)
-            .frame(width: 60, height: 50, alignment: .center)
+            .frame(width: 60, height: 45, alignment: .center)
             .padding(.horizontal, 3)
             .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
+            .cornerRadius(6)
+            .padding(.vertical, 5)
         })
         .onTapGesture {
             isExpanded.toggle()
