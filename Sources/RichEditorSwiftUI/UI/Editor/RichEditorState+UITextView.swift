@@ -16,8 +16,10 @@ extension RichEditorState {
         if text == "\n" {
             let previousRange = NSRange(location: range.location > 1 ? (range.location - 2) : range.location, length: 0)
             if textView.text[previousRange.closedRange] == "\n" {
-                endListStyle()
-                return false
+                if activeStyles.contains(where: { $0.isList }) {
+                    endListStyle()
+                    return false
+                }
             }
         }
 
