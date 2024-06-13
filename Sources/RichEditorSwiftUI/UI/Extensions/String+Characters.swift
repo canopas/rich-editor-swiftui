@@ -7,8 +7,8 @@
 
 import Foundation
 
-public extension String.Element {
-    
+internal extension String.Element {
+
     /// Get the string element for a `\r` carriage return.
     static var carriageReturn: String.Element { "\r" }
     
@@ -22,7 +22,8 @@ public extension String.Element {
     static var space: String.Element { " " }
 }
 
-public extension String {
+
+internal extension String {
     
     /// Get the string for a `\r` carriage return.
     static let carriageReturn = String(.carriageReturn)

@@ -106,14 +106,19 @@ internal struct TextViewWrapper: UIViewRepresentable {
         if !attributes.contains(where: { $0.key == .font }) {
             attributes[.font] = fontStyle
         }
+        if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }){
+            if let paragraph = textView.typingAttributes[.paragraphStyle] as? NSMutableParagraphStyle, let paragraphToSet = attributes[.paragraphStyle] as? NSMutableParagraphStyle {
+                if paragraph.textLists.count == paragraphToSet.textLists.count {
+                    attributes[.paragraphStyle] = paragraph
+                }
+            }
+        }
         textView.typingAttributes = attributes
 
         //Update attributes in textStorage
         if let data = attributesToApply {
             applyAttributesToSelectedRange(textView, spans: data.spans, onCompletion: data.onCompletion)
         }
-
-        textView.reloadInputViews()
     }
 
     internal class Coordinator: NSObject, UITextViewDelegate {
@@ -124,7 +129,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-            return true
+            return parent.state.textView(textView, shouldChangeTextIn: range, replacementText: text)
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
@@ -161,6 +166,9 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: fontStyle)
             }
         })
+        if !attributes.contains(where: { $0.key == .paragraphStyle }) {
+            attributes[.paragraphStyle] = nil
+        }
         return attributes
     }
 

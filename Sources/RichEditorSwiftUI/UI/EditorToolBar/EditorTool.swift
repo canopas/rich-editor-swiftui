@@ -8,18 +8,33 @@
 import SwiftUI
 
 enum EditorTool: CaseIterable, Hashable {
-    static var allCases: [EditorTool] {
-        return [.header(), .bold, .italic, .underline]
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(key)
+        if case .list(let listType) = self {
+            hasher.combine(listType?.key)
+            hasher.combine(listType?.getIndent())
+        }
     }
 
-    case header(HeaderType? = nil), bold, italic, underline
+    static var allCases: [EditorTool] {
+        return [.header(), .bold, .italic, .underline, .list(.bullet())]
+    }
+
+    case header(HeaderType? = nil), bold, italic, underline, list(ListType? = .bullet())
 
     var systemImageName: String {
         switch self {
-        case .header: return "textformat.size"
-        case .bold: return "bold"
-        case .italic: return "italic"
-        case .underline: return "underline"
+        case .header:
+            return "textformat.size"
+        case .bold:
+            return "bold"
+        case .italic:
+            return "italic"
+        case .underline:
+            return "underline"
+        case .list:
+            return "list.bullet"
         }
     }
 
@@ -52,6 +67,8 @@ enum EditorTool: CaseIterable, Hashable {
             return .italic
         case .underline:
             return .underline
+        case .list(let listType):
+            return listType?.getTextSpanStyle() ?? .default
         }
     }
 
@@ -65,6 +82,8 @@ enum EditorTool: CaseIterable, Hashable {
             return currentStyle.contains(.italic)
         case .underline:
             return currentStyle.contains(.underline)
+        case .list:
+            return currentStyle.contains(.bullet())
         }
     }
 
@@ -78,47 +97,8 @@ enum EditorTool: CaseIterable, Hashable {
             return "italic"
         case .underline:
             return "underline"
-        }
-    }
-}
-
-public enum HeaderType: Int, CaseIterable, Codable {
-    case `default` = 0
-    case h1 = 1
-    case h2 = 2
-    case h3 = 3
-    case h4 = 4
-    case h5 = 5
-    case h6 = 6
-
-    var title: String {
-        switch self {
-        case .default:
-            return "Normal Text"
-        case .h1:
-            return "Header 1"
-        case .h2:
-            return "Header 2"
-        case .h3:
-            return "Header 3"
-        case .h4:
-            return "Header 4"
-        case .h5:
-            return "Header 5"
-        case .h6:
-            return "Header 6"
-        }
-    }
-
-    func getTextSpanStyle() -> TextSpanStyle {
-        switch self {
-        case .default: return .default
-        case .h1: return .h1
-        case .h2: return .h2
-        case .h3: return .h3
-        case .h4: return .h4
-        case .h5: return .h5
-        case .h6: return .h6
+        case .list:
+            return "list"
         }
     }
 }
