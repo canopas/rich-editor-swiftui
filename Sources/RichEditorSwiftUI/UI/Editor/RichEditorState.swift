@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 public class RichEditorState: ObservableObject {
     private var adapter: EditorAdapter = DefaultAdapter()

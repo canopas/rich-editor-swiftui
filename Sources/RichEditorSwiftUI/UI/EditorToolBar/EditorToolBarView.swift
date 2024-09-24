@@ -7,10 +7,20 @@
 
 import SwiftUI
 
-struct EditorToolBarView: View {
+public struct EditorToolBarView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     @ObservedObject var state: RichEditorState
 
-    var body: some View {
+    var selectedColor: Color {
+        colorScheme == .dark ? .white.opacity(0.3) : .gray.opacity(0.1)
+    }
+
+    public init(state: RichEditorState) {
+        self.state = state
+    }
+
+    public var body: some View {
         LazyHStack(spacing: 5, content: {
             ForEach(EditorTool.allCases, id: \.self) { tool in
                 if tool.isContainManu {
@@ -21,12 +31,15 @@ struct EditorToolBarView: View {
             }
         })
         .frame(height: 50)
+        .padding(.horizontal, 15)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.gray.opacity(0.1))
+        .background(selectedColor)
+        .clipShape(.capsule)
     }
 }
 
 private struct ToggleStyleButton: View {
+    @Environment(\.colorScheme) var colorScheme
 
     let tool: EditorTool
     let appliedTools: Set<TextSpanStyle>
@@ -36,6 +49,13 @@ private struct ToggleStyleButton: View {
         tool.isSelected(appliedTools)
     }
 
+    var normalDarkColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+
+    var selectedColor: Color {
+        colorScheme == .dark ? .gray.opacity(0.4) : .gray.opacity(0.1)
+    }
 
     var body: some View {
         Button(action: {
@@ -45,15 +65,18 @@ private struct ToggleStyleButton: View {
                 Image(systemName: tool.systemImageName)
                     .font(.title)
             })
-            .foregroundColor(isSelected ? .blue : .black)
-            .frame(width: 45, height: 50, alignment: .center)
-            .padding(.horizontal, 3)
-            .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
+            .foregroundColor(isSelected ? .blue : normalDarkColor)
+            .frame(width: 40, height: 40, alignment: .center)
+            .background(isSelected ? selectedColor : Color.clear)
+            .cornerRadius(5)
+            .padding(.vertical, 5)
         })
     }
 }
 
 struct TitleStyleButton: View {
+    @Environment(\.colorScheme) var colorScheme
+
     let tool: EditorTool
     let appliedTools: Set<TextSpanStyle>
     let setStyle: (TextSpanStyle) -> Void
@@ -63,6 +86,10 @@ struct TitleStyleButton: View {
     }
 
     @State var isExpanded: Bool = false
+
+    var normalDarkColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
 
     var body: some View {
 
@@ -74,7 +101,7 @@ struct TitleStyleButton: View {
                 }, label: {
                     if hasStyle(header.getTextSpanStyle()) {
                         Label(header.title, systemImage:"checkmark")
-                            .foregroundColor(.blue)
+                            .foregroundColor(normalDarkColor)
                     } else {
                         Text(header.title)
                     }
@@ -88,10 +115,12 @@ struct TitleStyleButton: View {
                 Image(systemName: "chevron.down")
                     .font(.subheadline)
             })
-            .foregroundColor(isSelected ? .blue : .black)
-            .frame(width: 60, height: 50, alignment: .center)
+            .foregroundColor(isSelected ? .blue : normalDarkColor)
+            .frame(width: 50, height: 40, alignment: .center)
             .padding(.horizontal, 3)
             .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
+            .cornerRadius(5)
+            .padding(.vertical, 5)
         })
         .onTapGesture {
             isExpanded.toggle()

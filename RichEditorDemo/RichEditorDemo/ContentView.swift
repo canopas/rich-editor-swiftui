@@ -9,6 +9,8 @@ import SwiftUI
 import RichEditorSwiftUI
 
 struct ContentView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     @ObservedObject var state: RichEditorState
 
     init(state: RichEditorState? = nil) {
@@ -27,7 +29,11 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                EditorToolBarView(state: state)
+
                 RichEditor(state: _state)
+                    .textPadding(12)
+                    .cornerRadius(10)
             }
             .padding(10)
             .toolbar {
@@ -41,6 +47,7 @@ struct ContentView: View {
                     })
                 }
             }
+            .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
             .navigationTitle("Rich Editor")
             .navigationBarTitleDisplayMode(.inline)
         }
