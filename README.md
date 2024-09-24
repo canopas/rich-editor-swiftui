@@ -7,7 +7,7 @@
 
 ## A swift-based  library to make rich text editing very easy with SwiftUI.
 
-<img src="./docs/sample.gif" height="640" />
+<img src="./docs/sample.gif" height="640" />    <img src="./docs/dark_mode_sample.gif" height="640" />
 
 ## Features
 
