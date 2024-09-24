@@ -8,6 +8,7 @@
 import SwiftUI
 
 internal struct TextViewWrapper: UIViewRepresentable {
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var state: RichEditorState
 
     @Binding private var typingAttributes: [NSAttributedString.Key: Any]?
@@ -18,10 +19,28 @@ internal struct TextViewWrapper: UIViewRepresentable {
     private let isScrollEnabled: Bool
     private let linelimit: Int?
     private let fontStyle: FontRepresentable?
-    private let fontColor: Color
-    private let backGroundColor: UIColor
+    private var _fontColor: Color? = nil
+    private var _backGroundColor: UIColor? = nil
     private let tag: Int?
     private let onTextViewEvent: ((TextViewEvents) -> Void)?
+
+    private var fontColor: Color {
+        if let _fontColor {
+            return _fontColor
+        } else {
+            return colorScheme == .dark ? .white : .black
+        }
+    }
+
+    private var backGroundColor: UIColor {
+        if let _backGroundColor {
+            return _backGroundColor
+        } else {
+            return colorScheme == .dark ? .gray.withAlphaComponent(0.3) : .white
+        }
+    }
+
+    private var textPadding: CGFloat? = nil
 
     public init(state: ObservedObject<RichEditorState>,
                 typingAttributes: Binding<[NSAttributedString.Key: Any]?>? = nil,
@@ -31,10 +50,12 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 isScrollEnabled: Bool = false,
                 linelimit: Int? = nil,
                 fontStyle: FontRepresentable? = nil,
-                fontColor: Color = .black,
-                backGroundColor: UIColor = .clear,
+                fontColor: Color? = nil,
+                backGroundColor: Color? = nil,
                 tag: Int? = nil,
+                textPadding: CGFloat? = nil,
                 onTextViewEvent: ((TextViewEvents) -> Void)?) {
+
         self._state = state
         self._typingAttributes = typingAttributes != nil ? typingAttributes! : .constant(nil)
         self._attributesToApply = attributesToApply != nil ? attributesToApply! : .constant(nil)
@@ -44,9 +65,14 @@ internal struct TextViewWrapper: UIViewRepresentable {
         self.isScrollEnabled = isScrollEnabled
         self.linelimit = linelimit
         self.fontStyle = fontStyle
-        self.fontColor = fontColor
-        self.backGroundColor = backGroundColor
+        if let fontColor {
+            self._fontColor = fontColor
+        }
+        if let backGroundColor {
+            self._backGroundColor = UIColor(backGroundColor)
+        }
         self.tag = tag
+        self.textPadding = textPadding ?? 0
         self.onTextViewEvent = onTextViewEvent
     }
 
@@ -77,6 +103,10 @@ internal struct TextViewWrapper: UIViewRepresentable {
         textView.showsVerticalScrollIndicator = false
         textView.showsHorizontalScrollIndicator = false
         textView.isSelectable = true
+        textView.backgroundColor = backGroundColor
+        if let textPadding {
+            textView.contentInset = UIEdgeInsets(top: textPadding, left: textPadding, bottom: textPadding, right: textPadding)
+        }
 
         if let attributes = typingAttributes {
             textView.typingAttributes = attributes
@@ -101,6 +131,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
 
     public func updateUIView(_ textView: TextViewOverRidden, context: Context) {
         textView.textColor = UIColor(fontColor)
+        textView.backgroundColor = backGroundColor
         ///Set typing attributes
         var attributes = getTypingAttributesForStyles(state.activeStyles)
         if !attributes.contains(where: { $0.key == .font }) {
