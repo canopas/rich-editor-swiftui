@@ -296,7 +296,7 @@ extension RichEditorState {
     private func updateAttributes(spans: [(RichTextSpanInternal, shouldApply: Bool)]) {
         if attributesToApply == nil {
             attributesToApply = (spans: spans, onCompletion: { [weak self] in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.attributesToApply = nil
                 }
                 if let updateQueue = self?.updateAttributesQueue, !updateQueue.isEmpty {
