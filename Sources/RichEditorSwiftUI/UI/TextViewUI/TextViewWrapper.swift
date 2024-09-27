@@ -137,14 +137,30 @@ internal struct TextViewWrapper: UIViewRepresentable {
         if !attributes.contains(where: { $0.key == .font }) {
             attributes[.font] = fontStyle
         }
+        if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }) {
+            if let paragraphToSet = textView.typingAttributes[.paragraphStyle] as? NSMutableParagraphStyle, let paragraphGot = attributes[.paragraphStyle] as? NSMutableParagraphStyle, paragraphToSet.textLists.count != paragraphGot.textLists.count {
+                let paragraph = paragraphGot.mutableCopy() as? NSMutableParagraphStyle
+                paragraph?.textLists = paragraphToSet.textLists.isEmpty ? paragraphGot.textLists : paragraphToSet.textLists
+                attributes[.paragraphStyle] = paragraph
+            }
+
+        } else if textView.typingAttributes.contains(where: { $0.key != .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }) {
+            if let style = state.activeStyles.first(where: { $0.isList }) {
+                let isCursorAtEnd = textView.selectedRange.location == textView.text.utf16Length
+                if isCursorAtEnd {
+                    textView.textStorage.replaceCharacters(in: textView.selectedRange, with: "\n")
+                }
+                textView.textStorage.setRichTextStyle(style, to: true, at: .init(location: max(0, textView.selectedRange.location), length: 1))
+            }
+        } else if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key != .paragraphStyle }) {
+            textView.textStorage.setRichTextStyle(.bullet(0), to: false, at: .init(location: textView.selectedRange.location, length: 1))
+        }
         textView.typingAttributes = attributes
 
         //Update attributes in textStorage
         if let data = attributesToApply {
             applyAttributesToSelectedRange(textView, spans: data.spans, onCompletion: data.onCompletion)
         }
-
-        textView.reloadInputViews()
     }
 
     internal class Coordinator: NSObject, UITextViewDelegate {
@@ -155,7 +171,7 @@ internal struct TextViewWrapper: UIViewRepresentable {
         }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-            return true
+            return parent.state.textView(textView, shouldChangeTextIn: range, replacementText: text)
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
@@ -192,6 +208,9 @@ internal struct TextViewWrapper: UIViewRepresentable {
                 attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: fontStyle)
             }
         })
+        if !attributes.contains(where: { $0.key == .paragraphStyle }) {
+            attributes[.paragraphStyle] = nil
+        }
         return attributes
     }
 

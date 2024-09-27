@@ -27,6 +27,13 @@ public extension NSMutableAttributedString {
     ) {
         let rangeValue = range ?? richTextRange
         let range = safeRange(for: rangeValue)
+
+        if style.isList, let style = style.listType {
+            setRichTextListStyle(style, to: newValue, at: range)
+        }
+
+        guard !style.isList else { return }
+
         let attributeValue = newValue ? 1 : 0
         if style == .underline { return setRichTextAttribute(.underlineStyle, to: attributeValue, at: range) }
         guard let font = richTextFont(at: range) else { return }

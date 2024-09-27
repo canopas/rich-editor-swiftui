@@ -16,18 +16,16 @@ public class RichEditorState: ObservableObject {
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
     internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
 
-    @Published internal var attributesToApply: ((spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
-
-    private var activeSpans: RichTextSpans = []
+    @Published internal var attributesToApply: ((spans: [(span: RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
 
     //    private var internalSpans: [RichTextSpan] = []
 
     private var internalSpans: [RichTextSpanInternal] = []
 
-    private var highlightedRange: NSRange
-    private var rawText: String
+    internal var highlightedRange: NSRange
+    internal var rawText: String
 
-    private var updateAttributesQueue: [(span:RichTextSpanInternal, shouldApply: Bool)] = []
+    private var updateAttributesQueue: [(span: RichTextSpanInternal, shouldApply: Bool)] = []
 
     /**
      This will provide encoded text which is of type RichText
@@ -41,7 +39,7 @@ public class RichEditorState: ObservableObject {
     }
 
     private var spans: RichTextSpans {
-        return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes)})
+        return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes) })
     }
 
     //MARK: - Initializers
@@ -57,8 +55,8 @@ public class RichEditorState: ObservableObject {
         var tempSpans: [RichTextSpanInternal] = []
         var text = ""
         richText.spans.forEach({
-            let span = RichTextSpanInternal(from: text.count,
-                                            to: (text.count + $0.insert.count - 1),
+            let span = RichTextSpanInternal(from: text.utf16Length,
+                                            to: (text.utf16Length + $0.insert.utf16Length - 1),
                                             attributes: $0.attributes)
             tempSpans.append(span)
             text += $0.insert
@@ -83,7 +81,7 @@ public class RichEditorState: ObservableObject {
         self.adapter = adapter
         self.editableText = NSMutableAttributedString(string: input)
 
-        self.internalSpans = [.init(from: 0, to: input.count > 0 ? input.count - 1 : 0, attributes: RichAttributes())]
+        self.internalSpans = [.init(from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0, attributes: RichAttributes())]
 
         highlightedRange = NSRange(location: 0, length: 0)
         activeStyles = []
@@ -210,8 +208,8 @@ extension RichEditorState {
         activeAttributes = [:]
         activeStyles.insert(style)
 
-        if style.isHeaderStyle || style.isDefault {
-            handleAddOrRemoveHeaderStyle(in: highlightedRange, style: style, byAdding: !style.isDefault)
+        if style.isHeaderStyle || style.isDefault || style.isList {
+            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style, byAdding: !style.isDefault)
         } else if !highlightedRange.isCollapsed {
             processSpansFor(new: style, in: highlightedRange)
         }
@@ -222,7 +220,7 @@ extension RichEditorState {
     /**
      Update the activeStyles and activeAttributes
      */
-    private func updateCurrentSpanStyle() {
+    internal func updateCurrentSpanStyle() {
         guard !editableText.string.isEmpty else { return }
         var newStyles: Set<TextSpanStyle> = []
 
@@ -269,8 +267,8 @@ extension RichEditorState {
         guard !activeStyles.contains(style) else { return }
         activeStyles.insert(style)
 
-        if (style.isHeaderStyle || style.isDefault) {
-            handleAddOrRemoveHeaderStyle(in: highlightedRange, style: style)
+        if (style.isHeaderStyle || style.isDefault || style.isList) {
+            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style)
         } else if !highlightedRange.isCollapsed {
             processSpansFor(new: style, in: highlightedRange)
         }
@@ -326,8 +324,8 @@ extension RichEditorState {
         activeStyles.remove(style)
         updateTypingAttributes()
 
-        if style.isHeaderStyle || style.isDefault {
-            handleAddOrRemoveHeaderStyle(in: highlightedRange, style: style, byAdding: false)
+        if style.isHeaderStyle || style.isDefault || style.isList {
+            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style, byAdding: false)
         } else if !highlightedRange.isCollapsed {
             processSpansFor(new: style, in: highlightedRange, addStyle: false)
         }
@@ -518,10 +516,9 @@ extension RichEditorState {
                 if removeRange.upperBound < part.from {
                     internalSpans[index] = part.copy(from: part.from - (removedCharsCount), to: part.to - (removedCharsCount))
                 } else if lowerBound <= part.from && removeRange.upperBound >= part.to {
-                    /// Remove the element from the copy.
                     internalSpans.removeAll(where: { $0 == part })
                 } else if lowerBound <= part.from {
-                    internalSpans[index] = part.copy(from: max(0, lowerBound), to: min(newText.string.count, part.to - removedCharsCount))
+                    internalSpans[index] = part.copy(from: max(0, lowerBound), to: min(newText.string.utf16Length, part.to - removedCharsCount))
                 } else if removeRange.upperBound <= part.to {
                     internalSpans[index] = part.copy(to: part.to - removedCharsCount)
                 } else if lowerBound < part.to {
@@ -558,10 +555,10 @@ extension RichEditorState {
      - Parameters:
      - style: is of type TextSpanStyle
      */
-    private func handleAddOrRemoveHeaderStyle(in range: NSRange, style: TextSpanStyle, byAdding: Bool = true) {
+    private func handleAddOrRemoveHeaderOrListStyle(in range: NSRange, style: TextSpanStyle, byAdding: Bool = true) {
         guard !rawText.isEmpty else { return }
 
-        let range = getHeaderRangeFor(range, in: rawText)
+        let range = style.isList ? getListRangeFor(range, in: rawText) : getHeaderRangeFor(range, in: rawText)
         processSpansFor(new: style, in: range, addStyle: byAdding)
     }
 
@@ -627,11 +624,13 @@ extension RichEditorState {
         partialOverlap.removeAll(where: { completeOverlap.contains($0) })
         sameSpans.removeAll(where: { completeOverlap.contains($0) })
 
-        processedSpans.append(contentsOf: processPartialOverlappingSpans(partialOverlap, range: range, style: style, addStyle: addStyle))
+        let partialOverlapSpan = processPartialOverlappingSpans(partialOverlap, range: range, style: style, addStyle: addStyle)
+        let completeOverlapSpan = processCompleteOverlappingSpans(completeOverlap, range: range, style: style, addStyle: addStyle)
+        let sameSpan = processSameSpans(sameSpans, range: range, style: style, addStyle: addStyle)
 
-        processedSpans.append(contentsOf: processCompleteOverlappingSpans(completeOverlap, range: range, style: style, addStyle: addStyle))
-
-        processedSpans.append(contentsOf: processSameSpans(sameSpans, range: range, style: style, addStyle: addStyle))
+        processedSpans.append(contentsOf: partialOverlapSpan)
+        processedSpans.append(contentsOf: completeOverlapSpan)
+        processedSpans.append(contentsOf: sameSpan)
 
         processedSpans = mergeSameStyledSpans(processedSpans)
 
@@ -647,8 +646,8 @@ extension RichEditorState {
                 /// This will help to apply header style without loosing other style
                 let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default) : getRichAttributesFor(style: style))
                 spansToUpdate.append(span)
-            } else if !style.isHeaderStyle {
-                //When selected range's is surrounded with same styled text it helps to update selected text in editor
+            } else if !style.isHeaderStyle && !style.isList {
+                ///When selected range's is surrounded with same styled text it helps to update selected text in editor
                 let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: getRichAttributesFor(style: style))
                 spansToUpdate.append(span)
             }
@@ -657,7 +656,7 @@ extension RichEditorState {
         } else {
             let span = RichTextSpanInternal(from: fromIndex, to: (toIndex - 1), attributes: getRichAttributesFor(style: style))
             removeAttributes([span])
-            //To apply style as remove span is removing other styles as well.
+            ///To apply style as remove span is removing other styles as well.
             applyStylesToSelectedText(spansToUpdate)
         }
     }
@@ -750,6 +749,33 @@ extension RichEditorState {
     }
 }
 
+//MARK: - Add Bullet list
+extension RichEditorState {
+    private func getListRangeFor(_ range: NSRange, in text: String) -> NSRange {
+        guard !text.isEmpty else { return range }
+        let lineRange = currentLine.lineRange
+
+        guard !range.isCollapsed else { return lineRange }
+
+        let fromIndex = range.lowerBound
+        let toIndex = range.isCollapsed ? fromIndex : range.upperBound
+
+        let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
+        let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n".utf16.last)
+
+        ///Added +1 to start new line after \n otherwise it will create bullets for previous line as well
+        let startIndex = max(0, (newLineStartIndex + 1))
+        var endIndex = (toIndex - 1) + (newLineEndIndex ?? 0)
+
+        if newLineEndIndex == nil {
+            endIndex = (text.utf16Length)
+        }
+
+        let range = startIndex...endIndex
+        return range.nsRange
+    }
+}
+
 //MARK: - RichTextSpanInternal Helper
 extension RichEditorState {
     /**
@@ -757,7 +783,6 @@ extension RichEditorState {
      - Parameters:
      - selectedRange:  is of type NSRange
      */
-
     private func getOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
         return internalSpans.filter { $0.closedRange.overlaps(selectedRange.closedRange) }
     }
@@ -767,7 +792,6 @@ extension RichEditorState {
      - Parameters:
      - selectedRange: selectedRange is of type NSRange
      */
-
     func getPartialOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
         return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isPartialOverlap(selectedRange.closedRange) })
     }

@@ -97,11 +97,11 @@ public extension StringProtocol {
     }
 
     subscript(_ range: Range<Int>) -> SubSequence {
-        prefix(range.lowerBound+range.count).suffix(range.count)
+        prefix(range.lowerBound + range.count).suffix(range.count)
     }
 
     subscript(_ range: ClosedRange<Int>) -> SubSequence {
-        prefix(range.lowerBound+range.count).suffix(range.count)
+        prefix(range.lowerBound + range.count).suffix(range.count)
     }
 
     subscript(_ range: PartialRangeThrough<Int>) -> SubSequence {
@@ -142,5 +142,11 @@ internal extension String {
      */
     var utf16Length: Int {
         return self.utf16.count
+    }
+}
+
+extension String.SubSequence {
+    func string() -> String {
+        return String(self)
     }
 }
