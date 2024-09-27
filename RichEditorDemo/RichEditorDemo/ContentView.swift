@@ -40,7 +40,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
 
-                        print("Export JSON == \(state.output())")
+                        print("Exported JSON == \(state.output())")
                     }, label: {
                         Image(systemName: "checkmark")
                             .padding()

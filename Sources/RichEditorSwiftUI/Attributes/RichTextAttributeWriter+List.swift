@@ -40,15 +40,16 @@ private extension RichTextAttributeWriter {
         at range: NSRange
     ) {
         guard let string = mutableRichText else { return }
-        let safeRange = safeRange(for: range, isAttributeOperation: true)
+        let safeRange = safeRange(for: range)
 
         let searchRange = NSRange(location: max(0, (range.location - 1)), length: min(string.string.utf16Length, (range.length + 1)))
         var previousRang: NSRange? = nil
 
-        var attributesWithRange: [Int: (range: NSRange, paragraphStyle:NSMutableParagraphStyle)] = [:]
+        var attributesWithRange: [Int: (range: NSRange, paragraphStyle: NSMutableParagraphStyle)] = [:]
         string.beginEditing()
-            var previousStyle: NSMutableParagraphStyle? = nil
+        var previousStyle: NSMutableParagraphStyle? = nil
         string.enumerateAttribute(.paragraphStyle, in: searchRange) { (attribute, range, _) in
+
             if let style = attribute as? NSMutableParagraphStyle, !style.textLists.isEmpty {
                 if newValue {
                     /// For add style
@@ -89,7 +90,7 @@ private extension RichTextAttributeWriter {
 
         ///Add style if not already added
         if attributesWithRange.isEmpty {
-
+            
             let paragraphStyle = NSMutableParagraphStyle()
 
             paragraphStyle.alignment = .left

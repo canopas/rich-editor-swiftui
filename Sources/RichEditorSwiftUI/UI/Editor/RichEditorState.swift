@@ -16,9 +16,7 @@ public class RichEditorState: ObservableObject {
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
     internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
 
-    @Published internal var attributesToApply: ((spans: [(span:RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
-
-    private var activeSpans: RichTextSpans = []
+    @Published internal var attributesToApply: ((spans: [(span: RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
 
     //    private var internalSpans: [RichTextSpan] = []
 
@@ -27,7 +25,7 @@ public class RichEditorState: ObservableObject {
     internal var highlightedRange: NSRange
     internal var rawText: String
 
-    private var updateAttributesQueue: [(span:RichTextSpanInternal, shouldApply: Bool)] = []
+    private var updateAttributesQueue: [(span: RichTextSpanInternal, shouldApply: Bool)] = []
 
     /**
      This will provide encoded text which is of type RichText
@@ -756,11 +754,8 @@ extension RichEditorState {
     private func getListRangeFor(_ range: NSRange, in text: String) -> NSRange {
         guard !text.isEmpty else { return range }
         let lineRange = currentLine.lineRange
-        let location = max(0, lineRange.location - (lineRange.location > 0 ? 1 : 0))
-        let length = min(text.utf16Length, lineRange.length + (lineRange.location > 0 ? 1 : 0))
-        let LR = lineRange.length > 0 ? NSRange(location: location, length: length) : lineRange
 
-        guard !range.isCollapsed else { return LR }
+        guard !range.isCollapsed else { return lineRange }
 
         let fromIndex = range.lowerBound
         let toIndex = range.isCollapsed ? fromIndex : range.upperBound
@@ -768,7 +763,8 @@ extension RichEditorState {
         let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
         let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n".utf16.last)
 
-        let startIndex = max(0, newLineStartIndex)
+        ///Added +1 to start new line after \n otherwise it will create bullets for previous line as well
+        let startIndex = max(0, (newLineStartIndex + 1))
         var endIndex = (toIndex - 1) + (newLineEndIndex ?? 0)
 
         if newLineEndIndex == nil {
@@ -787,7 +783,6 @@ extension RichEditorState {
      - Parameters:
      - selectedRange:  is of type NSRange
      */
-
     private func getOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
         return internalSpans.filter { $0.closedRange.overlaps(selectedRange.closedRange) }
     }
@@ -797,7 +792,6 @@ extension RichEditorState {
      - Parameters:
      - selectedRange: selectedRange is of type NSRange
      */
-
     func getPartialOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
         return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isPartialOverlap(selectedRange.closedRange) })
     }

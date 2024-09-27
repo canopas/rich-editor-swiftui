@@ -48,12 +48,7 @@ extension RichTextSpanInternal: Hashable {
 
 extension RichTextSpanInternal {
     public var spanRange: NSRange {
-        let range = NSRange(location: from, length: (to - from) + 1)
-
-        guard range.length > 0 else {
-            return .init(location: range.location,
-                         length: 0)
-        }
+        let range = NSRange(location: from, length: max(((to - from) + 1), 0))
         return range
     }
 

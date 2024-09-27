@@ -137,12 +137,23 @@ internal struct TextViewWrapper: UIViewRepresentable {
         if !attributes.contains(where: { $0.key == .font }) {
             attributes[.font] = fontStyle
         }
-        if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }){
-            if let paragraph = textView.typingAttributes[.paragraphStyle] as? NSMutableParagraphStyle, let paragraphToSet = attributes[.paragraphStyle] as? NSMutableParagraphStyle {
-                if paragraph.textLists.count == paragraphToSet.textLists.count {
-                    attributes[.paragraphStyle] = paragraph
-                }
+        if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }) {
+            if let paragraphToSet = textView.typingAttributes[.paragraphStyle] as? NSMutableParagraphStyle, let paragraphGot = attributes[.paragraphStyle] as? NSMutableParagraphStyle, paragraphToSet.textLists.count != paragraphGot.textLists.count {
+                let paragraph = paragraphGot.mutableCopy() as? NSMutableParagraphStyle
+                paragraph?.textLists = paragraphToSet.textLists.isEmpty ? paragraphGot.textLists : paragraphToSet.textLists
+                attributes[.paragraphStyle] = paragraph
             }
+
+        } else if textView.typingAttributes.contains(where: { $0.key != .paragraphStyle }) && attributes.contains(where: { $0.key == .paragraphStyle }) {
+            if let style = state.activeStyles.first(where: { $0.isList }) {
+                let isCursorAtEnd = textView.selectedRange.location == textView.text.utf16Length
+                if isCursorAtEnd {
+                    textView.textStorage.replaceCharacters(in: textView.selectedRange, with: "\n")
+                }
+                textView.textStorage.setRichTextStyle(style, to: true, at: .init(location: max(0, textView.selectedRange.location), length: 1))
+            }
+        } else if textView.typingAttributes.contains(where: { $0.key == .paragraphStyle }) && attributes.contains(where: { $0.key != .paragraphStyle }) {
+            textView.textStorage.setRichTextStyle(.bullet(0), to: false, at: .init(location: textView.selectedRange.location, length: 1))
         }
         textView.typingAttributes = attributes
 

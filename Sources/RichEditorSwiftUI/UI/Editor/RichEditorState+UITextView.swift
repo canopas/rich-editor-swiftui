@@ -13,22 +13,44 @@ extension RichEditorState {
         /// Handle newly added text according to our convenience
 
         // If the user just hit enter/newline
-        if text == "\n" {
+        if text == .newLine {
             let previousRange = NSRange(location: range.location > 1 ? (range.location - 2) : range.location, length: 0)
-            if textView.text[previousRange.closedRange] == "\n" {
+            if textView.text[previousRange.closedRange].string() == .newLine {
                 if activeStyles.contains(where: { $0.isList }) {
                     endListStyle()
                     return false
                 }
             }
-        }
+        } 
+//        else if text == .tab {
+//            if activeStyles.contains(where: { $0.isList }) {
+//                addSubList()
+//                return false
+//            }
+//        }
 
         return true
     }
 
     func endListStyle() {
-        if let itemToRemove = activeStyles.first(where: { $0.isList }) {
-            toggleStyle(style: itemToRemove)
+        if let itemToRemove = activeStyles.first(where: { $0.isList }), let listType = itemToRemove.listType {
+            if listType.getIndent() <= 0 {
+                toggleStyle(style: itemToRemove)
+            }
+//            else {
+//                activeStyles.remove(itemToRemove)
+//                toggleStyle(style: listType.moveIndentBackward().getTextSpanStyle())
+//            }
         }
     }
+
+//    func addSubList() {
+//        if let listStyle = activeStyles.first(where: { $0.isList }) {
+//            if let listType = listStyle.listType {
+//                let newListStyle = listType.moveIndentForward().getTextSpanStyle()
+//                activeStyles.remove(listStyle)
+//                toggleStyle(style: newListStyle)
+//            }
+//        }
+//    }
 }

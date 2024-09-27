@@ -66,4 +66,20 @@ extension ListType {
 //            return indent ?? 0
         }
     }
+
+//    func moveIndentForward() -> ListType {
+//        switch self {
+//        case .bullet(let indent):
+//            let newIndent = (indent ?? 0) + 1
+//            return .bullet(newIndent)
+//        }
+//    }
+//
+//    func moveIndentBackward() -> ListType {
+//        switch self {
+//        case .bullet(let indent):
+//            let newIndent = max(0, ((indent ?? 0) - 1))
+//            return .bullet(newIndent)
+//        }
+//    }
 }

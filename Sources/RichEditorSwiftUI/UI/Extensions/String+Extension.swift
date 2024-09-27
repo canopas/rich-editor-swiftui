@@ -144,3 +144,9 @@ internal extension String {
         return self.utf16.count
     }
 }
+
+extension String.SubSequence {
+    func string() -> String {
+        return String(self)
+    }
+}
