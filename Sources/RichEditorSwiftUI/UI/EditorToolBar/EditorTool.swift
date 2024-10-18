@@ -18,23 +18,37 @@ enum EditorTool: CaseIterable, Hashable {
     }
 
     static var allCases: [EditorTool] {
-        return [.header(), .bold, .italic, .underline, .list(.bullet())]
+        return [
+            .header(),
+            .bold,
+            .italic,
+            .underline,
+            .strikethrough,
+            .list(.bullet())
+        ]
     }
 
-    case header(HeaderType? = nil), bold, italic, underline, list(ListType? = .bullet())
+    case header(HeaderType? = nil)
+    case bold
+    case italic
+    case underline
+    case strikethrough
+    case list(ListType? = .bullet())
 
     var systemImageName: String {
         switch self {
-        case .header:
-            return "textformat.size"
-        case .bold:
-            return "bold"
-        case .italic:
-            return "italic"
-        case .underline:
-            return "underline"
-        case .list:
-            return "list.bullet"
+            case .header:
+                return "textformat.size"
+            case .bold:
+                return "bold"
+            case .italic:
+                return "italic"
+            case .underline:
+                return "underline"
+            case .strikethrough:
+                return "strikethrough"
+            case .list:
+                return "list.bullet"
         }
     }
 
@@ -67,6 +81,8 @@ enum EditorTool: CaseIterable, Hashable {
             return .italic
         case .underline:
             return .underline
+        case .strikethrough:
+            return .strikethrough
         case .list(let listType):
             return listType?.getTextSpanStyle() ?? .default
         }
@@ -74,31 +90,35 @@ enum EditorTool: CaseIterable, Hashable {
 
     func isSelected(_ currentStyle: Set<TextSpanStyle>) -> Bool {
         switch self {
-        case .header:
-            return currentStyle.contains(.h1) || currentStyle.contains(.h2) || currentStyle.contains(.h3) || currentStyle.contains(.h4) || currentStyle.contains(.h5) || currentStyle.contains(.h6)
-        case .bold:
-            return currentStyle.contains(.bold)
-        case .italic:
-            return currentStyle.contains(.italic)
-        case .underline:
-            return currentStyle.contains(.underline)
-        case .list:
-            return currentStyle.contains(.bullet())
+            case .header:
+                return currentStyle.contains(.h1) || currentStyle.contains(.h2) || currentStyle.contains(.h3) || currentStyle.contains(.h4) || currentStyle.contains(.h5) || currentStyle.contains(.h6)
+            case .bold:
+                return currentStyle.contains(.bold)
+            case .italic:
+                return currentStyle.contains(.italic)
+            case .underline:
+                return currentStyle.contains(.underline)
+            case .strikethrough:
+                return currentStyle.contains(.strikethrough)
+            case .list:
+                return currentStyle.contains(.bullet())
         }
     }
 
     var key: String {
         switch self {
-        case .header:
-            return "header"
-        case .bold:
-            return "bold"
-        case .italic:
-            return "italic"
-        case .underline:
-            return "underline"
-        case .list:
-            return "list"
+            case .header:
+                return "header"
+            case .bold:
+                return "bold"
+            case .italic:
+                return "italic"
+            case .underline:
+                return "underline"
+            case .strikethrough:
+                return "strikethrough"
+            case .list:
+                return "list"
         }
     }
 }
