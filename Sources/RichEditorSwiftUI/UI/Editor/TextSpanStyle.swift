@@ -262,7 +262,7 @@ extension TextSpanStyle {
             case .underline:
                 return RichAttributes(underline: true)
             case .strikethrough:
-                return RichAttributes(strikethrough: true)
+                return RichAttributes(strike: true)
             case .bullet:
                 return RichAttributes(list: .bullet())
             case .h1:

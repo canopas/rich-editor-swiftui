@@ -13,7 +13,7 @@ public struct RichAttributes: Codable {
     public let bold: Bool?
     public let italic: Bool?
     public let underline: Bool?
-    public let strikethrough: Bool?
+    public let strike: Bool?
     public let header: HeaderType?
     public let list: ListType?
     public let indent: Int?
@@ -23,7 +23,7 @@ public struct RichAttributes: Codable {
         bold: Bool? = nil,
         italic: Bool? = nil,
         underline: Bool? = nil,
-        strikethrough: Bool? = nil,
+        strike: Bool? = nil,
         header: HeaderType? = nil,
         list: ListType? = nil,
         indent: Int? = nil
@@ -32,7 +32,7 @@ public struct RichAttributes: Codable {
         self.bold = bold
         self.italic = italic
         self.underline = underline
-        self.strikethrough = strikethrough
+        self.strike = strike
         self.header = header
         self.list = list
         self.indent = indent
@@ -42,7 +42,7 @@ public struct RichAttributes: Codable {
         case bold = "bold"
         case italic = "italic"
         case underline = "underline"
-        case strikethrough = "strikethrough"
+        case strike = "strike"
         case header = "header"
         case list = "list"
         case indent = "indent"
@@ -54,7 +54,7 @@ public struct RichAttributes: Codable {
         self.bold = try values.decodeIfPresent(Bool.self, forKey: .bold)
         self.italic = try values.decodeIfPresent(Bool.self, forKey: .italic)
         self.underline = try values.decodeIfPresent(Bool.self, forKey: .underline)
-        self.strikethrough = try values.decodeIfPresent(Bool.self, forKey: .strikethrough)
+        self.strike = try values.decodeIfPresent(Bool.self, forKey: .strike)
         self.header = try values.decodeIfPresent(HeaderType.self, forKey: .header)
         self.list = try values.decodeIfPresent(ListType.self, forKey: .list)
         self.indent = try values.decodeIfPresent(Int.self, forKey: .indent)
@@ -67,7 +67,7 @@ extension RichAttributes: Hashable {
         hasher.combine(bold)
         hasher.combine(italic)
         hasher.combine(underline)
-        hasher.combine(strikethrough)
+        hasher.combine(strike)
         hasher.combine(header)
         hasher.combine(list)
         hasher.combine(indent)
@@ -82,7 +82,7 @@ extension RichAttributes: Equatable {
         lhs.bold == rhs.bold
         && lhs.italic == rhs.italic
         && lhs.underline == rhs.underline
-        && lhs.strikethrough == rhs.strikethrough
+        && lhs.strike == rhs.strike
         && lhs.header == rhs.header
         && lhs.list == rhs.list
         && lhs.indent == rhs.indent
@@ -95,7 +95,7 @@ extension RichAttributes {
                      header: HeaderType? = nil,
                      italic: Bool? = nil,
                      underline: Bool? = nil,
-                     strikethrough: Bool? = nil,
+                     strike: Bool? = nil,
                      list: ListType? = nil,
                      indent: Int? = nil
     ) -> RichAttributes {
@@ -103,7 +103,7 @@ extension RichAttributes {
             bold: (bold != nil ? bold! : self.bold),
             italic: (italic != nil ? italic! : self.italic),
             underline: (underline != nil ? underline! : self.underline),
-            strikethrough: (strikethrough != nil ? strikethrough! : self.strikethrough),
+            strike: (strike != nil ? strike! : self.strike),
             header: (header != nil ? header! : self.header),
             list: (list != nil ? list! : self.list),
             indent: (indent != nil ? indent! : self.indent)
@@ -120,7 +120,7 @@ extension RichAttributes {
             bold: (att.bold != nil ? (byAdding ? att.bold! : nil) : self.bold),
             italic: (att.italic != nil ? (byAdding ? att.italic! : nil) : self.italic),
             underline: (att.underline != nil ? (byAdding ? att.underline! : nil) : self.underline),
-            strikethrough: (att.strikethrough != nil ? (byAdding ? att.strikethrough! : nil) : self.strikethrough),
+            strike: (att.strike != nil ? (byAdding ? att.strike! : nil) : self.strike),
             header: (att.header != nil ? (byAdding ? att.header! : nil) : self.header),
             list: (att.list != nil ? (byAdding ? att.list! : nil) : self.list),
             indent: (att.indent != nil ? (byAdding ? att.indent! : nil) : self.indent)
@@ -140,7 +140,7 @@ extension RichAttributes {
         if let underline = underline, underline {
             styles.append(.underline)
         }
-        if let strikethrough = strikethrough, strikethrough {
+        if let strike = strike, strike {
             styles.append(.strikethrough)
         }
         if let header = header {
@@ -163,7 +163,7 @@ extension RichAttributes {
         if let underline = underline, underline {
             styles.insert(.underline)
         }
-        if let strikethrough = strikethrough, strikethrough {
+        if let strike = strike, strike {
             styles.insert(.strikethrough)
         }
         if let header = header {
@@ -188,7 +188,7 @@ extension RichAttributes {
             case .underline:
                 return underline ?? false
             case .strikethrough:
-                return strikethrough ?? false
+                return strike ?? false
             case .h1:
                 return header == .h1
             case .h2:
@@ -216,7 +216,7 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
     var bold: Bool? = nil
     var italic: Bool? = nil
     var underline: Bool? = nil
-    var strikethrough: Bool? = nil
+    var strike: Bool? = nil
     var header: HeaderType? = nil
     var list: ListType? = nil
     var indent: Int? = nil
@@ -230,7 +230,7 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
             case .underline:
                 underline = true
             case .strikethrough:
-                strikethrough = true
+                strike = true
             case .h1:
                 header = .h1
             case .h2:
@@ -253,7 +253,7 @@ internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
     return RichAttributes(bold: bold,
                           italic: italic,
                           underline: underline,
-                          strikethrough: strikethrough,
+                          strike: strike,
                           header: header,
                           list: list,
                           indent: indent
