@@ -569,10 +569,10 @@ extension RichEditorState {
         let toIndex = range.isCollapsed ? fromIndex : range.upperBound
 
         let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
-        let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n".utf16.last)
+        let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: max(0, toIndex - 1))).map({ $0 }).firstIndex(of: "\n".utf16.last)
 
         let startIndex = max(0, newLineStartIndex)
-        var endIndex = (toIndex - 1) + (newLineEndIndex ?? 0)
+        var endIndex = (toIndex) + (newLineEndIndex ?? 0)
 
         if newLineEndIndex == nil {
             endIndex = (text.utf16Length)
@@ -639,25 +639,26 @@ extension RichEditorState {
         internalSpans = mergeSameStyledSpans(internalSpans)
         internalSpans.sort(by: { $0.from < $1.from })
 
+        var spansToUpdate = Set(getOverlappingSpans(for: range))
 
-        var spansToUpdate = getOverlappingSpans(for: range)
         if addStyle || style.isDefault {
             if style.isDefault {
                 /// This will help to apply header style without loosing other style
                 let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default) : getRichAttributesFor(style: style))
-                spansToUpdate.append(span)
+                spansToUpdate.insert(span)
             } else if !style.isHeaderStyle && !style.isList {
                 ///When selected range's is surrounded with same styled text it helps to update selected text in editor
-                let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: getRichAttributesFor(style: style))
-                spansToUpdate.append(span)
+                let span = RichTextSpanInternal(from: fromIndex, to: max((toIndex - 1), 0), attributes: getRichAttributesFor(style: style))
+                spansToUpdate.insert(span)
+                spansToUpdate.insert(span)
             }
-            applyStylesToSelectedText(spansToUpdate)
+            applyStylesToSelectedText(spansToUpdate.map({ $0 }))
 
         } else {
             let span = RichTextSpanInternal(from: fromIndex, to: (toIndex - 1), attributes: getRichAttributesFor(style: style))
             removeAttributes([span])
             ///To apply style as remove span is removing other styles as well.
-            applyStylesToSelectedText(spansToUpdate)
+            applyStylesToSelectedText(spansToUpdate.map({ $0 }))
         }
     }
 
