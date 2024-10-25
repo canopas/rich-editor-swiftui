@@ -124,11 +124,13 @@ struct TitleStyleButton: View {
             .cornerRadius(5)
             .padding(.vertical, 5)
         })
+#if !os(tvOS)
         .onTapGesture {
             isExpanded.toggle()
         }
-
+#endif
     }
+    
 
     func hasStyle(_ style: TextSpanStyle) -> Bool {
         return appliedTools.contains(where: { $0.key == style.key })

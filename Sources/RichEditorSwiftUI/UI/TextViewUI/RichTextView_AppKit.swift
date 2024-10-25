@@ -24,6 +24,7 @@ import AppKit
  */
 open class RichTextView: NSTextView, RichTextViewComponent {
 
+
     // MARK: - Properties
 
     /// The configuration to use by the rich text view.
@@ -106,8 +107,8 @@ open class RichTextView: NSTextView, RichTextViewComponent {
      - text: The text to edit with the text view.
      - format: The rich text format to edit.
      */
-    open func setup(with text: NSAttributedString? = nil) {
-        setupSharedBehavior(with: text)
+    open func setup() {
+        setupSharedBehavior()
         allowsImageEditing = true
         allowsUndo = true
         layoutManager?.defaultAttachmentScaling = NSImageScaling.scaleProportionallyDown

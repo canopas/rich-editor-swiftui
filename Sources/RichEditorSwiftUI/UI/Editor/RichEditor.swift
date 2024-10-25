@@ -124,9 +124,9 @@ public struct RichTextEditor: ViewRepresentable {
 
     public func makeNSView(context: Context) -> some NSView {
         if self.context.internalSpans.isEmpty {
-            textView.setup(with: self.context.attributedString)
+            textView.setup()
         } else {
-            textView.setup(with: self.context.internalSpans)
+            textView.setup()
         }
         textView.configuration = config
         textView.theme = style
