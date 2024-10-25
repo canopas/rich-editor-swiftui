@@ -52,7 +52,7 @@ struct ContentView: View {
             }
             .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
             .navigationTitle("Rich Editor")
-            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
         }
