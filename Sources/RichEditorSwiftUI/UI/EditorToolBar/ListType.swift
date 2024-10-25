@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import UIKit
-
 
 public enum ListType: Codable, Identifiable, CaseIterable, Hashable {
     public static var allCases: [ListType] = [.bullet()]
@@ -49,7 +47,7 @@ extension ListType {
         }
     }
 
-    func getMarkerFormat() -> NSTextList.MarkerFormat {
+    func getMarkerFormat() -> TextList.MarkerFormat {
         switch self {
         case .bullet:
             return .disc
@@ -83,3 +81,16 @@ extension ListType {
 //        }
 //    }
 }
+
+
+#if canImport(UIKit)
+import UIKit
+
+typealias TextList = NSTextList
+#endif
+
+#if canImport(AppKit)
+import AppKit
+
+typealias TextList = NSTextList
+#endif

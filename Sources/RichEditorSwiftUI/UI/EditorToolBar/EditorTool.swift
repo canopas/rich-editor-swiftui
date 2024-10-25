@@ -11,10 +11,10 @@ enum EditorTool: CaseIterable, Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(key)
-        if case .list(let listType) = self {
-            hasher.combine(listType?.key)
-            hasher.combine(listType?.getIndent())
-        }
+//        if case .list(let listType) = self {
+//            hasher.combine(listType?.key)
+//            hasher.combine(listType?.getIndent())
+//        }
     }
 
     static var allCases: [EditorTool] {
@@ -24,7 +24,7 @@ enum EditorTool: CaseIterable, Hashable {
             .italic,
             .underline,
             .strikethrough,
-            .list(.bullet())
+//            .list(.bullet())
         ]
     }
 
@@ -33,7 +33,7 @@ enum EditorTool: CaseIterable, Hashable {
     case italic
     case underline
     case strikethrough
-    case list(ListType? = .bullet())
+//    case list(ListType? = .bullet())
 
     var systemImageName: String {
         switch self {
@@ -47,8 +47,8 @@ enum EditorTool: CaseIterable, Hashable {
                 return "underline"
             case .strikethrough:
                 return "strikethrough"
-            case .list:
-                return "list.bullet"
+//            case .list:
+//                return "list.bullet"
         }
     }
 
@@ -83,8 +83,8 @@ enum EditorTool: CaseIterable, Hashable {
             return .underline
         case .strikethrough:
             return .strikethrough
-        case .list(let listType):
-            return listType?.getTextSpanStyle() ?? .default
+//        case .list(let listType):
+//            return listType?.getTextSpanStyle() ?? .default
         }
     }
 
@@ -100,8 +100,8 @@ enum EditorTool: CaseIterable, Hashable {
                 return currentStyle.contains(.underline)
             case .strikethrough:
                 return currentStyle.contains(.strikethrough)
-            case .list:
-                return currentStyle.contains(.bullet())
+//            case .list:
+//                return currentStyle.contains(.bullet())
         }
     }
 
@@ -117,8 +117,8 @@ enum EditorTool: CaseIterable, Hashable {
                 return "underline"
             case .strikethrough:
                 return "strikethrough"
-            case .list:
-                return "list"
+//            case .list:
+//                return "list"
         }
     }
 }

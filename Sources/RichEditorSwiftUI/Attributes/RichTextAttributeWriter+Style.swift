@@ -8,7 +8,7 @@
 import Foundation
 
 public extension NSMutableAttributedString {
-    
+
     /**
      Set a rich text style at a certain range.
      
@@ -37,7 +37,7 @@ public extension NSMutableAttributedString {
         let attributeValue = newValue ? 1 : 0
         if style == .underline { return setRichTextAttribute(.underlineStyle, to: attributeValue, at: range) }
         if style == .strikethrough { return setRichTextAttribute(.strikethroughStyle, to: attributeValue, at: range) }
-        guard let font = richTextFont(at: range) else { return }
+        let font = richTextFont(at: range) ?? .standardRichTextFont
         let styles = richTextStyles(at: range)
         let shouldAdd = newValue && !styles.hasStyle(style)
         let shouldRemove = !newValue && styles.hasStyle(style)
