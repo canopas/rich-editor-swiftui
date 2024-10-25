@@ -34,4 +34,14 @@ public extension FontRepresentable {
      use of the value.
      */
     static var standardRichTextFont = systemFont(ofSize: .standardRichTextFontSize)
+
+    /// Create a new font by toggling a certain style.
+    func toggling(
+        _ style: RichTextStyle
+    ) -> FontRepresentable? {
+        .init(
+            descriptor: fontDescriptor.byTogglingStyle(style),
+            size: pointSize
+        )
+    }
 }

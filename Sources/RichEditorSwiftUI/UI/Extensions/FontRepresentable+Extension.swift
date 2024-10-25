@@ -10,12 +10,21 @@ import SwiftUI
 extension FontRepresentable {
     /// Check if font is bold
     var isBold: Bool {
+#if os(macOS)
+        return fontDescriptor.symbolicTraits.contains(.bold)
+#else
         return fontDescriptor.symbolicTraits.contains(.traitBold)
+#endif
+
     }
     
     /// Check if font is italic
     var isItalic: Bool {
+#if os(macOS)
+        return fontDescriptor.symbolicTraits.contains(.italic)
+#else
         return fontDescriptor.symbolicTraits.contains(.traitItalic)
+#endif
     }
     
     /// Make font **Bold**
@@ -24,8 +33,18 @@ extension FontRepresentable {
             return self
         } else {
             let fontDesc = fontDescriptor.byTogglingStyle(.bold)
+#if os(macOS)
+            if let familyName {
+                fontDesc.withFamily(familyName)
+            }
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: pointSize
+            ) ?? self
+#else
             fontDesc.withFamily(familyName)
             return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
         }
     }
     
@@ -35,8 +54,18 @@ extension FontRepresentable {
             return self
         } else {
             let fontDesc = fontDescriptor.byTogglingStyle(.italic)
+#if os(macOS)
+            if let familyName {
+                fontDesc.withFamily(familyName)
+            }
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: pointSize
+            ) ?? self
+#else
             fontDesc.withFamily(familyName)
             return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
         }
     }
     
@@ -51,8 +80,18 @@ extension FontRepresentable {
             return self
         } else {
             let fontDesc = fontDescriptor.byTogglingStyle(.bold)
+#if os(macOS)
+            if let familyName {
+                fontDesc.withFamily(familyName)
+            }
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: pointSize
+            ) ?? self
+#else
             fontDesc.withFamily(familyName)
             return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
         }
     }
     
@@ -62,8 +101,18 @@ extension FontRepresentable {
             return self
         } else {
             let fontDesc = fontDescriptor.byTogglingStyle(.italic)
+#if os(macOS)
+            if let familyName {
+                fontDesc.withFamily(familyName)
+            }
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: pointSize
+            ) ?? self
+#else
             fontDesc.withFamily(familyName)
             return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
         }
     }
     
@@ -94,8 +143,18 @@ extension FontRepresentable {
     func updateFontSize(size: CGFloat) -> FontRepresentable {
         if pointSize != size {
             let fontDesc = fontDescriptor
+#if os(macOS)
+            if let familyName {
+                fontDesc.withFamily(familyName)
+            }
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: size
+            ) ?? self
+#else
             fontDesc.withFamily(familyName)
             return FontRepresentable(descriptor: fontDesc, size: size)
+#endif
         } else {
             return self
         }
@@ -105,8 +164,18 @@ extension FontRepresentable {
         if pointSize != multiple * pointSize {
             let size = multiple * pointSize
             let fontDesc = fontDescriptor
+#if os(macOS)
+            if let familyName {
+                fontDesc.withFamily(familyName)
+            }
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: size
+            ) ?? self
+#else
             fontDesc.withFamily(familyName)
             return FontRepresentable(descriptor: fontDesc, size: size)
+#endif
         } else {
             return self
         }
@@ -118,22 +187,52 @@ public extension FontRepresentable {
     func addFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
         guard let trait = style.symbolicTraits, !fontDescriptor.symbolicTraits.contains(trait) else { return self }
         let fontDesc = fontDescriptor.byTogglingStyle(style)
+#if os(macOS)
+        if let familyName {
+            fontDesc.withFamily(familyName)
+        }
+        return FontRepresentable(
+            descriptor: fontDesc,
+            size: pointSize
+        ) ?? self
+#else
         fontDesc.withFamily(familyName)
         return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
     }
     
     ///Get a new font by removing a text style.
     func removeFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
         guard let trait = style.symbolicTraits, fontDescriptor.symbolicTraits.contains(trait) else { return self }
         let fontDesc = fontDescriptor.byTogglingStyle(style)
+#if os(macOS)
+        if let familyName {
+            fontDesc.withFamily(familyName)
+        }
+        return FontRepresentable(
+            descriptor: fontDesc,
+            size: pointSize
+        ) ?? self
+#else
         fontDesc.withFamily(familyName)
         return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
     }
     
     /// Get a new font by toggling a text style.
     func byTogglingFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
         let fontDesc = fontDescriptor.byTogglingStyle(style)
+#if os(macOS)
+        if let familyName {
+            fontDesc.withFamily(familyName)
+        }
+        return FontRepresentable(
+            descriptor: fontDesc,
+            size: pointSize
+        ) ?? self
+#else
         fontDesc.withFamily(familyName)
         return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
     }
 }

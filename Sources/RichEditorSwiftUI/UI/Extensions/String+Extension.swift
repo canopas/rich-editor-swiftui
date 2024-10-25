@@ -48,30 +48,30 @@ internal struct NSFontTraitMask: OptionSet {
     }
 }
 
-extension NSMutableAttributedString {
-    internal func applyFontTraits(_ traitMask: NSFontTraitMask, range: NSRange) {
-        enumerateAttribute(.font, in: range, options: [.longestEffectiveRangeNotRequired]) { (attr, attrRange, stop) in
-            guard let font = attr as? FontRepresentable else { return }
-            let descriptor = font.fontDescriptor
-            var symbolicTraits = descriptor.symbolicTraits
-            if traitMask.contains(.boldFontMask) {
-                symbolicTraits.insert(.traitBold)
-            }
-            if symbolicTraits.contains(.traitBold) && traitMask.contains(.unboldFontMask) {
-                symbolicTraits.remove(.traitBold)
-            }
-            if traitMask.contains(.italicFontMask) {
-                symbolicTraits.insert(.traitItalic)
-            }
-            if symbolicTraits.contains(.traitItalic) && traitMask.contains(.unitalicFontMask) {
-                symbolicTraits.remove(.traitItalic)
-            }
-            guard let newDescriptor = descriptor.withSymbolicTraits(symbolicTraits) else { return }
-            let newFont = FontRepresentable(descriptor: newDescriptor, size: font.pointSize)
-            self.addAttribute(.font, value: newFont, range: attrRange)
-        }
-    }
-}
+//extension NSMutableAttributedString {
+//    internal func applyFontTraits(_ traitMask: NSFontTraitMask, range: NSRange) {
+//        enumerateAttribute(.font, in: range, options: [.longestEffectiveRangeNotRequired]) { (attr, attrRange, stop) in
+//            guard let font = attr as? FontRepresentable else { return }
+//            let descriptor = font.fontDescriptor
+//            var symbolicTraits = descriptor.symbolicTraits
+//            if traitMask.contains(.boldFontMask) {
+//                symbolicTraits.insert(.traitBold)
+//            }
+//            if symbolicTraits.contains(.traitBold) && traitMask.contains(.unboldFontMask) {
+//                symbolicTraits.remove(.traitBold)
+//            }
+//            if traitMask.contains(.italicFontMask) {
+//                symbolicTraits.insert(.traitItalic)
+//            }
+//            if symbolicTraits.contains(.traitItalic) && traitMask.contains(.unitalicFontMask) {
+//                symbolicTraits.remove(.traitItalic)
+//            }
+//            guard let newDescriptor = descriptor.withSymbolicTraits(symbolicTraits) else { return }
+//            let newFont = FontRepresentable(descriptor: newDescriptor, size: font.pointSize)
+//            self.addAttribute(.font, value: newFont, range: attrRange)
+//        }
+//    }
+//}
 
 
 /**

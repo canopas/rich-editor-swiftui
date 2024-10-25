@@ -94,7 +94,7 @@ private extension RichTextAttributeWriter {
             let paragraphStyle = NSMutableParagraphStyle()
 
             paragraphStyle.alignment = .left
-            let listItem = NSTextList(markerFormat: listType.getMarkerFormat(), options: 0)
+            let listItem = TextList(markerFormat: listType.getMarkerFormat(), options: 0)
 
             if paragraphStyle.textLists.isEmpty && newValue {
                 paragraphStyle.textLists.append(listItem)

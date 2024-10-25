@@ -1,5 +1,5 @@
 //
-//  RichEditorState.swift
+//  RichEditorState+Spans.swift
 //
 //
 //  Created by Divyesh Vekariya on 11/12/23.
@@ -8,101 +8,18 @@
 import Foundation
 import SwiftUI
 
-public class RichEditorState: ObservableObject {
-    private var adapter: EditorAdapter = DefaultAdapter()
-
-    @Published internal var editableText: NSMutableAttributedString
-    @Published internal var activeStyles: Set<TextSpanStyle> = []
-    @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
-    internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
-
-    @Published internal var attributesToApply: ((spans: [(span: RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
-
-    //    private var internalSpans: [RichTextSpan] = []
-
-    private var internalSpans: [RichTextSpanInternal] = []
-
-    internal var highlightedRange: NSRange
-    internal var rawText: String
-
-    private var updateAttributesQueue: [(span: RichTextSpanInternal, shouldApply: Bool)] = []
-
-    /**
-     This will provide encoded text which is of type RichText
-     */
-    public var richText: RichText {
-        return getRichText()
-    }
-
-    public var attributedText: NSAttributedString {
-        return editableText.attributedString
-    }
-
-    private var spans: RichTextSpans {
-        return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes) })
-    }
-
-    //MARK: - Initializers
-    /**
-     Init with richText which is of type RichText
-     */
-    public init(richText: RichText) {
-        let input = richText.spans.map({ $0.insert }).joined()
-        let adapter = DefaultAdapter()
-
-        self.adapter = adapter
-        self.editableText = NSMutableAttributedString(string: input)
-        var tempSpans: [RichTextSpanInternal] = []
-        var text = ""
-        richText.spans.forEach({
-            let span = RichTextSpanInternal(from: text.utf16Length,
-                                            to: (text.utf16Length + $0.insert.utf16Length - 1),
-                                            attributes: $0.attributes)
-            tempSpans.append(span)
-            text += $0.insert
-        })
-        self.editableText = NSMutableAttributedString(string: text)
-
-        self.internalSpans = tempSpans
-
-        highlightedRange = NSRange(location: 0, length: 0)
-        activeStyles = []
-
-        rawText = input
-        setUpSpans()
-    }
-
-    /**
-     Init with input which is of type String
-     */
-    public init(input: String) {
-        let adapter = DefaultAdapter()
-
-        self.adapter = adapter
-        self.editableText = NSMutableAttributedString(string: input)
-
-        self.internalSpans = [.init(from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0, attributes: RichAttributes())]
-
-        highlightedRange = NSRange(location: 0, length: 0)
-        activeStyles = []
-
-        rawText = input
-        setUpSpans()
-    }
-}
-
 //MARK: - Public Methods
 extension RichEditorState {
     func getStringWith(from: Int, to: Int) -> String {
         guard (to - from) >= 0 else { return "" }
-        return editableText.string.substring(from: .init(location: from, length: (to - from)))
+        return attributedString.string.substring(from: .init(location: from, length: (to - from)))
     }
 
     /**
      This will provide RichText which is encoded from input and editor text
      */
-    private func getRichText() -> RichText {
-        return editableText.string.isEmpty ? RichText() : RichText(spans: spans)
+    internal func getRichText() -> RichText {
+        return attributedString.string.isEmpty ? RichText() : RichText(spans: spans)
     }
 
     /**
@@ -125,7 +42,14 @@ extension RichEditorState {
      - style: is of type TextSpanStyle
      */
     public func toggleStyle(style: TextSpanStyle) {
-        toggleStyle(style)
+//        toggleStyle(style)
+        if activeStyles.contains(style) {
+            setInternalStyles(style: style, add: false)
+            removeStyle(style)
+        } else {
+            setInternalStyles(style: style)
+            addStyle(style)
+        }
     }
 
     /**
@@ -135,12 +59,13 @@ extension RichEditorState {
      */
     public func updateStyle(style: TextSpanStyle) {
         setStyle(style)
+        setInternalStyles(style: style)
     }
 
     /**
      This will setup editor according to spans provided in init
      */
-    private func setUpSpans() {
+    internal func setUpSpans() {
         applyStylesToSelectedText(internalSpans)
     }
 }
@@ -155,16 +80,18 @@ extension RichEditorState {
      */
     internal func onTextViewEvent(_ event: TextViewEvents) {
         switch event {
-        case .didChangeSelection(let textView):
-            highlightedRange = textView.selectedRange
-            guard rawText.count == textView.attributedText.string.count && highlightedRange.isCollapsed else { return }
+        case .didChangeSelection(let range, let text):
+                selectedRange = range
+                guard rawText.count == text.string.count && selectedRange.isCollapsed else {
+                    return
+                }
             onSelectionDidChanged()
-        case .didBeginEditing(let textView):
-            highlightedRange = textView.selectedRange
+        case .didBeginEditing(let range, _):
+                selectedRange = range
         case .didChange:
-            onTextFieldValueChange(newText: editableText, selection: highlightedRange)
+            onTextFieldValueChange(newText: attributedString, selection: selectedRange)
         case .didEndEditing:
-            highlightedRange = .init(location: 0, length: 0)
+            selectedRange = .init(location: 0, length: 0)
         }
     }
 
@@ -174,8 +101,8 @@ extension RichEditorState {
      - newText: is updated NSMutableAttributedString
      - selection: is the range of the selected text
      */
-    private func onTextFieldValueChange(newText: NSMutableAttributedString, selection: NSRange) {
-        self.highlightedRange = selection
+    private func onTextFieldValueChange(newText: NSAttributedString, selection: NSRange) {
+        self.selectedRange = selection
 
         if newText.string.count > rawText.count {
             handleAddingCharacters(newText)
@@ -209,9 +136,9 @@ extension RichEditorState {
         activeStyles.insert(style)
 
         if style.isHeaderStyle || style.isDefault || style.isList {
-            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style, byAdding: !style.isDefault)
-        } else if !highlightedRange.isCollapsed {
-            processSpansFor(new: style, in: highlightedRange)
+            handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: !style.isDefault)
+        } else if !selectedRange.isCollapsed {
+            processSpansFor(new: style, in: selectedRange)
         }
 
         updateCurrentSpanStyle()
@@ -221,16 +148,16 @@ extension RichEditorState {
      Update the activeStyles and activeAttributes
      */
     internal func updateCurrentSpanStyle() {
-        guard !editableText.string.isEmpty else { return }
+        guard !attributedString.string.isEmpty else { return }
         var newStyles: Set<TextSpanStyle> = []
 
-        if highlightedRange.isCollapsed {
-            newStyles = getRichSpanStyleByTextIndex(highlightedRange.location - 1)
+        if selectedRange.isCollapsed {
+            newStyles = getRichSpanStyleByTextIndex(selectedRange.location - 1)
         } else {
-            newStyles =  Set(getRichSpanStyleListByTextRange(highlightedRange))
+            newStyles =  Set(getRichSpanStyleListByTextRange(selectedRange))
         }
 
-        guard activeStyles != newStyles && highlightedRange.location != 0 else { return }
+        guard activeStyles != newStyles && selectedRange.location != 0 else { return }
         activeStyles = newStyles
         var attributes: [NSAttributedString.Key: Any] = [:]
         activeStyles.forEach({
@@ -246,13 +173,13 @@ extension RichEditorState {
      - style: which is of type TextSpanStyle
      It will add style if not in activeStyle or remove is it is.
      */
-    private func toggleStyle(_ style: TextSpanStyle) {
-        if activeStyles.contains(style) {
-            removeStyle(style)
-        } else {
-            addStyle(style)
-        }
-    }
+//    private func toggleStyle(_ style: TextSpanStyle) {
+//        if activeStyles.contains(style) {
+//            removeStyle(style)
+//        } else {
+//            addStyle(style)
+//        }
+//    }
 }
 
 //MARK: - Add styles
@@ -268,9 +195,9 @@ extension RichEditorState {
         activeStyles.insert(style)
 
         if (style.isHeaderStyle || style.isDefault || style.isList) {
-            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style)
-        } else if !highlightedRange.isCollapsed {
-            processSpansFor(new: style, in: highlightedRange)
+            handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style)
+        } else if !selectedRange.isCollapsed {
+            processSpansFor(new: style, in: selectedRange)
         }
     }
 
@@ -325,9 +252,9 @@ extension RichEditorState {
         updateTypingAttributes()
 
         if style.isHeaderStyle || style.isDefault || style.isList {
-            handleAddOrRemoveHeaderOrListStyle(in: highlightedRange, style: style, byAdding: false)
-        } else if !highlightedRange.isCollapsed {
-            processSpansFor(new: style, in: highlightedRange, addStyle: false)
+            handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: false)
+        } else if !selectedRange.isCollapsed {
+            processSpansFor(new: style, in: selectedRange, addStyle: false)
         }
     }
 
@@ -364,9 +291,9 @@ extension RichEditorState {
 
      This will generate break the span according to requirement to avoid duplication of the span.
      */
-    private func handleAddingCharacters(_ newValue: NSMutableAttributedString) {
+    private func handleAddingCharacters(_ newValue: NSAttributedString) {
         let typedChars = newValue.string.utf16Length - rawText.utf16Length
-        let startTypeIndex = highlightedRange.location - typedChars
+        let startTypeIndex = selectedRange.location - typedChars
         let startTypeChar = newValue.string.utf16.map({ $0 })[startTypeIndex]
 
         if startTypeChar == "\n".utf16.first && startTypeChar == "\n".utf16.last,
@@ -489,7 +416,7 @@ extension RichEditorState {
 
      This will generate, break  and remove the span according to requirement to avoid duplication and untracked span.
      */
-    private func handleRemovingCharacters(_ newText: NSMutableAttributedString) {
+    private func handleRemovingCharacters(_ newText: NSAttributedString) {
         guard !newText.string.isEmpty else {
             internalSpans.removeAll()
             activeStyles.removeAll()
@@ -497,8 +424,8 @@ extension RichEditorState {
         }
 
         let removedCharsCount = rawText.utf16Length - newText.string.utf16Length
-        let startRemoveIndex = highlightedRange.location
-        let endRemoveIndex = highlightedRange.location + removedCharsCount - 1
+        let startRemoveIndex = selectedRange.location
+        let endRemoveIndex = selectedRange.location + removedCharsCount - 1
         let removeRange = startRemoveIndex...endRemoveIndex
         let start = rawText.utf16.index(rawText.startIndex, offsetBy: startRemoveIndex)
         let end = rawText.utf16.index(rawText.startIndex, offsetBy: endRemoveIndex)
@@ -509,7 +436,7 @@ extension RichEditorState {
 
         let partsCopy = internalSpans
 
-        let lowerBound = removeRange.lowerBound //- (highlightedRange.length < removedCharsCount ? 1 : 0)
+        let lowerBound = removeRange.lowerBound //- (selectedRange.length < removedCharsCount ? 1 : 0)
 
         for part in partsCopy {
             if let index = internalSpans.firstIndex(of: part) {
@@ -826,7 +753,7 @@ extension RichEditorState {
     public func reset() {
         internalSpans.removeAll()
         rawText = ""
-        editableText = NSMutableAttributedString(string: "")
+        attributedString = NSMutableAttributedString(string: "")
     }
 
     /**
@@ -846,5 +773,19 @@ extension RichEditorState {
      */
     private func getRichSpanStyleListByTextRange(_ range: NSRange) -> [TextSpanStyle] {
         return internalSpans.filter({ range.closedRange.overlaps($0.closedRange) }).map { $0.attributes?.styles() ?? [] }.flatMap({ $0 })
+    }
+}
+
+extension RichEditorState {
+    func setInternalStyles(style: RichTextStyle, add: Bool = true) {
+        switch style {
+            case .bold, .italic, .underline, .strikethrough:
+                setStyle(style, to: add)
+            case .h1, .h2, .h3, .h4, .h5, .h6, .default:
+                let range = getHeaderRangeFor(selectedRange, in: attributedString.string)
+                actionPublisher.send(.setHeaderStyle(style, range: range))
+            case .bullet(_):
+                return
+        }
     }
 }

@@ -12,7 +12,7 @@ public typealias RichTextStyle = TextSpanStyle
 public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
     
     public static var allCases: [TextSpanStyle] = [
-        .`default`,
+        .default,
         .bold,
         .italic,
         .underline,
@@ -123,7 +123,8 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
             case .strikethrough:
                 return .strikethrough
             case .bullet(let indent):
-                return .list(.bullet(indent))
+//                return .list(.bullet(indent))
+                return nil
             case .h1:
                 return .header(.h1)
             case .h2:
@@ -219,7 +220,7 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         switch self {
         case .bold, .italic, .bullet:
             return font.removeFontStyle(self)
-            case .underline, .strikethrough:
+        case .underline, .strikethrough:
             return font
         case .default, .h1, .h2, .h3, .h4, .h5, .h6:
             return font.updateFontSize(size: .standardRichTextFontSize)
@@ -229,26 +230,40 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
     func getListStyleAttributeValue(_ listType: ListType, indent: Int? = nil) -> NSMutableParagraphStyle {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .left
-        let listItem = NSTextList(markerFormat: listType.getMarkerFormat(), options: 0)
+        let listItem = TextList(markerFormat: listType.getMarkerFormat(), options: 0)
         paragraphStyle.textLists = Array(repeating: listItem, count: (indent ?? 0) + 1)
         return paragraphStyle
     }
 }
 
-extension TextSpanStyle {
+#if canImport(UIKit)
+public extension RichTextStyle {
 
     /// The symbolic font traits for the style, if any.
-    var symbolicTraits: FontTraitsRepresentable? {
+    var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
         switch self {
-        case .bold:
-            return .traitBold
-        case .italic:
-            return .traitItalic
-        default:
-            return nil
+            case .bold: .traitBold
+            case .italic: .traitItalic
+            default: nil
         }
     }
 }
+#endif
+
+#if macOS
+public extension RichTextStyle {
+
+    /// The symbolic font traits for the trait, if any.
+    var symbolicTraits: NSFontDescriptor.SymbolicTraits? {
+        switch self {
+            case .bold: .bold
+            case .italic: .italic
+            default: nil
+        }
+    }
+}
+#endif
+
 
 extension TextSpanStyle {
     func getRichAttribute() -> RichAttributes? {
@@ -285,12 +300,22 @@ extension TextSpanStyle {
 public extension Collection where Element == RichTextStyle {
 
     /**
-     Whether or not the collection contains a certain style.
+     Check if the collection contains a certain style.
 
      - Parameters:
      - style: The style to look for.
      */
     func hasStyle(_ style: RichTextStyle) -> Bool {
         contains(style)
+    }
+
+    /// Check if a certain style change should be applied.
+    func shouldAddOrRemove(
+        _ style: RichTextStyle,
+        _ newValue: Bool
+    ) -> Bool {
+        let shouldAdd = newValue && !hasStyle(style)
+        let shouldRemove = !newValue && hasStyle(style)
+        return shouldAdd || shouldRemove
     }
 }

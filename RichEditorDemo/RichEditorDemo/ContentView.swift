@@ -31,15 +31,18 @@ struct ContentView: View {
             VStack {
                 EditorToolBarView(state: state)
 
-                RichEditor(state: _state)
-                    .textPadding(12)
-                    .cornerRadius(10)
+                RichTextEditor(
+                    context: _state,
+                    viewConfiguration: { _ in
+
+                    }
+                )
+                .cornerRadius(10)
             }
             .padding(10)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem() {
                     Button(action: {
-
                         print("Exported JSON == \(state.output())")
                     }, label: {
                         Image(systemName: "checkmark")
@@ -49,7 +52,9 @@ struct ContentView: View {
             }
             .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
             .navigationTitle("Rich Editor")
+            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
         }
     }
 }

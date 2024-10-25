@@ -108,7 +108,7 @@
             "attributes": {}
         },
         {
-            "insert": "Canopas Team.\n\n",
+            "insert": "Canopas Team.",
             "attributes": {
                 "bold": true,
                 "italic": true,
@@ -116,7 +116,7 @@
             }
         },
         {
-            "insert": "Thank You! 😊\n\n",
+            "insert": "\n\nThank You! 😊\n\n",
             "attributes": {}
         }
     ]

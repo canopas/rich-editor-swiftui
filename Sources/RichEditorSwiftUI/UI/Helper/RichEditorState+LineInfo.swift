@@ -28,7 +28,7 @@ extension RichEditorState {
      - returns: The line number that the caret is on, the range of our line, and the string that makes up that line of text
      */
     var currentLine: LineInfo {
-        return getCurrentLineInfo(rawText, selectedRange: highlightedRange)
+        return getCurrentLineInfo(rawText, selectedRange: selectedRange)
     }
 
     internal func getCurrentLineInfo(_ string: String, selectedRange: NSRange) -> LineInfo {

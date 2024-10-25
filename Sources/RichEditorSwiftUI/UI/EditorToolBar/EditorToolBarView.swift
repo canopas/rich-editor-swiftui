@@ -26,7 +26,9 @@ public struct EditorToolBarView: View {
                 if tool.isContainManu {
                     TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
                 } else {
-                    ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
+//                    if tool != .list() {
+                        ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
+//                    }
                 }
             }
         })
