@@ -78,7 +78,7 @@ public enum RichTextAction: Identifiable, Equatable {
     case undoLatestChange
 
     /// Set HeaderStyle.
-    case setHeaderStyle(_ style: RichTextStyle, range: NSRange)
+    case setHeaderStyle(_ style: RichTextStyle)
 }
 
 public extension RichTextAction {
@@ -86,10 +86,84 @@ public extension RichTextAction {
     typealias Publisher = PassthroughSubject<Self, Never>
 
     /// The action's unique identifier.
-    var id: String { UUID().uuidString }
+    var id: String { title }
 
     /// The action's standard icon.
+    var icon: Image {
+        switch self {
+        case .copy: .richTextCopy
+        case .dismissKeyboard: .richTextDismissKeyboard
+//        case .pasteImage: .richTextDocuments
+//        case .pasteImages: .richTextDocuments
+//        case .pasteText: .richTextDocuments
+        case .print: .richTextPrint
+        case .redoLatestChange: .richTextRedo
+        case .selectRange: .richTextSelection
+        case .setAlignment(let val): val.icon
+        case .setAttributedString: .richTextDocument
+        case .setColor(let color, _): color.icon
+        case .setHighlightedRange: .richTextAlignmentCenter
+        case .setHighlightingStyle: .richTextAlignmentCenter
+        case .setStyle(let style, _): style.icon
+        case .stepFontSize(let val): .richTextStepFontSize(val)
+        case .stepIndent(let val): .richTextStepIndent(val)
+        case .stepLineSpacing(let val): .richTextStepLineSpacing(val)
+        case .stepSuperscript(let val): .richTextStepSuperscript(val)
+        case .toggleStyle(let val): val.icon
+        case .undoLatestChange: .richTextUndo
+        case .setHeaderStyle: .richTextIgnoreIt
+        }
+    }
 
+    /// The localized label to use for the action.
+    var label: some View {
+        icon.label(title)
+    }
+
+    /// The localized title to use in the main menu.
+    var menuTitle: String {
+        menuTitleKey.text
+    }
+
+    /// The localized title key to use in the main menu.
+    var menuTitleKey: RTEL10n {
+        switch self {
+        case .stepIndent(let points): .menuIndent(points)
+        default: titleKey
+        }
+    }
+
+    /// The localized action title.
+    var title: String {
+        titleKey.text
+    }
+
+    /// The localized action title key.
+    var titleKey: RTEL10n {
+        switch self {
+        case .copy: .actionCopy
+        case .dismissKeyboard: .actionDismissKeyboard
+//        case .pasteImage: .pasteImage
+//        case .pasteImages: .pasteImages
+//        case .pasteText: .pasteText
+        case .print: .actionPrint
+        case .redoLatestChange: .actionRedoLatestChange
+        case .selectRange: .selectRange
+        case .setAlignment(let alignment): alignment.titleKey
+        case .setAttributedString: .setAttributedString
+        case .setColor(let color, _): color.titleKey
+        case .setHighlightedRange: .highlightedRange
+        case .setHighlightingStyle: .highlightingStyle
+        case .setStyle(let style, _): style.titleKey
+        case .stepFontSize(let points): .actionStepFontSize(points)
+        case .stepIndent(let points): .actionStepIndent(points)
+        case .stepLineSpacing(let points): .actionStepLineSpacing(points)
+        case .stepSuperscript(let steps): .actionStepSuperscript(steps)
+        case .toggleStyle(let style): style.titleKey
+        case .undoLatestChange: .actionUndoLatestChange
+        case .setHeaderStyle: .ignoreIt
+        }
+    }
 }
 
 // MARK: - Aliases

@@ -53,38 +53,54 @@ public extension RichTextAlignment {
     var id: String { rawValue }
 
     /// The standard icon to use for the alignment.
-//    var icon: Image { nativeAlignment.icon }
+    var icon: Image { nativeAlignment.icon }
 
     /// The standard title to use for the alignment.
-//    var title: String { nativeAlignment.title }
+    var title: String { nativeAlignment.title }
 
     /// The standard title key to use for the alignment.
-//    var titleKey: RTKL10n { nativeAlignment.titleKey }
+    var titleKey: RTEL10n { nativeAlignment.titleKey }
 
     /// The native alignment of the alignment.
     var nativeAlignment: NSTextAlignment {
         switch self {
-            case .left: .left
-            case .right: .right
-            case .center: .center
-            case .justified: .justified
+        case .left: .left
+        case .right: .right
+        case .center: .center
+        case .justified: .justified
         }
     }
 }
 
-//extension NSTextAlignment: RichTextLabelValue {}
+extension NSTextAlignment: RichTextLabelValue {}
 
 public extension NSTextAlignment {
 
-//    /// The standard icon to use for the alignment.
-//    var icon: Image {
-//        switch self {
-//            case .left: .richTextAlignmentLeft
-//            case .right: .richTextAlignmentRight
-//            case .center: .richTextAlignmentCenter
-//            case .justified: .richTextAlignmentJustified
-//            default: .richTextAlignmentLeft
-//        }
-//    }
+    /// The standard icon to use for the alignment.
+    var icon: Image {
+        switch self {
+        case .left: .richTextAlignmentLeft
+        case .right: .richTextAlignmentRight
+        case .center: .richTextAlignmentCenter
+        case .justified: .richTextAlignmentJustified
+        default: .richTextAlignmentLeft
+        }
+    }
 
+    /// The standard title to use for the alignment.
+    var title: String {
+        titleKey.text
+    }
+
+    /// The standard title key to use for the alignment.
+    var titleKey: RTEL10n {
+        switch self {
+        case .left: .textAlignmentLeft
+        case .right: .textAlignmentRight
+        case .center: .textAlignmentCentered
+        case .justified: .textAlignmentJustified
+        default: .textAlignmentLeft
+        }
+    }
 }
+

@@ -8,7 +8,6 @@
 import Foundation
 
 public extension RichTextAttributes {
-    
     /**
      Whether or not the attributes has a strikethrough style.
      */
