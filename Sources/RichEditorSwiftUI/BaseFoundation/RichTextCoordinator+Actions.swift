@@ -31,7 +31,7 @@ extension RichTextCoordinator {
             syncContextWithTextView()
         case .selectRange(let range):
             setSelectedRange(to: range)
-        case .setAlignment(let alignment):
+        case .setAlignment(_):
             ////                textView.setRichTextAlignment(alignment)
             return
         case .setAttributedString(let string):
@@ -49,16 +49,16 @@ extension RichTextCoordinator {
             textView.stepRichTextFontSize(points: points)
             syncContextWithTextView()
             return
-        case .stepIndent(let points):
+        case .stepIndent(_):
             //                textView.stepRichTextIndent(points: points)
             return
-        case .stepLineSpacing(let points):
+        case .stepLineSpacing(_):
             //                textView.stepRichTextLineSpacing(points: points)
             return
-        case .stepSuperscript(let points):
+        case .stepSuperscript(_):
             //                textView.stepRichTextSuperscriptLevel(points: points)
             return
-        case .toggleStyle(let style):
+        case .toggleStyle(_):
             //                textView.toggleRichTextStyle(style)
             return
         case .undoLatestChange:

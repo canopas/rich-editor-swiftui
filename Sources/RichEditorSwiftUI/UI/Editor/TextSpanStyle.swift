@@ -184,7 +184,7 @@ public enum TextSpanStyle: Equatable, CaseIterable, Hashable {
                 return .underline
             case .strikethrough:
                 return .strikethrough
-            case .bullet(let indent):
+        case .bullet(_):
 //                return .list(.bullet(indent))
                 return nil
             case .h1:
