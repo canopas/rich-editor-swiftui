@@ -10,7 +10,7 @@ import SwiftUI
 extension View {
     nonisolated public func onChangeBackPort<V>(of value: V, _ action: @escaping (_ newValue: V) -> Void) -> some View where V : Equatable {
         Group {
-            if #available(iOS 17.0, *) {
+            if #available(iOS 17.0, macOS 14.0, *) {
                 self
                 //iOS17~
                     .onChange(of: value) { oldValue, newValue in

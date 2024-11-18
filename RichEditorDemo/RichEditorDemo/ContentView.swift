@@ -29,7 +29,9 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack {
+#if os(iOS) || os(macOS) || os(visionOS)
                 EditorToolBarView(state: state)
+#endif
 
                 RichTextEditor(
                     context: _state,

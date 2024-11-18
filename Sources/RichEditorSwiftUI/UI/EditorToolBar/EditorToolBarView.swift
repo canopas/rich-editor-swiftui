@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+#if iOS || macOS || os(visionOS)
 public struct EditorToolBarView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.richTextKeyboardToolbarStyle) private var style
@@ -25,25 +26,34 @@ public struct EditorToolBarView: View {
         LazyHStack(spacing: 5, content: {
             Section {
                 ForEach(EditorTextStyleTool.allCases, id: \.self) { tool in
-                    if tool.isContainManu {
-                        TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
-                    } else {
-                        //                    if tool != .list() {
-                        ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
-                        //                    }
+                    Group {
+                        if tool.isContainManu {
+                            TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
+                            RTEVDivider()
+                        } else {
+                            //                    if tool != .list() {
+                            ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
+                            //                    }
+                        }
                     }
                 }
             }
-            Divider()
+
+            RTEVDivider()
+
             Section {
                 RichTextFont.SizePickerStack(context: state)
             }
         })
-        .frame(height: 50)
-        .padding(.horizontal, 15)
+        #if os(iOS)
+        .frame(height: 40)
+        #else
+        .frame(height: 40)
+        #endif
+        .padding(.horizontal)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(selectedColor)
-        .clipShape(.capsule)
+        .cornerRadius(6)
     }
 }
 
@@ -72,13 +82,18 @@ private struct ToggleStyleButton: View {
         }, label: {
             HStack(alignment: .center, spacing: 4, content: {
                 Image(systemName: tool.systemImageName)
-                    .font(.title)
+                #if os(iOS)
+                    .frame(width: 25, height: 25)
+                #else
+                    .frame(width: 20, height: 20)
+                #endif
             })
             .foregroundColor(isSelected ? .blue : normalDarkColor)
+#if os(iOS)
             .frame(width: 40, height: 40, alignment: .center)
+            #endif
             .background(isSelected ? selectedColor : Color.clear)
             .cornerRadius(5)
-            .padding(.vertical, 5)
         })
     }
 }
@@ -121,3 +136,13 @@ struct TitleStyleButton: View {
         return appliedTools.contains(where: { $0.key == style.key })
     }
 }
+
+struct RTEVDivider: View {
+    var body: some View {
+        Rectangle()
+            .frame(width: 1)
+            .foregroundColor(.secondary)
+            .padding(.vertical)
+    }
+}
+#endif

@@ -66,7 +66,9 @@ extension RichTextCoordinator {
             syncContextWithTextView()
         case .setHeaderStyle(let style):
             let size = style.fontSizeMultiplier * .standardRichTextFontSize
-            let range = textView.text.getHeaderRangeFor(textView.selectedRange)
+            let range = textView.textString.getHeaderRangeFor(
+                textView.selectedRange
+            )
             var font = textView.richTextFont(at: range)
             font = font?.withSize(size)
             textView
