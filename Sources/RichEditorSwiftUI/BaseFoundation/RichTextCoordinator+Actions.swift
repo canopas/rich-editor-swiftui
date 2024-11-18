@@ -15,102 +15,105 @@ extension RichTextCoordinator {
     func handle(_ action: RichTextAction?) {
         guard let action else { return }
         switch action {
-            case .copy: textView.copySelection()
-            case .dismissKeyboard:
-                textView.resignFirstResponder()
-//            case .pasteImage(let image):
-//                pasteImage(image)
-//            case .pasteImages(let images):
-//                pasteImages(images)
-//            case .pasteText(let text):
-//                pasteText(text)
-            case .print:
-                break
-            case .redoLatestChange:
-                textView.redoLatestChange()
-                syncContextWithTextView()
-            case .selectRange(let range):
-                setSelectedRange(to: range)
-            case .setAlignment(let alignment):
-////                textView.setRichTextAlignment(alignment)
-                return
-            case .setAttributedString(let string):
-                setAttributedString(to: string)
-            case .setColor(let color, let newValue):
-                setColor(color, to: newValue)
-            case .setHighlightedRange(let range):
-                setHighlightedRange(to: range)
-            case .setHighlightingStyle(let style):
-                textView.highlightingStyle = style
-            case .setStyle(let style, let newValue):
-                setStyle(style, to: newValue)
-                return
-            case .stepFontSize(let points):
-                textView.stepRichTextFontSize(points: points)
-                syncContextWithTextView()
-                return
-            case .stepIndent(let points):
-//                textView.stepRichTextIndent(points: points)
-                return
-            case .stepLineSpacing(let points):
-//                textView.stepRichTextLineSpacing(points: points)
-                return
-            case .stepSuperscript(let points):
-//                textView.stepRichTextSuperscriptLevel(points: points)
-                return
-            case .toggleStyle(let style):
-//                textView.toggleRichTextStyle(style)
-                return
-            case .undoLatestChange:
-                textView.undoLatestChange()
-                syncContextWithTextView()
-            case .setHeaderStyle(let style, let range):
-                let size = style.fontSizeMultiplier * .standardRichTextFontSize
-                var font = textView.richTextFont(at: range)
-                font = font?.withSize(size)
-                textView
-                    .setRichTextFont(font ?? .standardRichTextFont, at: range)
+        case .copy: textView.copySelection()
+        case .dismissKeyboard:
+            textView.resignFirstResponder()
+            //            case .pasteImage(let image):
+            //                pasteImage(image)
+            //            case .pasteImages(let images):
+            //                pasteImages(images)
+            //            case .pasteText(let text):
+            //                pasteText(text)
+        case .print:
+            break
+        case .redoLatestChange:
+            textView.redoLatestChange()
+            syncContextWithTextView()
+        case .selectRange(let range):
+            setSelectedRange(to: range)
+        case .setAlignment(_):
+            ////                textView.setRichTextAlignment(alignment)
+            return
+        case .setAttributedString(let string):
+            setAttributedString(to: string)
+        case .setColor(let color, let newValue):
+            setColor(color, to: newValue)
+        case .setHighlightedRange(let range):
+            setHighlightedRange(to: range)
+        case .setHighlightingStyle(let style):
+            textView.highlightingStyle = style
+        case .setStyle(let style, let newValue):
+            setStyle(style, to: newValue)
+            return
+        case .stepFontSize(let points):
+            textView.stepRichTextFontSize(points: points)
+            syncContextWithTextView()
+            return
+        case .stepIndent(_):
+            //                textView.stepRichTextIndent(points: points)
+            return
+        case .stepLineSpacing(_):
+            //                textView.stepRichTextLineSpacing(points: points)
+            return
+        case .stepSuperscript(_):
+            //                textView.stepRichTextSuperscriptLevel(points: points)
+            return
+        case .toggleStyle(_):
+            //                textView.toggleRichTextStyle(style)
+            return
+        case .undoLatestChange:
+            textView.undoLatestChange()
+            syncContextWithTextView()
+        case .setHeaderStyle(let style):
+            let size = style.fontSizeMultiplier * .standardRichTextFontSize
+            let range = textView.textString.getHeaderRangeFor(
+                textView.selectedRange
+            )
+            var font = textView.richTextFont(at: range)
+            font = font?.withSize(size)
+            textView
+                .setRichTextFont(font ?? .standardRichTextFont, at: range)
         }
     }
 }
 
 extension RichTextCoordinator {
 
-//    func paste<T: RichTextInsertable>(_ data: RichTextInsertion<T>) {
-//        if let data = data as? RichTextInsertion<ImageRepresentable> {
-//            pasteImage(data)
-//        } else if let data = data as? RichTextInsertion<[ImageRepresentable]> {
-//            pasteImages(data)
-//        } else if let data = data as? RichTextInsertion<String> {
-//            pasteText(data)
-//        } else {
-//            print("Unsupported media type")
-//        }
-//    }
-//
-//    func pasteImage(_ data: RichTextInsertion<ImageRepresentable>) {
-//        textView.pasteImage(
-//            data.content,
-//            at: data.index,
-//            moveCursorToPastedContent: data.moveCursor
-//        )
-//    }
-//
-//    func pasteImages(_ data: RichTextInsertion<[ImageRepresentable]>) {
-//        textView.pasteImages(
-//            data.content,
-//            at: data.index,
-//            moveCursorToPastedContent: data.moveCursor
-//        )
-//    }
+    //    func paste<T: RichTextInsertable>(_ data: RichTextInsertion<T>) {
+    //        if let data = data as? RichTextInsertion<ImageRepresentable> {
+    //            pasteImage(data)
+    //        } else if let data = data as? RichTextInsertion<[ImageRepresentable]> {
+    //            pasteImages(data)
+    //        } else if let data = data as? RichTextInsertion<String> {
+    //            pasteText(data)
+    //        } else {
+    //            print("Unsupported media type")
+    //        }
+    //    }
+    //
+    //    func pasteImage(_ data: RichTextInsertion<ImageRepresentable>) {
+    //        textView.pasteImage(
+    //            data.content,
+    //            at: data.index,
+    //            moveCursorToPastedContent: data.moveCursor
+    //        )
+    //    }
+    //
+    //    func pasteImages(_ data: RichTextInsertion<[ImageRepresentable]>) {
+    //        textView.pasteImages(
+    //            data.content,
+    //            at: data.index,
+    //            moveCursorToPastedContent: data.moveCursor
+    //        )
+    //    }
 
-//    func pasteText(_ data: RichTextInsertion<String>) {
-//        textView.pasteText(
-//            data.content,
-//            at: data.index,
-//            moveCursorToPastedContent: data.moveCursor
-//        )
-//    }
+    //    func pasteText(_ data: RichTextInsertion<String>) {
+    //        textView.pasteText(
+    //            data.content,
+    //            at: data.index,
+    //            moveCursorToPastedContent: data.moveCursor
+    //        )
+    //    }
 
     func setAttributedString(to newValue: NSAttributedString?) {
         guard let newValue else { return }

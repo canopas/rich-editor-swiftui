@@ -42,7 +42,6 @@ extension RichEditorState {
      - style: is of type TextSpanStyle
      */
     public func toggleStyle(style: TextSpanStyle) {
-//        toggleStyle(style)
         if activeStyles.contains(style) {
             setInternalStyles(style: style, add: false)
             removeStyle(style)
@@ -58,8 +57,8 @@ extension RichEditorState {
      - style: is of type TextSpanStyle
      */
     public func updateStyle(style: TextSpanStyle) {
-        setStyle(style)
         setInternalStyles(style: style)
+        setStyle(style)
     }
 
     /**
@@ -81,13 +80,13 @@ extension RichEditorState {
     internal func onTextViewEvent(_ event: TextViewEvents) {
         switch event {
         case .didChangeSelection(let range, let text):
-                selectedRange = range
-                guard rawText.count == text.string.count && selectedRange.isCollapsed else {
-                    return
-                }
+            selectedRange = range
+            guard rawText.count == text.string.count && selectedRange.isCollapsed else {
+                return
+            }
             onSelectionDidChanged()
         case .didBeginEditing(let range, _):
-                selectedRange = range
+            selectedRange = range
         case .didChange:
             onTextFieldValueChange(newText: attributedString, selection: selectedRange)
         case .didEndEditing:
@@ -138,7 +137,12 @@ extension RichEditorState {
         if style.isHeaderStyle || style.isDefault || style.isList {
             handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: !style.isDefault)
         } else if !selectedRange.isCollapsed {
-            processSpansFor(new: style, in: selectedRange)
+            var addStyle = true
+            if case .size(let size) = style, let size, CGFloat(size) == CGFloat.standardRichTextFontSize {
+                addStyle = false
+            }
+
+            processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
         }
 
         updateCurrentSpanStyle()
@@ -166,20 +170,6 @@ extension RichEditorState {
 
         activeAttributes = attributes
     }
-
-    /**
-     This will take style in argument and Toggle it
-     - Parameters:
-     - style: which is of type TextSpanStyle
-     It will add style if not in activeStyle or remove is it is.
-     */
-//    private func toggleStyle(_ style: TextSpanStyle) {
-//        if activeStyles.contains(style) {
-//            removeStyle(style)
-//        } else {
-//            addStyle(style)
-//        }
-//    }
 }
 
 //MARK: - Add styles
@@ -485,28 +475,8 @@ extension RichEditorState {
     private func handleAddOrRemoveHeaderOrListStyle(in range: NSRange, style: TextSpanStyle, byAdding: Bool = true) {
         guard !rawText.isEmpty else { return }
 
-        let range = style.isList ? getListRangeFor(range, in: rawText) : getHeaderRangeFor(range, in: rawText)
+        let range = style.isList ? getListRangeFor(range, in: rawText) : rawText.getHeaderRangeFor(range)
         processSpansFor(new: style, in: range, addStyle: byAdding)
-    }
-
-    private func getHeaderRangeFor(_ range: NSRange, in text: String) -> NSRange {
-        guard !text.isEmpty else { return range }
-
-        let fromIndex = range.lowerBound
-        let toIndex = range.isCollapsed ? fromIndex : range.upperBound
-
-        let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
-        let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: max(0, toIndex - 1))).map({ $0 }).firstIndex(of: "\n".utf16.last)
-
-        let startIndex = max(0, newLineStartIndex)
-        var endIndex = (toIndex) + (newLineEndIndex ?? 0)
-
-        if newLineEndIndex == nil {
-            endIndex = (text.utf16Length)
-        }
-
-        let range = startIndex...endIndex
-        return range.nsRange
     }
 
     /**
@@ -779,13 +749,28 @@ extension RichEditorState {
 extension RichEditorState {
     func setInternalStyles(style: RichTextStyle, add: Bool = true) {
         switch style {
-            case .bold, .italic, .underline, .strikethrough:
-                setStyle(style, to: add)
-            case .h1, .h2, .h3, .h4, .h5, .h6, .default:
-                let range = getHeaderRangeFor(selectedRange, in: attributedString.string)
-                actionPublisher.send(.setHeaderStyle(style, range: range))
-            case .bullet(_):
-                return
+        case .bold, .italic, .underline, .strikethrough:
+            setStyle(style, to: add)
+        case .h1, .h2, .h3, .h4, .h5, .h6, .default:
+            actionPublisher.send(.setHeaderStyle(style))
+        case .bullet(_):
+            return
+        case .size(let size):
+            if let size, fontSize != CGFloat(size) {
+                self.fontSize = CGFloat(size)
+            }
+        case .font(let fontName):
+            if let fontName {
+                self.fontName = fontName
+            }
+        case .color(let color):
+            if let color {
+                setColor(.foreground, to: .init(color))
+            }
+        case .background(let color):
+            if let color {
+                setColor(.background, to: .init(color))
+            }
         }
     }
 }

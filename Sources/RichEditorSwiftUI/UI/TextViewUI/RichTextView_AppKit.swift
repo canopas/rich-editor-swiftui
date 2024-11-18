@@ -222,4 +222,10 @@ public extension RichTextView {
     }
 }
 
+extension RichTextView {
+    var textString: String {
+        return self.string
+    }
+}
+
 #endif

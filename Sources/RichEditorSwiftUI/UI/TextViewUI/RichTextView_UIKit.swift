@@ -394,4 +394,10 @@ public extension RichTextView {
         textStorage
     }
 }
+
+extension RichTextView {
+    var textString: String {
+        return self.text ?? ""
+    }
+}
 #endif

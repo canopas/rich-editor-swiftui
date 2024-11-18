@@ -1,5 +1,5 @@
 //
-//  EditorTool.swift
+//  EditorTextStyleTool.swift
 //
 //
 //  Created by Divyesh Vekariya on 19/12/23.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum EditorTool: CaseIterable, Hashable {
+enum EditorTextStyleTool: CaseIterable, Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(key)
@@ -17,7 +17,7 @@ enum EditorTool: CaseIterable, Hashable {
 //        }
     }
 
-    static var allCases: [EditorTool] {
+    static var allCases: [EditorTextStyleTool] {
         return [
             .header(),
             .bold,

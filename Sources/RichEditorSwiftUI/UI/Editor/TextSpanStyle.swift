@@ -9,7 +9,7 @@ import SwiftUI
 
 public typealias RichTextStyle = TextSpanStyle
 
-public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
+public enum TextSpanStyle: Equatable, CaseIterable, Hashable {
     
     public static var allCases: [TextSpanStyle] = [
         .default,
@@ -23,7 +23,11 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         .h4,
         .h5,
         .h6,
-        .bullet()
+        .bullet(),
+        .size(),
+        .font(),
+        .color(),
+        .background()
     ]
 
     public func hash(into hasher: inout Hasher) {
@@ -47,6 +51,10 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
     case h6
     case bullet(_ indent: Int? = nil)
 //    case ordered(_ indent: Int? = nil)
+    case size(Int? = nil)
+    case font(String? = nil)
+    case color(Color? = nil)
+    case background(Color? = nil)
 
     var key: String {
         switch self {
@@ -76,6 +84,14 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
                 return "bullet"
                 //        case .ordered:
                 //            return "ordered"
+            case .size:
+                return "size"
+            case .font:
+                return "font"
+            case .color:
+                return "color"
+            case .background:
+                return "background"
         }
     }
 
@@ -90,6 +106,26 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
                 return getListStyleAttributeValue(listType ?? .bullet(), indent: indent)
             case .strikethrough:
                 return NSUnderlineStyle.single.rawValue
+            case .size(let size):
+                if let fontSize = size {
+                    return getFontWithUpdating(font: font)
+                        .withSize(CGFloat(fontSize))
+                } else {
+                    return getFontWithUpdating(font: font)
+                }
+            case .font(let name):
+                if let name {
+                    return FontRepresentable(
+                        name: name,
+                        size: .standardRichTextFontSize
+                    ) ?? font
+                } else {
+                    return RichTextView.Theme.standard.font
+                }
+            case .color:
+                return RichTextView.Theme.standard.fontColor
+            case .background:
+            return ColorRepresentable.white
         }
     }
 
@@ -97,12 +133,16 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         switch self {
             case .underline:
                 return .underlineStyle
-            case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
+            case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .size, .font:
                 return .font
             case .bullet:
                 return .paragraphStyle
             case .strikethrough:
                 return .strikethroughStyle
+            case .color:
+                return .foregroundColor
+            case .background:
+                return .backgroundColor
         }
     }
 
@@ -110,7 +150,29 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         return lhs.key == rhs.key
     }
 
-    var editorTools: EditorTool? {
+    /// The standard icon to use for the trait.
+    var icon: Image {
+        switch self {
+        case .bold: .richTextStyleBold
+        case .italic: .richTextStyleItalic
+        case .strikethrough: .richTextStyleStrikethrough
+        case .underline: .richTextStyleUnderline
+        default: .richTextPrint
+        }
+    }
+
+    /// The localized style title key.
+    var titleKey: RTEL10n {
+        switch self {
+        case .bold: .styleBold
+        case .italic: .styleItalic
+        case .underline: .styleUnderlined
+        case .strikethrough: .styleStrikethrough
+        default: .done
+        }
+    }
+
+    var editorTools: EditorTextStyleTool? {
         switch self {
             case .default:
                 return .none
@@ -122,7 +184,7 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
                 return .underline
             case .strikethrough:
                 return .strikethrough
-            case .bullet(let indent):
+        case .bullet(_):
 //                return .list(.bullet(indent))
                 return nil
             case .h1:
@@ -137,6 +199,8 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
                 return .header(.h5)
             case .h6:
                 return .header(.h6)
+            default:
+                return .none
         }
     }
 
@@ -182,7 +246,7 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
                 return font
             case .bold,.italic:
                 return font.addFontStyle(self)
-            case .underline, .bullet, .strikethrough:
+            case .underline, .bullet, .strikethrough, .color, .background:
                 return font
             case .h1:
                 return font.updateFontSize(multiple: 1.5)
@@ -196,6 +260,18 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
                 return font.updateFontSize(multiple: 1.1)
             case .h6:
                 return font.updateFontSize(multiple: 1)
+            case .size(let size):
+                if let size {
+                    return font.updateFontSize(size: CGFloat(size))
+                } else {
+                    return font
+                }
+            case .font(let name):
+                if let name {
+                    return FontRepresentable(name: name, size: font.pointSize) ?? font
+                } else {
+                    return font
+                }
         }
     }
 
@@ -220,9 +296,9 @@ public enum TextSpanStyle: Equatable, Codable, CaseIterable, Hashable {
         switch self {
         case .bold, .italic, .bullet:
             return font.removeFontStyle(self)
-        case .underline, .strikethrough:
+        case .underline, .strikethrough, .color, .background:
             return font
-        case .default, .h1, .h2, .h3, .h4, .h5, .h6:
+        case .default, .h1, .h2, .h3, .h4, .h5, .h6, .size, .font:
             return font.updateFontSize(size: .standardRichTextFontSize)
         }
     }
@@ -292,6 +368,14 @@ extension TextSpanStyle {
                 return RichAttributes(header: .h5)
             case .h6:
                 return RichAttributes(header: .h6)
+            case .size(let size):
+                return RichAttributes(size: size)
+            case .font(let font):
+                return RichAttributes(font: font)
+            case .color(let color):
+            return RichAttributes(color: color?.hexString)
+            case .background(let background):
+            return RichAttributes(background: background?.hexString)
         }
     }
 }

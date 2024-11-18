@@ -7,8 +7,10 @@
 
 import SwiftUI
 
+#if iOS || macOS || os(visionOS)
 public struct EditorToolBarView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.richTextKeyboardToolbarStyle) private var style
 
     @ObservedObject var state: RichEditorState
 
@@ -22,28 +24,43 @@ public struct EditorToolBarView: View {
 
     public var body: some View {
         LazyHStack(spacing: 5, content: {
-            ForEach(EditorTool.allCases, id: \.self) { tool in
-                if tool.isContainManu {
-                    TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
-                } else {
-//                    if tool != .list() {
-                        ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
-//                    }
+            Section {
+                ForEach(EditorTextStyleTool.allCases, id: \.self) { tool in
+                    Group {
+                        if tool.isContainManu {
+                            TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
+                            RTEVDivider()
+                        } else {
+                            //                    if tool != .list() {
+                            ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
+                            //                    }
+                        }
+                    }
                 }
             }
+
+            RTEVDivider()
+
+            Section {
+                RichTextFont.SizePickerStack(context: state)
+            }
         })
-        .frame(height: 50)
-        .padding(.horizontal, 15)
+        #if os(iOS)
+        .frame(height: 40)
+        #else
+        .frame(height: 40)
+        #endif
+        .padding(.horizontal)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(selectedColor)
-        .clipShape(.capsule)
+        .cornerRadius(6)
     }
 }
 
 private struct ToggleStyleButton: View {
     @Environment(\.colorScheme) var colorScheme
 
-    let tool: EditorTool
+    let tool: EditorTextStyleTool
     let appliedTools: Set<TextSpanStyle>
     let onToolSelect: (TextSpanStyle) -> Void
 
@@ -65,13 +82,18 @@ private struct ToggleStyleButton: View {
         }, label: {
             HStack(alignment: .center, spacing: 4, content: {
                 Image(systemName: tool.systemImageName)
-                    .font(.title)
+                #if os(iOS)
+                    .frame(width: 25, height: 25)
+                #else
+                    .frame(width: 20, height: 20)
+                #endif
             })
             .foregroundColor(isSelected ? .blue : normalDarkColor)
+#if os(iOS)
             .frame(width: 40, height: 40, alignment: .center)
+            #endif
             .background(isSelected ? selectedColor : Color.clear)
             .cornerRadius(5)
-            .padding(.vertical, 5)
         })
     }
 }
@@ -79,7 +101,7 @@ private struct ToggleStyleButton: View {
 struct TitleStyleButton: View {
     @Environment(\.colorScheme) var colorScheme
 
-    let tool: EditorTool
+    let tool: EditorTextStyleTool
     let appliedTools: Set<TextSpanStyle>
     let setStyle: (TextSpanStyle) -> Void
 
@@ -87,48 +109,26 @@ struct TitleStyleButton: View {
         tool.isSelected(appliedTools)
     }
 
-    @State var isExpanded: Bool = false
-
     var normalDarkColor: Color {
         colorScheme == .dark ? .white : .black
     }
 
+    @State var selection: HeaderType = .default
+
     var body: some View {
-
-        Menu(content: {
+        Picker("", selection: $selection) {
             ForEach(HeaderType.allCases, id: \.self) { header in
-                Button(action: {
-                    isExpanded = false
-                    setStyle(EditorTool.header(header).getTextSpanStyle())
-                }, label: {
-                    if hasStyle(header.getTextSpanStyle()) {
-                        Label(header.title, systemImage:"checkmark")
-                            .foregroundColor(normalDarkColor)
-                    } else {
-                        Text(header.title)
-                    }
-                })
+                if hasStyle(header.getTextSpanStyle()) {
+                    Label(header.title, systemImage:"checkmark")
+                        .foregroundColor(normalDarkColor)
+                } else {
+                    Text(header.title)
+                }
             }
-        }, label: {
-            HStack(alignment: .center, spacing: 4, content: {
-                Image(systemName: tool.systemImageName)
-                    .font(.title)
-
-                Image(systemName: "chevron.down")
-                    .font(.subheadline)
-            })
-            .foregroundColor(isSelected ? .blue : normalDarkColor)
-            .frame(width: 50, height: 40, alignment: .center)
-            .padding(.horizontal, 3)
-            .background(isSelected ? Color.gray.opacity(0.1) : Color.clear)
-            .cornerRadius(5)
-            .padding(.vertical, 5)
-        })
-#if !os(tvOS)
-        .onTapGesture {
-            isExpanded.toggle()
         }
-#endif
+        .onChangeBackPort(of: selection) { newValue in
+            setStyle(EditorTextStyleTool.header(selection).getTextSpanStyle())
+        }
     }
     
 
@@ -136,3 +136,13 @@ struct TitleStyleButton: View {
         return appliedTools.contains(where: { $0.key == style.key })
     }
 }
+
+struct RTEVDivider: View {
+    var body: some View {
+        Rectangle()
+            .frame(width: 1)
+            .foregroundColor(.secondary)
+            .padding(.vertical)
+    }
+}
+#endif

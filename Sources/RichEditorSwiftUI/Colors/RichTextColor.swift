@@ -38,14 +38,35 @@ public extension RichTextColor {
     /// The corresponding rich text attribute, if any.
     var attribute: NSAttributedString.Key? {
         switch self {
-            case .foreground: .foregroundColor
-            case .background: .backgroundColor
-            case .strikethrough: .strikethroughColor
-            case .stroke: .strokeColor
-            case .underline: .underlineColor
+        case .foreground: .foregroundColor
+        case .background: .backgroundColor
+        case .strikethrough: .strikethroughColor
+        case .stroke: .strokeColor
+        case .underline: .underlineColor
         }
     }
 
+    /// The standard icon to use for the color.
+    var icon: Image {
+        switch self {
+        case .foreground: .richTextColorForeground
+        case .background: .richTextColorBackground
+        case .strikethrough: .richTextColorStrikethrough
+        case .stroke: .richTextColorStroke
+        case .underline: .richTextColorUnderline
+        }
+    }
+
+    /// The localized color title key.
+    var titleKey: RTEL10n {
+        switch self {
+        case .foreground: .foregroundColor
+        case .background: .backgroundColor
+        case .strikethrough: .strikethroughColor
+        case .stroke: .strokeColor
+        case .underline: .underlineColor
+        }
+    }
 
     /// Adjust a `color` for a certain `colorScheme`.
     func adjust(
@@ -53,8 +74,8 @@ public extension RichTextColor {
         for scheme: ColorScheme
     ) -> Color {
         switch self {
-            case .background: color ?? .clear
-            default: color ?? .primary
+        case .background: color ?? .clear
+        default: color ?? .primary
         }
     }
 }
@@ -63,3 +84,4 @@ public extension Collection where Element == RichTextColor {
 
     static var allCases: [RichTextColor] { Element.allCases }
 }
+

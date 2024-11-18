@@ -183,7 +183,11 @@ public class RichEditorState: ObservableObject {
         let adapter = DefaultAdapter()
 
         self.adapter = adapter
-        self.attributedString = NSMutableAttributedString(string: input)
+
+        let str = NSMutableAttributedString(string: input)
+
+        str.addAttributes([.font: currentFont], range: str.richTextRange)
+        self.attributedString = str
 
         self.internalSpans = [.init(from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0, attributes: RichAttributes())]
 
