@@ -47,7 +47,7 @@ struct ContentView: View {
                     Button(action: {
                         print("Exported JSON == \(state.output())")
                     }, label: {
-                        Image(systemName: "checkmark")
+                        Image(systemName: "printer.inverse")
                             .padding()
                     })
                 }

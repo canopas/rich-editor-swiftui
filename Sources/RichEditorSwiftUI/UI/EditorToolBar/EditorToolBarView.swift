@@ -129,9 +129,7 @@ struct TitleStyleButton: View {
     var body: some View {
         Picker("", selection: $selection) {
             ForEach(HeaderType.allCases, id: \.self) { header in
-//                if hasStyle(header.getTextSpanStyle()) {
-                    Text(header.title)
-//                }
+                Text(header.title)
             }
         }
         .onChangeBackPort(of: selection) { newValue in
