@@ -137,8 +137,7 @@ extension RichEditorState {
         if style.isHeaderStyle || style.isDefault || style.isList {
             handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: !style.isDefault)
         } else if !selectedRange.isCollapsed {
-            var addStyle = checkIfStyleIsActiveWithSameAttributes(style)
-
+            let addStyle = checkIfStyleIsActiveWithSameAttributes(style)
             processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
         }
 
@@ -167,7 +166,7 @@ extension RichEditorState {
                 addStyle = false
             }
         case .background(let bgColor):
-            if let color = bgColor, color != .clear {
+            if let color = bgColor, color.toHex() != Color.clear.toHex() {
                 if let internalColor = self.color(for: .background) {
                     addStyle = Color(internalColor) != color
                 } else {
