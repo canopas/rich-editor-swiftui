@@ -137,15 +137,50 @@ extension RichEditorState {
         if style.isHeaderStyle || style.isDefault || style.isList {
             handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: !style.isDefault)
         } else if !selectedRange.isCollapsed {
-            var addStyle = true
-            if case .size(let size) = style, let size, CGFloat(size) == CGFloat.standardRichTextFontSize {
-                addStyle = false
-            }
+            var addStyle = checkIfStyleIsActiveWithSameAttributes(style)
 
             processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
         }
 
         updateCurrentSpanStyle()
+    }
+
+    func checkIfStyleIsActiveWithSameAttributes(_ style: TextSpanStyle) -> Bool {
+        var addStyle: Bool = true
+        switch style {
+        case .size(let size):
+            if let size {
+                addStyle = CGFloat(size) == CGFloat.standardRichTextFontSize
+            }
+        case .font(let fontName):
+            if let fontName {
+                addStyle = fontName == self.fontName
+            }
+        case .color(let color):
+            if let color, color.toHex() != Color.primary.toHex() {
+                if let internalColor = self.color(for: .foreground) {
+                    addStyle = Color(internalColor) != color
+                } else {
+                    addStyle = true
+                }
+            } else {
+                addStyle = false
+            }
+        case .background(let bgColor):
+            if let color = bgColor, color != .clear {
+                if let internalColor = self.color(for: .background) {
+                    addStyle = Color(internalColor) != color
+                } else {
+                    addStyle = true
+                }
+            } else {
+                addStyle = false
+            }
+        default:
+            return addStyle
+        }
+
+        return addStyle
     }
 
     /**

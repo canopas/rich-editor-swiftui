@@ -18,23 +18,29 @@ public struct EditorToolBarView: View {
         colorScheme == .dark ? .white.opacity(0.3) : .gray.opacity(0.1)
     }
 
+    var background: some View {
+        Color.clear
+            .overlay(Color.primary.opacity(0.1))
+            .shadow(color: .black.opacity(0.1), radius: 5)
+            .edgesIgnoringSafeArea(.all)
+    }
+
     public init(state: RichEditorState) {
         self.state = state
     }
 
     public var body: some View {
-        LazyHStack(spacing: 5, content: {
+        VStack(alignment: .leading, spacing: 5) {
+        HStack(spacing: 5, content: {
             Section {
                 ForEach(EditorTextStyleTool.allCases, id: \.self) { tool in
-                    Group {
-                        if tool.isContainManu {
-                            TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
-                            RTEVDivider()
-                        } else {
-                            //                    if tool != .list() {
-                            ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
-                            //                    }
-                        }
+                    if tool.isContainManu {
+                        TitleStyleButton(tool: tool, appliedTools: state.activeStyles, setStyle: state.updateStyle(style:))
+                        RTEVDivider()
+                    } else {
+                        //                    if tool != .list() {
+                        ToggleStyleButton(tool: tool, appliedTools: state.activeStyles, onToolSelect: state.toggleStyle(style:))
+                        //                    }
                     }
                 }
             }
@@ -43,6 +49,7 @@ public struct EditorToolBarView: View {
 
             Section {
                 RichTextFont.SizePickerStack(context: state)
+                
             }
         })
         #if os(iOS)
@@ -50,10 +57,14 @@ public struct EditorToolBarView: View {
         #else
         .frame(height: 40)
         #endif
+
+            RichTextFormat.Toolbar(context: state)
+        }
         .padding(.horizontal)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(selectedColor)
-        .cornerRadius(6)
+        .background(background)
+        .cornerRadius(8)
+
     }
 }
 
@@ -80,7 +91,7 @@ private struct ToggleStyleButton: View {
         Button(action: {
             onToolSelect(tool.getTextSpanStyle())
         }, label: {
-            HStack(alignment: .center, spacing: 4, content: {
+            HStack(alignment: .center, spacing: 0, content: {
                 Image(systemName: tool.systemImageName)
                 #if os(iOS)
                     .frame(width: 25, height: 25)
@@ -89,8 +100,8 @@ private struct ToggleStyleButton: View {
                 #endif
             })
             .foregroundColor(isSelected ? .blue : normalDarkColor)
-#if os(iOS)
-            .frame(width: 40, height: 40, alignment: .center)
+            #if os(iOS)
+            .frame(width: 30, height: 30, alignment: .center)
             #endif
             .background(isSelected ? selectedColor : Color.clear)
             .cornerRadius(5)
@@ -118,12 +129,9 @@ struct TitleStyleButton: View {
     var body: some View {
         Picker("", selection: $selection) {
             ForEach(HeaderType.allCases, id: \.self) { header in
-                if hasStyle(header.getTextSpanStyle()) {
-                    Label(header.title, systemImage:"checkmark")
-                        .foregroundColor(normalDarkColor)
-                } else {
+//                if hasStyle(header.getTextSpanStyle()) {
                     Text(header.title)
-                }
+//                }
             }
         }
         .onChangeBackPort(of: selection) { newValue in
@@ -140,9 +148,8 @@ struct TitleStyleButton: View {
 struct RTEVDivider: View {
     var body: some View {
         Rectangle()
-            .frame(width: 1)
+            .frame(width: 1, height: 20)
             .foregroundColor(.secondary)
-            .padding(.vertical)
     }
 }
 #endif
