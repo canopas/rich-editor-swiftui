@@ -11,7 +11,7 @@ import SwiftUI
  This enum defines supported rich text alignments, like left,
  right, center, and justified.
  */
-public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identifiable {
+public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identifiable, RichTextLabelValue {
 
     /**
      Initialize a rich text alignment with a native alignment.

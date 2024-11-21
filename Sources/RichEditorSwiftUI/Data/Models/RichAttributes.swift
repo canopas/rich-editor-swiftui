@@ -5,7 +5,7 @@
 //  Created by Divyesh Vekariya on 04/04/24.
 //
 
-import Foundation
+import SwiftUI
 
 // MARK: - RichAttributes
 public struct RichAttributes: Codable {
@@ -223,6 +223,18 @@ extension RichAttributes {
         }
         if let list = list {
             styles.insert(list.getTextSpanStyle())
+        }
+        if let size = size {
+            styles.insert(.size(size))
+        }
+        if let font = font {
+            styles.insert(.font(font))
+        }
+        if let color = color {
+            styles.insert(.color(Color(hex: color)))
+        }
+        if let background = background {
+            styles.insert(.background(Color(hex: background)))
         }
         return styles
     }

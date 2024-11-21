@@ -47,7 +47,7 @@ public extension RichTextFont {
         private var config
 
         public var body: some View {
-            Picker("", selection: $selection) {
+            SwiftUI.Picker("", selection: $selection) {
                 ForEach(values(
                     for: config.values,
                     selection: selection

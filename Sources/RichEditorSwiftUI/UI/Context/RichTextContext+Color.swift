@@ -13,7 +13,7 @@ public extension RichEditorState {
     func binding(for color: RichTextColor) -> Binding<Color> {
         Binding(
             get: { Color(self.color(for: color) ?? .clear) },
-            set: { self.setColor(color, to: .init($0)) }
+            set: { self.updateStyleFor(color, to: .init($0)) }
         )
     }
 
@@ -30,6 +30,22 @@ public extension RichEditorState {
         guard self.color(for: color) != val else { return }
         actionPublisher.send(.setColor(color, val))
         setColorInternal(color, to: val)
+    }
+
+    func updateStyleFor(_ color: RichTextColor, to val: ColorRepresentable) {
+        let value = Color(val)
+        switch color {
+        case .foreground:
+            updateStyle(style: .color(value))
+        case .background:
+            updateStyle(style: .background(value))
+        case .strikethrough:
+            return
+        case .stroke:
+            return
+        case .underline:
+            return
+        }
     }
 }
 
