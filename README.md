@@ -70,7 +70,7 @@ For bugs, questions, and discussions please use the [Github Issues](https://gith
 
 
 ## Credits
-RichEditor for SwiftUI is owned and maintained by the [Canopas team](https://canopas.com/). For project updates and releases, you can follow them on Twitter at [@canopassoftware](https://twitter.com/canopassoftware).
+RichEditor for SwiftUI is owned and maintained by the [Canopas team](https://canopas.com/). For project updates and releases, you can follow them on X at [@canopas_eng](https://x.com/canopas_eng).
 
 A similar library is also available for Android in Jetpack Compose [here](https://github.com/canopas/rich-editor-compose).
 
