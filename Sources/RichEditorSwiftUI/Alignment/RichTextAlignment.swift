@@ -24,7 +24,7 @@ public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identif
             case .left: self = .left
             case .right: self = .right
             case .center: self = .center
-            case .justified: self = .justified
+            case .justified: self = .justify
             default: self = .left
         }
     }
@@ -36,7 +36,7 @@ public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identif
     case center
 
     /// Justified text alignment.
-    case justified
+    case justify
 
     /// Right text alignment.
     case right
@@ -67,7 +67,7 @@ public extension RichTextAlignment {
         case .left: .left
         case .right: .right
         case .center: .center
-        case .justified: .justified
+        case .justify: .justified
         }
     }
 }

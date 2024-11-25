@@ -71,8 +71,11 @@ public extension RichTextFormat {
 
                 Divider()
 
-//                SidebarSection {
-//                    alignmentPicker(value: $context.textAlignment)
+                SidebarSection {
+                    alignmentPicker(value: $context.textAlignment)
+                        .onChangeBackPort(of: context.textAlignment) { newValue in
+                            context.updateStyle(style: .align(newValue))
+                        }
 //                    HStack {
 //                        lineSpacingPicker(for: context)
 //                    }
@@ -80,9 +83,9 @@ public extension RichTextFormat {
 //                        indentButtons(for: context, greedy: true)
 //                        superscriptButtons(for: context, greedy: true)
 //                    }
-//                }
-//
-//                Divider()
+                }
+
+                Divider()
 
                 if hasColorPickers {
                     SidebarSection {
