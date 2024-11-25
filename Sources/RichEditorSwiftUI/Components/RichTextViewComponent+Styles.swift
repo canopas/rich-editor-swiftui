@@ -41,8 +41,6 @@ public extension RichTextViewComponent {
                 setRichTextAttribute(.underlineStyle, to: value)
             case .strikethrough:
                 setRichTextAttribute(.strikethroughStyle, to: value)
-            default:
-                return
         }
     }
 

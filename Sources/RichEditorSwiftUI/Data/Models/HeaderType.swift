@@ -35,7 +35,7 @@ public enum HeaderType: Int, CaseIterable, Codable {
         }
     }
 
-    func getTextSpanStyle() -> TextSpanStyle {
+    func getTextSpanStyle() -> RichTextSpanStyle {
         switch self {
         case .default: return .default
         case .h1: return .h1

@@ -59,9 +59,12 @@ public extension RichTextFormat {
             VStack(alignment: .leading, spacing: style.spacing) {
                 SidebarSection {
                     fontPicker(value: $context.fontName)
+                        .onChangeBackPort(of: context.fontName) { newValue in
+                            context.updateStyle(style: .font(newValue))
+                        }
                     HStack {
-//                        styleToggleGroup(for: context)
-//                        Spacer()
+                        styleToggleGroup(for: context)
+                        Spacer()
                         fontSizePicker(for: context)
                     }
                 }

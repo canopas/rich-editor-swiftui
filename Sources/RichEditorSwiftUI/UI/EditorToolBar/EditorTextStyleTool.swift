@@ -61,7 +61,7 @@ enum EditorTextStyleTool: CaseIterable, Hashable {
         }
     }
 
-    func getTextSpanStyle() -> TextSpanStyle {
+    func getTextSpanStyle() -> RichTextSpanStyle {
         switch self {
         case .header(let headerOptions):
             switch headerOptions {
@@ -88,7 +88,7 @@ enum EditorTextStyleTool: CaseIterable, Hashable {
         }
     }
 
-    func isSelected(_ currentStyle: Set<TextSpanStyle>) -> Bool {
+    func isSelected(_ currentStyle: Set<RichTextSpanStyle>) -> Bool {
         switch self {
             case .header:
                 return currentStyle.contains(.h1) || currentStyle.contains(.h2) || currentStyle.contains(.h3) || currentStyle.contains(.h4) || currentStyle.contains(.h5) || currentStyle.contains(.h6)

@@ -21,7 +21,7 @@ public extension NSMutableAttributedString {
      - range: The range to affect, by default the entire text.
      */
     func setRichTextStyle(
-        _ style: RichTextStyle,
+        _ style: RichTextSpanStyle,
         to newValue: Bool,
         at range: NSRange? = nil
     ) {
@@ -43,8 +43,8 @@ public extension NSMutableAttributedString {
         let shouldRemove = !newValue && styles.hasStyle(style)
         guard shouldAdd || shouldRemove || style.isHeaderStyle else { return }
         var descriptor = font.fontDescriptor
-        if !style.isDefault && !style.isHeaderStyle {
-            descriptor = descriptor.byTogglingStyle(style)
+        if let richTextStyle = style.richTextStyle, !style.isDefault && !style.isHeaderStyle {
+            descriptor = descriptor.byTogglingStyle(richTextStyle)
         }
         let newFont: FontRepresentable? = FontRepresentable(
             descriptor: descriptor,
@@ -56,7 +56,7 @@ public extension NSMutableAttributedString {
     /**
      This will reset font size before multiplying new size
      */
-    private func byTogglingFontSizeFor(style: TextSpanStyle, font: FontRepresentable, shouldAdd: Bool) -> CGFloat {
+    private func byTogglingFontSizeFor(style: RichTextSpanStyle, font: FontRepresentable, shouldAdd: Bool) -> CGFloat {
         guard style.isHeaderStyle || style.isDefault else { return  font.pointSize }
         
         let cleanFont = style.getFontAfterRemovingStyle(font: font)

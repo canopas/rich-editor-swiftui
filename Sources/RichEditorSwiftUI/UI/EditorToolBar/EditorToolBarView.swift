@@ -49,7 +49,6 @@ public struct EditorToolBarView: View {
 
             Section {
                 RichTextFont.SizePickerStack(context: state)
-                
             }
         })
         #if os(iOS)
@@ -72,8 +71,8 @@ private struct ToggleStyleButton: View {
     @Environment(\.colorScheme) var colorScheme
 
     let tool: EditorTextStyleTool
-    let appliedTools: Set<TextSpanStyle>
-    let onToolSelect: (TextSpanStyle) -> Void
+    let appliedTools: Set<RichTextSpanStyle>
+    let onToolSelect: (RichTextSpanStyle) -> Void
 
     private var isSelected: Bool {
         tool.isSelected(appliedTools)
@@ -113,8 +112,8 @@ struct TitleStyleButton: View {
     @Environment(\.colorScheme) var colorScheme
 
     let tool: EditorTextStyleTool
-    let appliedTools: Set<TextSpanStyle>
-    let setStyle: (TextSpanStyle) -> Void
+    let appliedTools: Set<RichTextSpanStyle>
+    let setStyle: (RichTextSpanStyle) -> Void
 
     private var isSelected: Bool {
         tool.isSelected(appliedTools)
@@ -138,7 +137,7 @@ struct TitleStyleButton: View {
     }
     
 
-    func hasStyle(_ style: TextSpanStyle) -> Bool {
+    func hasStyle(_ style: RichTextSpanStyle) -> Bool {
         return appliedTools.contains(where: { $0.key == style.key })
     }
 }

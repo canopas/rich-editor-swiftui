@@ -146,11 +146,11 @@ extension RichAttributes {
         )
     }
     
-    public func copy(with style: TextSpanStyle, byAdding: Bool = true) -> RichAttributes {
+    public func copy(with style: RichTextSpanStyle, byAdding: Bool = true) -> RichAttributes {
         return copy(with: [style], byAdding: byAdding)
     }
 
-    public func copy(with styles: [TextSpanStyle], byAdding: Bool = true) -> RichAttributes {
+    public func copy(with styles: [RichTextSpanStyle], byAdding: Bool = true) -> RichAttributes {
         let att = getRichAttributesFor(styles: styles)
         return RichAttributes(
             bold: (att.bold != nil ? (byAdding ? att.bold! : nil) : self.bold),
@@ -169,8 +169,8 @@ extension RichAttributes {
 }
 
 extension RichAttributes {
-    public func styles() -> [TextSpanStyle] {
-        var styles: [TextSpanStyle] = []
+    public func styles() -> [RichTextSpanStyle] {
+        var styles: [RichTextSpanStyle] = []
         if let bold = bold, bold {
             styles.append(.bold)
         }
@@ -204,8 +204,8 @@ extension RichAttributes {
         return styles
     }
 
-    public func stylesSet() -> Set<TextSpanStyle> {
-        var styles: Set<TextSpanStyle> = []
+    public func stylesSet() -> Set<RichTextSpanStyle> {
+        var styles: Set<RichTextSpanStyle> = []
         if let bold = bold, bold {
             styles.insert(.bold)
         }
@@ -241,7 +241,7 @@ extension RichAttributes {
 }
 
 extension RichAttributes {
-    public func hasStyle(style: RichTextStyle) -> Bool {
+    public func hasStyle(style: RichTextSpanStyle) -> Bool {
         switch style {
         case .default:
             return true
@@ -279,11 +279,11 @@ extension RichAttributes {
     }
 }
 
-internal func getRichAttributesFor(style: RichTextStyle) -> RichAttributes {
+internal func getRichAttributesFor(style: RichTextSpanStyle) -> RichAttributes {
     return getRichAttributesFor(styles: [style])
 }
 
-internal func getRichAttributesFor(styles: [RichTextStyle]) -> RichAttributes {
+internal func getRichAttributesFor(styles: [RichTextSpanStyle]) -> RichAttributes {
     guard !styles.isEmpty else { return RichAttributes() }
     var bold: Bool? = nil
     var italic: Bool? = nil

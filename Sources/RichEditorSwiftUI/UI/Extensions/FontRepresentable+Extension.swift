@@ -184,8 +184,8 @@ extension FontRepresentable {
 
 public extension FontRepresentable {
     /// Get a new font by adding a text style.
-    func addFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
-        guard let trait = style.symbolicTraits, !fontDescriptor.symbolicTraits.contains(trait) else { return self }
+    func addFontStyle(_ style: RichTextSpanStyle) -> FontRepresentable {
+        guard let style = style.richTextStyle, let trait = style.symbolicTraits, !fontDescriptor.symbolicTraits.contains(trait) else { return self }
         let fontDesc = fontDescriptor.byTogglingStyle(style)
 #if os(macOS)
         if let familyName {
@@ -202,8 +202,8 @@ public extension FontRepresentable {
     }
     
     ///Get a new font by removing a text style.
-    func removeFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
-        guard let trait = style.symbolicTraits, fontDescriptor.symbolicTraits.contains(trait) else { return self }
+    func removeFontStyle(_ style: RichTextSpanStyle) -> FontRepresentable {
+        guard let style = style.richTextStyle, let trait = style.symbolicTraits, fontDescriptor.symbolicTraits.contains(trait) else { return self }
         let fontDesc = fontDescriptor.byTogglingStyle(style)
 #if os(macOS)
         if let familyName {
@@ -220,7 +220,8 @@ public extension FontRepresentable {
     }
     
     /// Get a new font by toggling a text style.
-    func byTogglingFontStyle(_ style: TextSpanStyle) -> FontRepresentable {
+    func byTogglingFontStyle(_ style: RichTextSpanStyle) -> FontRepresentable {
+        guard let style = style.richTextStyle else { return self }
         let fontDesc = fontDescriptor.byTogglingStyle(style)
 #if os(macOS)
         if let familyName {
@@ -229,6 +230,7 @@ public extension FontRepresentable {
         return FontRepresentable(
             descriptor: fontDesc,
             size: pointSize
+
         ) ?? self
 #else
         fontDesc.withFamily(familyName)

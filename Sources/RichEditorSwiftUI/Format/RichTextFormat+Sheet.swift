@@ -59,10 +59,10 @@ public extension RichTextFormat {
         public var body: some View {
             NavigationView {
                 VStack(spacing: 0) {
-//                    RichTextFont.ListPicker(
-//                        selection: $context.fontName
-//                    )
-//                    Divider()
+                    RichTextFont.ListPicker(
+                        selection: $context.fontName
+                    )
+                    Divider()
                     RichTextFormat.Toolbar(
                         context: context
                     )

@@ -116,7 +116,7 @@ public class RichEditorState: ObservableObject {
     internal var adapter: EditorAdapter = DefaultAdapter()
 
 //    @Published internal var attributedString: NSMutableAttributedString
-    @Published internal var activeStyles: Set<TextSpanStyle> = []
+    @Published internal var activeStyles: Set<RichTextSpanStyle> = []
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
     internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
 

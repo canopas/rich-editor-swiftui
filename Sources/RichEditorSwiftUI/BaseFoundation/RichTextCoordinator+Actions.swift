@@ -183,7 +183,7 @@ extension RichTextCoordinator {
 
     func setStyle(_ style: RichTextStyle, to newValue: Bool) {
         let hasStyle = textView.richTextStyles.hasStyle(style)
-        if newValue == hasStyle { return }
+        guard newValue != hasStyle else { return }
         textView.setRichTextStyle(style, to: newValue)
     }
 }

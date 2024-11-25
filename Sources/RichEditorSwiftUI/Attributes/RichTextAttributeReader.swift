@@ -56,12 +56,12 @@ public extension RichTextAttributeReader {
 public extension RichTextAttributeReader {
     
     /// Get the text styles at a certain range.
-    func richTextStyles(at range: NSRange) -> [RichTextStyle] {
+    func richTextStyles(at range: NSRange) -> [RichTextSpanStyle] {
         let attributes = richTextAttributes(at: range)
         let traits = richTextFont(at: range)?.fontDescriptor.symbolicTraits
         var styles = traits?.enabledRichTextStyles ?? []
         if attributes.isStrikethrough { styles.append(.strikethrough) }
         if attributes.isUnderlined { styles.append(.underline) }
-        return styles
+        return styles.map({ $0.richTextSpanStyle })
     }
 }
