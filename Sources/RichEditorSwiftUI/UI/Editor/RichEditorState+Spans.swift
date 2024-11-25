@@ -134,7 +134,7 @@ extension RichEditorState {
         activeAttributes = [:]
         activeStyles.insert(style)
 
-        if style.isHeaderStyle || style.isDefault || style.isList {
+        if style.isHeaderStyle || style.isDefault || style.isList || style.isAlignmentStyle {
             handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: !style.isDefault)
         } else if !selectedRange.isCollapsed {
             let addStyle = checkIfStyleIsActiveWithSameAttributes(style)
@@ -174,6 +174,10 @@ extension RichEditorState {
                 }
             } else {
                 addStyle = false
+            }
+        case .align(let alignment):
+            if let alignment {
+                addStyle = alignment != self.textAlignment || alignment != .left
             }
         default:
             return addStyle
@@ -575,7 +579,7 @@ extension RichEditorState {
         if addStyle || style.isDefault {
             if style.isDefault {
                 /// This will help to apply header style without loosing other style
-                let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default) : getRichAttributesFor(style: style))
+                let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default, align: .left) : getRichAttributesFor(style: style))
                 spansToUpdate.insert(span)
             } else if !style.isHeaderStyle && !style.isList {
                 ///When selected range's is surrounded with same styled text it helps to update selected text in editor
@@ -806,6 +810,10 @@ extension RichEditorState {
         case .background(let color):
             if let color {
                 setColor(.background, to: .init(color))
+            }
+        case .align(let alignment):
+            if let alignment, alignment != self.textAlignment {
+                actionPublisher.send(.setAlignment(alignment))
             }
         }
     }

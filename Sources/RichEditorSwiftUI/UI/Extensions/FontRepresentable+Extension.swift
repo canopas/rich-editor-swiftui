@@ -159,7 +159,37 @@ extension FontRepresentable {
             return self
         }
     }
-    
+
+    /// Get a new font with updated font size by **size**
+    func updateFontName(with name: String) -> FontRepresentable {
+        if fontName != name {
+            let fontDesc = fontDescriptor
+#if os(macOS)
+            fontDesc.withFamily(name)
+            return FontRepresentable(
+                descriptor: fontDesc,
+                size: pointSize
+            ) ?? self
+#else
+            fontDesc.withFamily(name)
+            return FontRepresentable(descriptor: fontDesc, size: pointSize)
+#endif
+        } else {
+            return self
+        }
+    }
+
+    func updateNameAndSize(with name: String? = nil, size: CGFloat? = nil) -> FontRepresentable {
+        var font = self
+        if let size {
+            font = font.updateFontSize(size: size)
+        }
+        if let name {
+            font = font.updateFontName(with: name)
+        }
+        return font
+    }
+
     func updateFontSize(multiple: CGFloat) -> FontRepresentable {
         if pointSize != multiple * pointSize {
             let size = multiple * pointSize

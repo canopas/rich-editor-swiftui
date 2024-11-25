@@ -53,6 +53,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     case font(String? = nil)
     case color(Color? = nil)
     case background(Color? = nil)
+    case align(RichTextAlignment? = nil)
 
     var key: String {
         switch self {
@@ -90,6 +91,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return "color"
         case .background:
             return "background"
+        case .align:
+            return "align"
         }
     }
 
@@ -124,6 +127,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return RichTextView.Theme.standard.fontColor
         case .background:
             return ColorRepresentable.white
+        case .align:
+            return RichTextAlignment.left.nativeAlignment
         }
     }
 
@@ -133,7 +138,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return .underlineStyle
         case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .size, .font:
             return .font
-        case .bullet:
+        case .bullet, .align:
             return .paragraphStyle
         case .strikethrough:
             return .strikethroughStyle
@@ -249,6 +254,15 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         }
     }
 
+    var isAlignmentStyle: Bool {
+        switch self {
+        case .align:
+            return true
+        default:
+            return false
+        }
+    }
+
     var isList: Bool {
         switch self {
         case .bullet:
@@ -262,6 +276,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         switch self {
         case .default:
             return true
+        case .align(let alignment):
+            return alignment == .left
         default:
             return false
         }
@@ -273,7 +289,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return font
         case .bold,.italic:
             return font.addFontStyle(self)
-        case .underline, .bullet, .strikethrough, .color, .background:
+        case .underline, .bullet, .strikethrough, .color, .background, .align:
             return font
         case .h1:
             return font.updateFontSize(multiple: 1.5)
@@ -323,7 +339,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         switch self {
         case .bold, .italic, .bullet:
             return font.removeFontStyle(self)
-        case .underline, .strikethrough, .color, .background:
+        case .underline, .strikethrough, .color, .background, .align:
             return font
         case .default, .h1, .h2, .h3, .h4, .h5, .h6, .size, .font:
             return font.updateFontSize(size: .standardRichTextFontSize)
@@ -403,6 +419,8 @@ extension RichTextSpanStyle {
             return RichAttributes(color: color?.hexString)
         case .background(let background):
             return RichAttributes(background: background?.hexString)
+        case .align(let alignment):
+            return RichAttributes(align: alignment)
         }
     }
 }

@@ -31,9 +31,8 @@ extension RichTextCoordinator {
             syncContextWithTextView()
         case .selectRange(let range):
             setSelectedRange(to: range)
-        case .setAlignment(_):
-            ////                textView.setRichTextAlignment(alignment)
-            return
+        case .setAlignment(let alignment):
+            textView.setRichTextAlignment(alignment)
         case .setAttributedString(let string):
             setAttributedString(to: string)
         case .setColor(let color, let newValue):

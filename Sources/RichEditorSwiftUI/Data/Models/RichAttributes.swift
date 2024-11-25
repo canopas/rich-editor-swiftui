@@ -21,6 +21,7 @@ public struct RichAttributes: Codable {
     public let font: String?
     public let color: String?
     public let background: String?
+    public let align: RichTextAlignment?
 
     public init(
         //        id: String = UUID().uuidString,
@@ -34,7 +35,8 @@ public struct RichAttributes: Codable {
         size: Int? = nil,
         font: String? = nil,
         color: String? = nil,
-        background: String? = nil
+        background: String? = nil,
+        align: RichTextAlignment? = nil
     ) {
         //        self.id = id
         self.bold = bold
@@ -48,6 +50,7 @@ public struct RichAttributes: Codable {
         self.font = font
         self.color = color
         self.background = background
+        self.align = align
     }
 
     enum CodingKeys: String, CodingKey {
@@ -62,6 +65,7 @@ public struct RichAttributes: Codable {
         case font = "font"
         case color = "color"
         case background = "background"
+        case align = "align"
     }
 
     public init(from decoder: Decoder) throws {
@@ -78,6 +82,7 @@ public struct RichAttributes: Codable {
         self.font = try values.decodeIfPresent(String.self, forKey: .font)
         self.color = try values.decodeIfPresent(String.self, forKey: .color)
         self.background = try values.decodeIfPresent(String.self, forKey: .background)
+        self.align = try values.decodeIfPresent(RichTextAlignment.self, forKey: .align)
     }
 }
 
@@ -95,6 +100,7 @@ extension RichAttributes: Hashable {
         hasher.combine(font)
         hasher.combine(color)
         hasher.combine(background)
+        hasher.combine(align)
     }
 }
 
@@ -114,6 +120,7 @@ extension RichAttributes: Equatable {
         && lhs.font == rhs.font
         && lhs.color == rhs.color
         && lhs.background == rhs.background
+        && lhs.align == rhs.align
         )
     }
 }
@@ -129,7 +136,8 @@ extension RichAttributes {
                      size: Int? = nil,
                      font: String? = nil,
                      color: String? = nil,
-                     background: String? = nil
+                     background: String? = nil,
+                     align: RichTextAlignment? = nil
     ) -> RichAttributes {
         return RichAttributes(
             bold: (bold != nil ? bold! : self.bold),
@@ -142,7 +150,8 @@ extension RichAttributes {
             size: (size != nil ? size! : self.size),
             font: (font != nil ? font! : self.font),
             color: (color != nil ? color! : self.color),
-            background: (background != nil ? background! : self.background)
+            background: (background != nil ? background! : self.background),
+            align: (align != nil ? align! : self.align)
         )
     }
     
@@ -163,7 +172,8 @@ extension RichAttributes {
             size: (att.size != nil ? (byAdding ? att.size! : nil) : self.size),
             font: (att.font != nil ? (byAdding ? att.font! : nil) : self.font),
             color: (att.color != nil ? (byAdding ? att.color! : nil) : self.color),
-            background: (att.background != nil ? (byAdding ? att.background! : nil) : self.background)
+            background: (att.background != nil ? (byAdding ? att.background! : nil) : self.background),
+            align: (att.align != nil ? (byAdding ? att.align! : nil) : self.align)
         )
     }
 }
@@ -201,6 +211,9 @@ extension RichAttributes {
         if let background = background {
             styles.append(.background(.init(hex: background)))
         }
+        if let align = align {
+            styles.append(.align(align))
+        }
         return styles
     }
 
@@ -235,6 +248,9 @@ extension RichAttributes {
         }
         if let background = background {
             styles.insert(.background(Color(hex: background)))
+        }
+        if let align = align {
+            styles.insert(.align(align))
         }
         return styles
     }
@@ -275,6 +291,8 @@ extension RichAttributes {
             return color == colorItem?.hexString
         case .background(let color):
             return background == color?.hexString
+        case .align(let alignment):
+            return align == alignment
         }
     }
 }
@@ -296,6 +314,7 @@ internal func getRichAttributesFor(styles: [RichTextSpanStyle]) -> RichAttribute
     var font: String? = nil
     var color: String? = nil
     var background: String? = nil
+    var align: RichTextAlignment? = nil
 
     for style in styles {
         switch style {
@@ -332,6 +351,8 @@ internal func getRichAttributesFor(styles: [RichTextSpanStyle]) -> RichAttribute
             color = textColor?.hexString
             case .background(let backgroundColor):
             background = backgroundColor?.hexString
+        case .align(let alignment):
+            align = alignment
         }
     }
     return RichAttributes(bold: bold,
@@ -344,6 +365,7 @@ internal func getRichAttributesFor(styles: [RichTextSpanStyle]) -> RichAttribute
                           size: size,
                           font: font,
                           color: color,
-                          background: background
+                          background: background,
+                          align: align
     )
 }

@@ -11,6 +11,8 @@ import UIKit
 import AppKit
 #endif
 
+import SwiftUI
+
 extension RichAttributes {
     func toAttributes(font: FontRepresentable? = nil) -> RichTextAttributes {
         var attributes: RichTextAttributes = [:]
@@ -22,6 +24,14 @@ extension RichAttributes {
                 .updateFontSize(
                     size: font.pointSize * headerType.fontSizeMultiplier
                 )
+        }
+
+        if let size = size {
+            font = font.updateFontSize(size: CGFloat(size))
+        }
+
+        if let fontName = self.font {
+            font = font.updateFontName(with: fontName)
         }
 
         // Apply bold and italic styles
@@ -43,6 +53,19 @@ extension RichAttributes {
         // Apply strikethrough
         if let isStrike = strike, isStrike {
             attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
+        }
+
+        if let color {
+            attributes[.foregroundColor] = ColorRepresentable(Color(hex: color))
+        }
+
+        if let background {
+            attributes[.backgroundColor] = ColorRepresentable(Color(hex: background))
+        }
+
+        if let align {
+            let style = NSMutableParagraphStyle(from: nil, alignment: align)
+            attributes[.paragraphStyle] = style
         }
 
         // Handle indent and paragraph styles
