@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-public typealias RichTextStyle = TextSpanStyle
+public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
 
-public enum TextSpanStyle: Equatable, CaseIterable, Hashable {
-
-    public static var allCases: [TextSpanStyle] = [
+    public static var allCases: [RichTextSpanStyle] = [
         .default,
         .bold,
         .italic,
@@ -146,7 +144,7 @@ public enum TextSpanStyle: Equatable, CaseIterable, Hashable {
         }
     }
 
-    public static func == (lhs: TextSpanStyle, rhs: TextSpanStyle) -> Bool {
+    public static func == (lhs: RichTextSpanStyle, rhs: RichTextSpanStyle) -> Bool {
         return lhs.key == rhs.key
     }
 
@@ -201,6 +199,16 @@ public enum TextSpanStyle: Equatable, CaseIterable, Hashable {
             return .header(.h6)
         default:
             return .none
+        }
+    }
+
+    var richTextStyle: RichTextStyle? {
+        switch self {
+        case .bold: .bold
+        case .italic: .italic
+        case .underline: .underline
+        case .strikethrough: .strikethrough
+        default: nil
         }
     }
 
@@ -332,7 +340,7 @@ public enum TextSpanStyle: Equatable, CaseIterable, Hashable {
 }
 
 #if canImport(UIKit)
-public extension RichTextStyle {
+public extension RichTextSpanStyle {
 
     /// The symbolic font traits for the style, if any.
     var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
@@ -346,7 +354,7 @@ public extension RichTextStyle {
 #endif
 
 #if macOS
-public extension RichTextStyle {
+public extension RichTextSpanStyle {
 
     /// The symbolic font traits for the trait, if any.
     var symbolicTraits: NSFontDescriptor.SymbolicTraits? {
@@ -360,7 +368,7 @@ public extension RichTextStyle {
 #endif
 
 
-extension TextSpanStyle {
+extension RichTextSpanStyle {
     func getRichAttribute() -> RichAttributes? {
         switch self {
         case .default:
@@ -400,7 +408,7 @@ extension TextSpanStyle {
 }
 
 
-public extension Collection where Element == RichTextStyle {
+public extension Collection where Element == RichTextSpanStyle {
 
     /**
      Check if the collection contains a certain style.
@@ -408,13 +416,13 @@ public extension Collection where Element == RichTextStyle {
      - Parameters:
      - style: The style to look for.
      */
-    func hasStyle(_ style: RichTextStyle) -> Bool {
+    func hasStyle(_ style: RichTextSpanStyle) -> Bool {
         contains(style)
     }
 
     /// Check if a certain style change should be applied.
     func shouldAddOrRemove(
-        _ style: RichTextStyle,
+        _ style: RichTextSpanStyle,
         _ newValue: Bool
     ) -> Bool {
         let shouldAdd = newValue && !hasStyle(style)

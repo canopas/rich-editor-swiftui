@@ -88,6 +88,7 @@ extension RichTextFormatToolbarBase {
                     .labelStyle(.iconOnly)
                     .frame(minWidth: 30)
             }
+            .padding(.horizontal)
         }
     }
 
@@ -148,17 +149,17 @@ extension RichTextFormatToolbarBase {
 //        }
 //    }
 
-//    @ViewBuilder
-//    func styleToggleGroup(
-//        for context: RichEditorState
-//    ) -> some View {
-//        if !config.styles.isEmpty {
-//            RichTextStyle.ToggleGroup(
-//                context: context,
-//                styles: config.styles
-//            )
-//        }
-//    }
+    @ViewBuilder
+    func styleToggleGroup(
+        for context: RichEditorState
+    ) -> some View {
+        if !config.styles.isEmpty {
+            RichTextStyle.ToggleGroup(
+                context: context,
+                styles: config.styles
+            )
+        }
+    }
 
 //    @ViewBuilder
 //    func superscriptButtons(

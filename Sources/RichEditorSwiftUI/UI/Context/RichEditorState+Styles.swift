@@ -10,12 +10,12 @@ import SwiftUI
 public extension RichEditorState {
 
     /// Get a binding for a certain style.
-//    func binding(for style: RichTextStyle) -> Binding<Bool> {
-//        Binding(
-//            get: { Bool(self.hasStyle(style)) },
-//            set: { self.setStyle(style, to: $0) }
-//        )
-//    }
+    func binding(for style: RichTextStyle) -> Binding<Bool> {
+        Binding(
+            get: { Bool(self.hasStyle(style)) },
+            set: { [weak self]_ in self?.setStyle(style) }
+        )
+    }
 
     /// Check whether or not the context has a certain style.
     func hasStyle(_ style: RichTextStyle) -> Bool {
@@ -35,6 +35,10 @@ public extension RichEditorState {
     /// Toggle a certain style for the context.
     func toggleStyle(_ style: RichTextStyle) {
         setStyle(style, to: !hasStyle(style))
+    }
+
+    func setStyle(_ style: RichTextStyle) {
+        toggleStyle(style: style.richTextSpanStyle)
     }
 }
 

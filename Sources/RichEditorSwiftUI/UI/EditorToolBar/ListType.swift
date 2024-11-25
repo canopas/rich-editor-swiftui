@@ -38,7 +38,7 @@ public enum ListType: Codable, Identifiable, CaseIterable, Hashable {
 }
 
 extension ListType {
-    func getTextSpanStyle() -> TextSpanStyle {
+    func getTextSpanStyle() -> RichTextSpanStyle {
         switch self {
         case .bullet(let indent):
             return .bullet(indent)

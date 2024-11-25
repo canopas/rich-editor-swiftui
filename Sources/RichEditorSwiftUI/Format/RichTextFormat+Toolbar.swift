@@ -56,9 +56,9 @@ public extension RichTextFormat {
 
         public var body: some View {
             VStack(spacing: style.spacing) {
-//                controls
+                controls
                 if hasColorPickers {
-//                    Divider()
+                    Divider()
                     colorPickers(for: context)
                 }
             }
@@ -115,8 +115,11 @@ private extension RichTextFormat.Toolbar {
         HStack {
             #if macOS
             fontPicker(value: $context.fontName)
+                .onChangeBackPort(of: context.fontName) { newValue in
+                    context.updateStyle(style: .font(newValue))
+                }
             #endif
-//            styleToggleGroup(for: context)
+            styleToggleGroup(for: context)
             if !useSingleLine {
                 Spacer()
             }

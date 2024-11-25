@@ -78,7 +78,7 @@ public enum RichTextAction: Identifiable, Equatable {
     case undoLatestChange
 
     /// Set HeaderStyle.
-    case setHeaderStyle(_ style: RichTextStyle)
+    case setHeaderStyle(_ style: RichTextSpanStyle)
 }
 
 public extension RichTextAction {
