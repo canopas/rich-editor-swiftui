@@ -128,7 +128,7 @@ struct TitleStyleButton: View {
     var body: some View {
         Picker("", selection: $selection) {
             ForEach(HeaderType.allCases, id: \.self) { header in
-                Text(header.title)
+                Text(header.titleLabel)
             }
         }
         .onChangeBackPort(of: selection) { newValue in

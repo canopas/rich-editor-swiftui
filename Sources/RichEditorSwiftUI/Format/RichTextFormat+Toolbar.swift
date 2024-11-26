@@ -114,6 +114,10 @@ private extension RichTextFormat.Toolbar {
     var controlsContent: some View {
         HStack {
             #if macOS
+            headerPicker(value: $context.headerType)
+                .onChangeBackPort(of: context.headerType) { newValue in
+                    context.updateStyle(style: newValue.getTextSpanStyle())
+                }
             fontPicker(value: $context.fontName)
                 .onChangeBackPort(of: context.fontName) { newValue in
                     context.updateStyle(style: .font(newValue))
@@ -129,6 +133,12 @@ private extension RichTextFormat.Toolbar {
             }
         }
         HStack {
+            #if !macOS
+            headerPicker(value: $context.headerType)
+                .onChangeBackPort(of: context.headerType) { newValue in
+                    context.updateStyle(style: newValue.getTextSpanStyle())
+                }
+            #endif
             alignmentPicker(value: $context.textAlignment)
 //            superscriptButtons(for: context, greedy: false)
 //            indentButtons(for: context, greedy: false)

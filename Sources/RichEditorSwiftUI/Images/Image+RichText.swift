@@ -31,6 +31,14 @@ public extension Image {
     static let richTextColorUnderline = symbol("underline")
     static let richTextColorUndefined = symbol("questionmark.app")
 
+    static let richTextHeaderDefault = symbol("textformat")
+    static let richTextHeader1 = symbol("textformat")
+    static let richTextHeader2 = symbol("textformat")
+    static let richTextHeader3 = symbol("textformat")
+    static let richTextHeader4 = symbol("textformat")
+    static let richTextHeader5 = symbol("textformat")
+    static let richTextHeader6 = symbol("textformat")
+
     static let richTextDocument = symbol("doc.text")
     static let richTextDocuments = symbol("doc.on.doc")
 

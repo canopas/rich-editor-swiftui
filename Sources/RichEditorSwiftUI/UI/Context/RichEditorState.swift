@@ -53,6 +53,9 @@ public class RichEditorState: ObservableObject {
     @Published
     public var isEditingText = false
 
+    @Published
+    public var headerType: HeaderType = .default
+
     /// The current text alignment, if any.
     @Published
     public var textAlignment: RichTextAlignment = .left

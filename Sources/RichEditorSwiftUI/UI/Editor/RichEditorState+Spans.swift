@@ -206,6 +206,8 @@ extension RichEditorState {
             attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: currentFont)
         })
 
+        headerType = activeStyles.first(where: { $0.isHeaderStyle })?.headerType ?? .default
+
         activeAttributes = attributes
     }
 }
