@@ -41,6 +41,19 @@ extension RichTextFormatToolbarBase {
     }
 
     @ViewBuilder
+    func headerPicker(
+        value: Binding<HeaderType>
+    ) -> some View {
+        if !config.headers.isEmpty {
+            RichTextHeader.Picker(
+                selection: value,
+                values: config.headers
+            )
+            .pickerStyle(.segmented)
+        }
+    }
+
+    @ViewBuilder
     func colorPickers(
         for context: RichEditorState
     ) -> some View {
@@ -88,7 +101,6 @@ extension RichTextFormatToolbarBase {
                     .labelStyle(.iconOnly)
                     .frame(minWidth: 30)
             }
-            .padding(.horizontal)
         }
     }
 

@@ -14,6 +14,7 @@ public extension RichTextFormat {
     struct ToolbarConfig {
 
         public init(
+            headers: [HeaderType] = .all,
             alignments: [RichTextAlignment] = .all,
             colorPickers: [RichTextColor] = [.foreground],
             colorPickersDisclosed: [RichTextColor] = [.background],
@@ -24,6 +25,7 @@ public extension RichTextFormat {
             styles: [RichTextStyle] = [.bold, .italic, .underline, .strikethrough],
             superscriptButtons: Bool = true
         ) {
+            self.headers = headers
             self.alignments = alignments
             self.colorPickers = colorPickers
             self.colorPickersDisclosed = colorPickersDisclosed
@@ -39,6 +41,7 @@ public extension RichTextFormat {
             #endif
         }
 
+        public var headers: [HeaderType]
         public var alignments: [RichTextAlignment]
         public var colorPickers: [RichTextColor]
         public var colorPickersDisclosed: [RichTextColor]
