@@ -71,9 +71,6 @@ struct ContentView: View {
             }
             .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
             .navigationTitle("Rich Editor")
-            #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
-            #endif
             .alert("Enter file name", isPresented: getBindingAlert()) {
                 TextField("Enter file name", text: $fileName)
                 Button("OK", action: submit)
@@ -93,23 +90,28 @@ struct ContentView: View {
                         otherExportFormat = format
                     }
                 )
+#if !os(macOS)
                 .frame(width: 25, alignment: .center)
+            #endif
                 Button(
                     action: {
                         print("Exported JSON == \(state.outputAsString())")
                     },
                     label: {
                         Image(systemName: "printer.inverse")
-                            .padding()
                     }
                 )
+#if !os(macOS)
                 .frame(width: 25, alignment: .center)
+#endif
                 Toggle(isOn: $isInspectorPresented) {
                     Image.richTextFormatBrush
                         .resizable()
                         .aspectRatio(1, contentMode: .fit)
                 }
+#if !os(macOS)
                 .frame(width: 25, alignment: .center)
+#endif
             }
     }
 
