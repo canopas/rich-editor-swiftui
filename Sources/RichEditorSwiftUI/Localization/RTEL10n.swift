@@ -40,6 +40,7 @@ public enum RTEL10n: String, CaseIterable, Identifiable {
     fileFormatPdf,
     fileFormatRtf,
     fileFormatTxt,
+    fileFormatJson,
 
     indent,
     indentIncrease,

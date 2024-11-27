@@ -1,6 +1,6 @@
 //
 //  HeaderType.swift
-//
+//  RichEditorSwiftUI
 //
 //  Created by Divyesh Vekariya on 29/04/24.
 //

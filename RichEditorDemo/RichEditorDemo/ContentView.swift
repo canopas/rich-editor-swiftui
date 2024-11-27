@@ -13,6 +13,10 @@ struct ContentView: View {
 
     @ObservedObject var state: RichEditorState
     @State private var isInspectorPresented = false
+    @State private var fileName: String = ""
+    @State private var exportFormat: RichTextDataFormat? = nil
+    @State private var otherExportFormat: RichTextExportOption? = nil
+    @State private var exportService: StandardRichTextExportService = .init()
 
     init(state: RichEditorState? = nil) {
         if let state {
@@ -61,15 +65,8 @@ struct ContentView: View {
             }
             .padding(10)
             .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button(
-                        action: {
-                            print("Exported JSON == \(state.output())")
-                        },
-                        label: {
-                            Image(systemName: "printer.inverse")
-                                .padding()
-                        })
+                ToolbarItemGroup(placement: .automatic) {
+                    toolBarGroup
                 }
             }
             .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
@@ -77,6 +74,69 @@ struct ContentView: View {
             #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
             #endif
+            .alert("Enter file name", isPresented: getBindingAlert()) {
+                TextField("Enter file name", text: $fileName)
+                Button("OK", action: submit)
+            } message: {
+                Text("Please enter file name")
+            }
+        }
+    }
+
+    var toolBarGroup: some View {
+        return Group {
+                RichTextExportMenu.init(
+                    formatAction: { format in
+                        exportFormat = format
+                    },
+                    otherOptionAction: { format in
+                        otherExportFormat = format
+                    }
+                )
+                .frame(width: 25, alignment: .center)
+                Button(
+                    action: {
+                        print("Exported JSON == \(state.outputAsString())")
+                    },
+                    label: {
+                        Image(systemName: "printer.inverse")
+                            .padding()
+                    }
+                )
+                .frame(width: 25, alignment: .center)
+                Toggle(isOn: $isInspectorPresented) {
+                    Image.richTextFormatBrush
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
+                }
+                .frame(width: 25, alignment: .center)
+            }
+    }
+
+    func getBindingAlert() -> Binding<Bool> {
+        .init(get: { exportFormat != nil || otherExportFormat != nil }, set: { newValue in
+            exportFormat = nil
+            otherExportFormat = nil
+        })
+    }
+
+    func submit() {
+        guard !fileName.isEmpty else { return }
+        var path: URL?
+
+        if let exportFormat {
+            path = try? exportService.generateExportFile(withName: fileName, content: state.attributedString, format: exportFormat)
+        }
+        if let otherExportFormat {
+            switch otherExportFormat {
+            case .pdf:
+                path = try? exportService.generatePdfExportFile(withName: fileName, content: state.attributedString)
+            case .json:
+                path = try? exportService.generateJsonExportFile(withName: fileName, content: state.richText)
+            }
+        }
+        if let path {
+            print("Exported at path == \(path)")
         }
     }
 }
