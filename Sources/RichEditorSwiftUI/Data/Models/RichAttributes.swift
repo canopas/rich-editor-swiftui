@@ -1,6 +1,6 @@
 //
 //  RichAttributes.swift
-//
+//  RichEditorSwiftUI
 //
 //  Created by Divyesh Vekariya on 04/04/24.
 //

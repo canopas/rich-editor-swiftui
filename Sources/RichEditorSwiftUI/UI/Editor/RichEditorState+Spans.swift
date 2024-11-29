@@ -25,15 +25,19 @@ extension RichEditorState {
     /**
      This will provide String value from editor
      */
-    public func output() -> String {
-        return (try? adapter.encode(type: richText)) ?? ""
+    public func outputAsString() -> String {
+        return (try? adapter.encodeToString(type: richText)) ?? ""
+    }
+
+    public func output() throws -> Data {
+        return try adapter.encode(type: richText)
     }
 
     /**
      This will export editor text as JSON string
      */
     public func export() -> String? {
-        return (try? adapter.encode(type: richText))
+        return (try? adapter.encodeToString(type: richText))
     }
 
     /**

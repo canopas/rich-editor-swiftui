@@ -34,10 +34,10 @@ public extension RichTextHeader {
          - selection: The selected font size.
          */
         public init(
-            selection: Binding<HeaderType>,
+            context: RichEditorState,
             values: [HeaderType]
         ) {
-            self._selection = selection
+            self._selection = context.headerBinding()
             self.values = values
         }
 
@@ -54,7 +54,6 @@ public extension RichTextHeader {
                         .tag($0)
                 }
             }
-            .pickerStyle(.automatic)
         }
     }
 }

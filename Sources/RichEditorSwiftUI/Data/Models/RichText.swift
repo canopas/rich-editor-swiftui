@@ -15,6 +15,10 @@ public struct RichText: Codable {
     public init(spans: [RichTextSpan] = []) {
         self.spans = spans
     }
+
+    func encodeToData() throws -> Data {
+        return try JSONEncoder().encode(self)
+    }
 }
 
 public struct RichTextSpan: Codable {

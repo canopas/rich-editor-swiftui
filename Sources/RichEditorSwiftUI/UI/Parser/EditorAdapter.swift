@@ -7,12 +7,13 @@
 
 import Foundation
 protocol EditorAdapter {
-    func encode<T: Encodable>(type model: T) throws -> String?
+    func encodeToString<T: Encodable>(type model: T) throws -> String?
     func decode<T: Decodable>(from jsonString: String) throws -> T?
+    func encode<T: Encodable>(type model: T) throws -> Data
 }
 
 class DefaultAdapter: EditorAdapter {
-    func encode<T: Encodable>(type model: T) throws -> String? {
+    func encodeToString<T: Encodable>(type model: T) throws -> String? {
         do {
             let jsonData = try JSONEncoder().encode(model)
             let jsonString = String(data: jsonData, encoding: .utf8)
@@ -30,5 +31,9 @@ class DefaultAdapter: EditorAdapter {
         } catch {
             throw error
         }
+    }
+
+    func encode<T>(type model: T) throws -> Data where T : Encodable {
+         return try JSONEncoder().encode(model)
     }
 }
