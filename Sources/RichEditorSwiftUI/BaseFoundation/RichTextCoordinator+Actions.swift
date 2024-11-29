@@ -43,11 +43,9 @@ extension RichTextCoordinator {
             textView.highlightingStyle = style
         case .setStyle(let style, let newValue):
             setStyle(style, to: newValue)
-            return
         case .stepFontSize(let points):
             textView.stepRichTextFontSize(points: points)
             syncContextWithTextView()
-            return
         case .stepIndent(_):
             //                textView.stepRichTextIndent(points: points)
             return

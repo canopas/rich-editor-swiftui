@@ -77,6 +77,16 @@ struct ContentView: View {
             } message: {
                 Text("Please enter file name")
             }
+            .focusedValue(\.richEditorState, state)
+            .toolbarRole(.automatic)
+            .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
+            .richTextFormatSidebarConfig(
+                .init(
+                    colorPickers: colorPickers,
+                    fontPicker: isMac
+                )
+            )
+            .richTextFormatToolbarConfig(.init(colorPickers: []))
         }
     }
 
@@ -140,5 +150,24 @@ struct ContentView: View {
         if let path {
             print("Exported at path == \(path)")
         }
+    }
+}
+
+private extension ContentView {
+
+    var isMac: Bool {
+#if os(macOS)
+        true
+#else
+        false
+#endif
+    }
+
+    var colorPickers: [RichTextColor] {
+        [.foreground, .background]
+    }
+
+    var formatToolbarEdge: VerticalEdge {
+        isMac ? .top : .bottom
     }
 }

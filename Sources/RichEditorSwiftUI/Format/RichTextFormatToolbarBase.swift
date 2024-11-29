@@ -42,14 +42,13 @@ extension RichTextFormatToolbarBase {
 
     @ViewBuilder
     func headerPicker(
-        value: Binding<HeaderType>
+        context: RichEditorState
     ) -> some View {
         if !config.headers.isEmpty {
             RichTextHeader.Picker(
-                selection: value,
+                context: context,
                 values: config.headers
             )
-            .pickerStyle(.segmented)
         }
     }
 
