@@ -51,5 +51,11 @@ public extension RichTextViewComponent {
             setRichTextAttribute(attribute, to: value)
         }
     }
+
+    func setNewRichTextAttributes(
+        _ attributes: RichTextAttributes
+    ) {
+        typingAttributes = attributes
+    }
 }
 
