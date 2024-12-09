@@ -23,7 +23,7 @@ public extension RichTextViewComponent {
 
     /// Set the text alignment.
     func setRichTextAlignment(_ alignment: RichTextAlignment) {
-        if richTextAlignment == alignment { return }
+//        if richTextAlignment == alignment { return }
         let style = NSMutableParagraphStyle(
             from: richTextParagraphStyle,
             alignment: alignment

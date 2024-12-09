@@ -57,12 +57,12 @@ struct ContentView: View {
                     )
                 #endif
             }
+            #if os(macOS)
             .inspector(isPresented: $isInspectorPresented) {
                 RichTextFormat.Sidebar(context: state)
-                    #if os(macOS)
-                        .inspectorColumnWidth(min: 200, ideal: 200, max: 315)
-                    #endif
+                    .inspectorColumnWidth(min: 200, ideal: 200, max: 315)
             }
+            #endif
             .padding(10)
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
@@ -79,6 +79,7 @@ struct ContentView: View {
             }
             .focusedValue(\.richEditorState, state)
             .toolbarRole(.automatic)
+            #if iOS || macOS || os(visionOS)
             .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
             .richTextFormatSidebarConfig(
                 .init(
@@ -87,11 +88,13 @@ struct ContentView: View {
                 )
             )
             .richTextFormatToolbarConfig(.init(colorPickers: []))
+            #endif
         }
     }
 
     var toolBarGroup: some View {
         return Group {
+#if iOS || macOS || os(visionOS)
                 RichTextExportMenu.init(
                     formatAction: { format in
                         exportFormat = format
@@ -100,8 +103,9 @@ struct ContentView: View {
                         otherExportFormat = format
                     }
                 )
-#if !os(macOS)
                 .frame(width: 25, alignment: .center)
+#endif
+#if !os(macOS)
             #endif
                 Button(
                     action: {

@@ -64,13 +64,6 @@ extension RichEditorState {
         setInternalStyles(style: style)
         setStyle(style)
     }
-
-    /**
-     This will setup editor according to spans provided in init
-     */
-    internal func setUpSpans() {
-        applyStylesToSelectedText(internalSpans)
-    }
 }
 
 //MARK: - TextView Helper Methods
@@ -207,7 +200,7 @@ extension RichEditorState {
         activeStyles = newStyles
         var attributes: [NSAttributedString.Key: Any] = [:]
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: currentFont)
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: FontRepresentable.standardRichTextFont)
         })
 
         headerType = activeStyles.first(where: { $0.isHeaderStyle })?.headerType ?? .default
@@ -228,47 +221,10 @@ extension RichEditorState {
         guard !activeStyles.contains(style) else { return }
         activeStyles.insert(style)
 
-        if (style.isHeaderStyle || style.isDefault || style.isList) {
+        if (style.isHeaderStyle || style.isDefault || style.isList || style.isAlignmentStyle) {
             handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style)
         } else if !selectedRange.isCollapsed {
             processSpansFor(new: style, in: selectedRange)
-        }
-    }
-
-    /**
-     This will add style to the range of text
-     - Parameters:
-     - style: which is of type RichTextSpanStyle
-     - range: is the range of the text on which you want to apply the style
-     */
-    private func applyStylesToSelectedText(_ spans: [RichTextSpanInternal]) {
-        updateAttributes(spans: spans.map({ ($0, true) }))
-    }
-
-    /**
-     This will update editor text according to span provided in  argument
-     - Parameters:
-     - spans: Which is of type Tuple of  RichTextSpan and Bool
-
-     Where Bool is indicate whether this style is need to add or remove.
-     */
-    private func updateAttributes(spans: [(RichTextSpanInternal, shouldApply: Bool)]) {
-        if attributesToApply == nil {
-            attributesToApply = (spans: spans, onCompletion: { [weak self] in
-                Task { @MainActor [weak self] in
-                    self?.attributesToApply = nil
-                }
-                if let updateQueue = self?.updateAttributesQueue, !updateQueue.isEmpty {
-                    self?.updateAttributes(spans: updateQueue)
-                    self?.updateAttributesQueue.removeAll(where: { item in
-                        updateQueue.contains(where: { $0.span == item.span
-                            && $0.shouldApply == item.shouldApply
-                        })
-                    })
-                }
-            })
-        } else {
-            updateAttributesQueue.append(contentsOf: spans)
         }
     }
 
@@ -299,19 +255,10 @@ extension RichEditorState {
         var attributes: [NSAttributedString.Key: Any] = [:]
 
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: currentFont)
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: FontRepresentable.standardRichTextFont)
         })
 
         activeAttributes = attributes
-    }
-
-    /**
-     This will remove the attributes from text for style
-     - Parameters:
-     - style:  which is of type of RichTextSpanStyle
-     */
-    private func removeAttributes(_ spans: [RichTextSpanInternal]) {
-        updateAttributes(spans: spans.map({ ($0, false) }))
     }
 }
 
@@ -555,9 +502,6 @@ extension RichEditorState {
 
         var processedSpans: [RichTextSpanInternal] = []
 
-        let fromIndex = range.lowerBound
-        let toIndex = range.upperBound
-
         let completeOverlap = getCompleteOverlappingSpans(for: range)
         var partialOverlap = getPartialOverlappingSpans(for: range)
         var sameSpans = getSameSpans(for: range)
@@ -579,28 +523,6 @@ extension RichEditorState {
         internalSpans.append(contentsOf:  processedSpans)
         internalSpans = mergeSameStyledSpans(internalSpans)
         internalSpans.sort(by: { $0.from < $1.from })
-
-        var spansToUpdate = Set(getOverlappingSpans(for: range))
-
-        if addStyle || style.isDefault {
-            if style.isDefault {
-                /// This will help to apply header style without loosing other style
-                let span = RichTextSpanInternal(from: fromIndex, to: toIndex, attributes: style == .default ? .init(header: .default, align: .left) : getRichAttributesFor(style: style))
-                spansToUpdate.insert(span)
-            } else if !style.isHeaderStyle && !style.isList {
-                ///When selected range's is surrounded with same styled text it helps to update selected text in editor
-                let span = RichTextSpanInternal(from: fromIndex, to: max((toIndex - 1), 0), attributes: getRichAttributesFor(style: style))
-                spansToUpdate.insert(span)
-                spansToUpdate.insert(span)
-            }
-            applyStylesToSelectedText(spansToUpdate.map({ $0 }))
-
-        } else {
-            let span = RichTextSpanInternal(from: fromIndex, to: (toIndex - 1), attributes: getRichAttributesFor(style: style))
-            removeAttributes([span])
-            ///To apply style as remove span is removing other styles as well.
-            applyStylesToSelectedText(spansToUpdate.map({ $0 }))
-        }
     }
 
     private func processCompleteOverlappingSpans(_ spans: [RichTextSpanInternal], range: NSRange, style: RichTextSpanStyle, addStyle: Bool = true) -> [RichTextSpanInternal] {
