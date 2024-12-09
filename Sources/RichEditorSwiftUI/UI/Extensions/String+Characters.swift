@@ -49,7 +49,7 @@ internal extension String {
         let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
         let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: max(0, toIndex - 1))).map({ $0 }).firstIndex(of: "\n".utf16.last)
 
-        let startIndex = max(0, newLineStartIndex)
+        let startIndex = min(max(0, self.utf16Length), max(0, newLineStartIndex + 1))
         var endIndex = (toIndex) + (newLineEndIndex ?? 0)
 
         if newLineEndIndex == nil {

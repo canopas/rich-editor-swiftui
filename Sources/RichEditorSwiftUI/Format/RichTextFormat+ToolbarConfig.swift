@@ -17,7 +17,7 @@ public extension RichTextFormat {
             headers: [HeaderType] = .all,
             alignments: [RichTextAlignment] = .all,
             colorPickers: [RichTextColor] = [.foreground],
-            colorPickersDisclosed: [RichTextColor] = [.background],
+            colorPickersDisclosed: [RichTextColor] = [],
             fontPicker: Bool = true,
             fontSizePicker: Bool = true,
             indentButtons: Bool = true,

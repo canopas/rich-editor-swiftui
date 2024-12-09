@@ -25,7 +25,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         .size(),
         .font(),
         .color(),
-        .background()
+        .background(),
+        .align()
     ]
 
     public func hash(into hasher: inout Hasher) {
@@ -33,6 +34,9 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
 
         if case .bullet(let indent) = self {
             hasher.combine(indent)
+        }
+        if case .align(let alignment) = self {
+            hasher.combine(alignment)
         }
     }
 
@@ -150,7 +154,12 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     }
 
     public static func == (lhs: RichTextSpanStyle, rhs: RichTextSpanStyle) -> Bool {
-        return lhs.key == rhs.key
+        switch (lhs, rhs) {
+        case let (.align(lhsAlign), .align(rhsAlign)):
+            return lhsAlign == rhsAlign
+        default:
+            return lhs == rhs
+        }
     }
 
     /// The standard icon to use for the trait.
@@ -172,38 +181,6 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         case .underline: .styleUnderlined
         case .strikethrough: .styleStrikethrough
         default: .done
-        }
-    }
-
-    var editorTools: EditorTextStyleTool? {
-        switch self {
-        case .default:
-            return .none
-        case .bold:
-            return .bold
-        case .italic:
-            return .italic
-        case .underline:
-            return .underline
-        case .strikethrough:
-            return .strikethrough
-        case .bullet(_):
-            //                return .list(.bullet(indent))
-            return nil
-        case .h1:
-            return .header(.h1)
-        case .h2:
-            return .header(.h2)
-        case .h3:
-            return .header(.h3)
-        case .h4:
-            return .header(.h4)
-        case .h5:
-            return .header(.h5)
-        case .h6:
-            return .header(.h6)
-        default:
-            return .none
         }
     }
 

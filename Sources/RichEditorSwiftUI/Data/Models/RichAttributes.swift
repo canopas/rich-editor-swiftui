@@ -212,7 +212,7 @@ extension RichAttributes {
             styles.append(.background(.init(hex: background)))
         }
         if let align = align {
-            styles.append(.align(align))
+            styles.append(align.getTextSpanStyle())
         }
         return styles
     }
@@ -250,7 +250,7 @@ extension RichAttributes {
             styles.insert(.background(Color(hex: background)))
         }
         if let align = align {
-            styles.insert(.align(align))
+            styles.insert(align.getTextSpanStyle())
         }
         return styles
     }
@@ -318,38 +318,38 @@ internal func getRichAttributesFor(styles: [RichTextSpanStyle]) -> RichAttribute
 
     for style in styles {
         switch style {
-            case .bold:
-                bold = true
-            case .italic:
-                italic = true
-            case .underline:
-                underline = true
-            case .strikethrough:
-                strike = true
-            case .h1:
-                header = .h1
-            case .h2:
-                header = .h2
-            case .h3:
-                header = .h3
-            case .h4:
-                header = .h4
-            case .h5:
-                header = .h5
-            case .h6:
-                header = .h6
-            case .bullet(let indentIndex):
-                list = .bullet(indentIndex)
-                indent = indentIndex
-            case .default:
-                header = .default
-            case .size(let fontSize):
-                size = fontSize
-            case .font(let name):
-                font = name
-            case .color(let textColor):
+        case .bold:
+            bold = true
+        case .italic:
+            italic = true
+        case .underline:
+            underline = true
+        case .strikethrough:
+            strike = true
+        case .h1:
+            header = .h1
+        case .h2:
+            header = .h2
+        case .h3:
+            header = .h3
+        case .h4:
+            header = .h4
+        case .h5:
+            header = .h5
+        case .h6:
+            header = .h6
+        case .bullet(let indentIndex):
+            list = .bullet(indentIndex)
+            indent = indentIndex
+        case .default:
+            header = .default
+        case .size(let fontSize):
+            size = fontSize
+        case .font(let name):
+            font = name
+        case .color(let textColor):
             color = textColor?.hexString
-            case .background(let backgroundColor):
+        case .background(let backgroundColor):
             background = backgroundColor?.hexString
         case .align(let alignment):
             align = alignment
