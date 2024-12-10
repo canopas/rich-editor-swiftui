@@ -95,8 +95,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return "color"
         case .background:
             return "background"
-        case .align:
-            return "align"
+        case .align(let alignment):
+            return "align" + "\(alignment?.rawValue ?? "")"
         }
     }
 
@@ -154,12 +154,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     }
 
     public static func == (lhs: RichTextSpanStyle, rhs: RichTextSpanStyle) -> Bool {
-        switch (lhs, rhs) {
-        case let (.align(lhsAlign), .align(rhsAlign)):
-            return lhsAlign == rhsAlign
-        default:
-            return lhs == rhs
-        }
+        return lhs.key == rhs.key
     }
 
     /// The standard icon to use for the trait.

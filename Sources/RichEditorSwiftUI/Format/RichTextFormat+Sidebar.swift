@@ -67,12 +67,13 @@ public extension RichTextFormat {
                         Spacer()
                         fontSizePicker(for: context)
                     }
+                    headerPicker(context: context)
                 }
 
                 Divider()
 
                 SidebarSection {
-                    alignmentPicker(value: $context.textAlignment)
+                    alignmentPicker(context: context)
                         .onChangeBackPort(of: context.textAlignment) { newValue in
                             context.updateStyle(style: .align(newValue))
                         }

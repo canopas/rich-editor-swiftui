@@ -17,12 +17,12 @@ public extension RichTextFormat {
             headers: [HeaderType] = .all,
             alignments: [RichTextAlignment] = .all,
             colorPickers: [RichTextColor] = [.foreground],
-            colorPickersDisclosed: [RichTextColor] = [.background],
+            colorPickersDisclosed: [RichTextColor] = [],
             fontPicker: Bool = true,
             fontSizePicker: Bool = true,
             indentButtons: Bool = true,
             lineSpacingPicker: Bool = false,
-            styles: [RichTextStyle] = [.bold, .italic, .underline, .strikethrough],
+            styles: [RichTextStyle] = .all,
             superscriptButtons: Bool = true
         ) {
             self.headers = headers
