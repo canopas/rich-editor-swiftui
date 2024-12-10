@@ -133,7 +133,7 @@ private extension RichTextFormat.Toolbar {
             #if !macOS
             headerPicker(context: context)
             #endif
-            alignmentPicker(value: $context.textAlignment)
+            alignmentPicker(context: context)
 //            superscriptButtons(for: context, greedy: false)
 //            indentButtons(for: context, greedy: false)
         }

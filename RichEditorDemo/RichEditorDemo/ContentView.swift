@@ -92,44 +92,46 @@ struct ContentView: View {
 
     var toolBarGroup: some View {
         return Group {
-                RichTextExportMenu.init(
-                    formatAction: { format in
-                        exportFormat = format
-                    },
-                    otherOptionAction: { format in
-                        otherExportFormat = format
-                    }
-                )
-#if !os(macOS)
+            RichTextExportMenu.init(
+                formatAction: { format in
+                    exportFormat = format
+                },
+                otherOptionAction: { format in
+                    otherExportFormat = format
+                }
+            )
+            #if !os(macOS)
                 .frame(width: 25, alignment: .center)
             #endif
-                Button(
-                    action: {
-                        print("Exported JSON == \(state.outputAsString())")
-                    },
-                    label: {
-                        Image(systemName: "printer.inverse")
-                    }
-                )
-#if !os(macOS)
-                .frame(width: 25, alignment: .center)
-#endif
-                Toggle(isOn: $isInspectorPresented) {
-                    Image.richTextFormatBrush
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
+            Button(
+                action: {
+                    print("Exported JSON == \(state.outputAsString())")
+                },
+                label: {
+                    Image(systemName: "printer.inverse")
                 }
-#if !os(macOS)
+            )
+            #if !os(macOS)
                 .frame(width: 25, alignment: .center)
-#endif
+            #endif
+            Toggle(isOn: $isInspectorPresented) {
+                Image.richTextFormatBrush
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fit)
             }
+            #if !os(macOS)
+                .frame(width: 25, alignment: .center)
+            #endif
+        }
     }
 
     func getBindingAlert() -> Binding<Bool> {
-        .init(get: { exportFormat != nil || otherExportFormat != nil }, set: { newValue in
-            exportFormat = nil
-            otherExportFormat = nil
-        })
+        .init(
+            get: { exportFormat != nil || otherExportFormat != nil },
+            set: { newValue in
+                exportFormat = nil
+                otherExportFormat = nil
+            })
     }
 
     func submit() {
@@ -137,14 +139,18 @@ struct ContentView: View {
         var path: URL?
 
         if let exportFormat {
-            path = try? exportService.generateExportFile(withName: fileName, content: state.attributedString, format: exportFormat)
+            path = try? exportService.generateExportFile(
+                withName: fileName, content: state.attributedString,
+                format: exportFormat)
         }
         if let otherExportFormat {
             switch otherExportFormat {
             case .pdf:
-                path = try? exportService.generatePdfExportFile(withName: fileName, content: state.attributedString)
+                path = try? exportService.generatePdfExportFile(
+                    withName: fileName, content: state.attributedString)
             case .json:
-                path = try? exportService.generateJsonExportFile(withName: fileName, content: state.richText)
+                path = try? exportService.generateJsonExportFile(
+                    withName: fileName, content: state.richText)
             }
         }
         if let path {
@@ -153,14 +159,14 @@ struct ContentView: View {
     }
 }
 
-private extension ContentView {
+extension ContentView {
 
     var isMac: Bool {
-#if os(macOS)
-        true
-#else
-        false
-#endif
+        #if os(macOS)
+            true
+        #else
+            false
+        #endif
     }
 
     var colorPickers: [RichTextColor] {

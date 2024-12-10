@@ -110,22 +110,12 @@ public class RichEditorState: ObservableObject {
     /// The currently highlighted range, if any.
     public var highlightedRange: NSRange?
 
-    ///The currentFont provide current font
-//    internal var currentFont: FontRepresentable {
-//        return .init(name: fontName, size: fontSize) ?? .standardRichTextFont
-//    }
-
 //MARK: - Variables To Handle JSON
     internal var adapter: EditorAdapter = DefaultAdapter()
 
-//    @Published internal var attributedString: NSMutableAttributedString
     @Published internal var activeStyles: Set<RichTextSpanStyle> = []
     @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
-    internal var currentFont: FontRepresentable = .systemFont(ofSize: .standardRichTextFontSize)
 
-    @Published internal var attributesToApply: ((spans: [(span: RichTextSpanInternal, shouldApply: Bool)], onCompletion: () -> Void))? = nil
-
-    //    private var internalSpans: [RichTextSpan] = []
 
     internal var internalSpans: [RichTextSpanInternal] = []
 
@@ -150,8 +140,6 @@ public class RichEditorState: ObservableObject {
      */
     public init(richText: RichText) {
         let input = richText.spans.map({ $0.insert }).joined()
-
-//        self.attributedString = NSAttributedString(string: input)
         var tempSpans: [RichTextSpanInternal] = []
         var text = ""
         richText.spans.forEach({
@@ -176,7 +164,6 @@ public class RichEditorState: ObservableObject {
         activeStyles = []
 
         rawText = input
-        setUpSpans()
     }
 
     /**
@@ -189,7 +176,7 @@ public class RichEditorState: ObservableObject {
 
         let str = NSMutableAttributedString(string: input)
 
-        str.addAttributes([.font: currentFont], range: str.richTextRange)
+        str.addAttributes([.font: FontRepresentable.standardRichTextFont], range: str.richTextRange)
         self.attributedString = str
 
         self.internalSpans = [.init(from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0, attributes: RichAttributes())]
@@ -198,7 +185,6 @@ public class RichEditorState: ObservableObject {
         activeStyles = []
 
         rawText = input
-        setUpSpans()
     }
 
 }
