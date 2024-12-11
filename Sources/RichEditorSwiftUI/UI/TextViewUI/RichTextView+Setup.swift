@@ -17,9 +17,8 @@ extension RichTextView {
     func setup(_ theme: RichTextView.Theme, setupFont: Bool = false) {
         if setupFont {
             font = theme.font
+            textColor = theme.fontColor
         }
-
-        textColor = theme.fontColor
         backgroundColor = theme.backgroundColor
     }
 }

@@ -76,8 +76,6 @@ open class RichTextCoordinator: NSObject {
         super.init()
         self.textView.delegate = self
         subscribeToUserActions()
-
-//                observerAttributes()
     }
 #if canImport(UIKit)
 
@@ -237,6 +235,8 @@ extension RichTextCoordinator {
         sync(&context.fontName, with: font.fontName)
         sync(&context.fontSize, with: font.pointSize)
         sync(&context.isEditingText, with: textView.isFirstResponder)
+        sync(&context.paragraphStyle, with: textView.richTextParagraphStyle ?? .default)
+        sync(&context.textAlignment, with: textView.richTextAlignment ?? .left)
 
         let styles = textView.richTextStyles
         RichTextStyle.allCases.forEach {

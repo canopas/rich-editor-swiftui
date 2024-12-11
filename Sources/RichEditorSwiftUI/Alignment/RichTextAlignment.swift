@@ -42,6 +42,12 @@ public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identif
     case right
 }
 
+public extension RichTextAlignment {
+    func getTextSpanStyle() -> RichTextSpanStyle {
+        return .align(self)
+    }
+}
+
 public extension Collection where Element == RichTextAlignment {
 
     static var all: [Element] { RichTextAlignment.allCases }

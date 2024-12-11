@@ -31,7 +31,11 @@ extension RichAttributes {
         }
 
         if let fontName = self.font {
-            font = font.updateFontName(with: fontName)
+            let size = font.pointSize
+            let newFont = FontRepresentable(name: fontName, size: size)
+            if let newFont {
+                font = newFont
+            }
         }
 
         // Apply bold and italic styles

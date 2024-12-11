@@ -29,11 +29,11 @@ extension RichTextFormatToolbarBase {
 
     @ViewBuilder
     func alignmentPicker(
-        value: Binding<RichTextAlignment>
+        context: RichEditorState
     ) -> some View {
         if !config.alignments.isEmpty {
             RichTextAlignment.Picker(
-                selection: value,
+                selection: context.textAlignmentBinding(),
                 values: config.alignments
             )
             .pickerStyle(.segmented)
