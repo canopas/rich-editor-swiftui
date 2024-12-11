@@ -153,7 +153,7 @@ public class RichEditorState: ObservableObject {
         let str = NSMutableAttributedString(string: text)
 
         tempSpans.forEach { span in
-            str.addAttributes(span.attributes?.toAttributes() ?? [:], range: span.spanRange)
+            str.addAttributes(span.attributes?.toAttributes(font: .standardRichTextFont) ?? [:], range: span.spanRange)
         }
 
         self.attributedString = str

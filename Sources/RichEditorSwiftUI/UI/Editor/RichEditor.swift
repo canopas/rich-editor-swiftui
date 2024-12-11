@@ -134,9 +134,7 @@ public struct RichTextEditor: ViewRepresentable {
         return scrollView
     }
 
-    public func updateNSView(_ view: NSViewType, context: Context) {
-        
-    }
+    public func updateNSView(_ view: NSViewType, context: Context) { }
 #endif
 }
 

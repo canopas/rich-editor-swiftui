@@ -132,7 +132,7 @@ extension RichEditorState {
         activeStyles.insert(style)
 
         if style.isHeaderStyle || style.isDefault || style.isList || style.isAlignmentStyle {
-            handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: !style.isDefault)
+            handleAddOrRemoveStyleToLine(in: selectedRange, style: style, byAdding: !style.isDefault)
         } else if !selectedRange.isCollapsed {
             let addStyle = checkIfStyleIsActiveWithSameAttributes(style)
             processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
@@ -146,7 +146,7 @@ extension RichEditorState {
         switch style {
         case .size(let size):
             if let size {
-                addStyle = CGFloat(size) == CGFloat.standardRichTextFontSize
+                addStyle = CGFloat(size) != CGFloat.standardRichTextFontSize
             }
         case .font(let fontName):
             if let fontName {
@@ -222,7 +222,7 @@ extension RichEditorState {
         activeStyles.insert(style)
 
         if (style.isHeaderStyle || style.isDefault || style.isList || style.isAlignmentStyle) {
-            handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style)
+            handleAddOrRemoveStyleToLine(in: selectedRange, style: style)
         } else if !selectedRange.isCollapsed {
             processSpansFor(new: style, in: selectedRange)
         }
@@ -242,7 +242,7 @@ extension RichEditorState {
         updateTypingAttributes()
 
         if style.isHeaderStyle || style.isDefault || style.isList {
-            handleAddOrRemoveHeaderOrListStyle(in: selectedRange, style: style, byAdding: false)
+            handleAddOrRemoveStyleToLine(in: selectedRange, style: style, byAdding: false)
         } else if !selectedRange.isCollapsed {
             processSpansFor(new: style, in: selectedRange, addStyle: false)
         }
@@ -463,7 +463,7 @@ extension RichEditorState {
      - Parameters:
      - style: is of type RichTextSpanStyle
      */
-    private func handleAddOrRemoveHeaderOrListStyle(in range: NSRange, style: RichTextSpanStyle, byAdding: Bool = true) {
+    private func handleAddOrRemoveStyleToLine(in range: NSRange, style: RichTextSpanStyle, byAdding: Bool = true) {
         guard !rawText.isEmpty else { return }
 
         let range = style.isList ? getListRangeFor(range, in: rawText) : rawText.getHeaderRangeFor(range)
@@ -586,6 +586,7 @@ extension RichEditorState {
 
     // merge adjacent spans with same style
     private func mergeSameStyledSpans(_ spans: [RichTextSpanInternal]) -> [RichTextSpanInternal] {
+        guard !spans.isEmpty else { return [] }
         var mergedSpans: [RichTextSpanInternal] = []
         var previousSpan: RichTextSpanInternal?
 

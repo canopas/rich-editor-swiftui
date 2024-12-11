@@ -76,8 +76,6 @@ open class RichTextCoordinator: NSObject {
         super.init()
         self.textView.delegate = self
         subscribeToUserActions()
-
-//                observerAttributes()
     }
 #if canImport(UIKit)
 
