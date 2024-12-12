@@ -2,6 +2,10 @@
 <img width="930" alt="mobile apps banner" src="https://github.com/canopas/rich-editor-swiftui/assets/73588408/84c94bbd-7952-45cb-9bfb-95e0687b37b0">
 
 # RichEditorSwiftUI
+[![Swift](https://img.shields.io/badge/Swift-5.9-orange?style=flat-square)](https://img.shields.io/badge/Swift-5.9-Orange?style=flat-square)
+[![Platforms](https://img.shields.io/badge/Platforms-macOS_iOS_tvOS_watchOS_visionOS-yellowgreen?style=flat-square)](https://img.shields.io/badge/Platforms-macOS_iOS_tvOS_watchOS_vision_OS_-Green?style=flat-square)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/Alamofire.svg?style=flat-square)](https://img.shields.io/cocoapods/v/Alamofire.svg)
+[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)
 
 ![RichEditorSwiftUI (1)](https://github.com/canopas/rich-editor-swiftui/assets/73588408/8c3013ae-8a27-4ebc-a511-51e726825c4b)
 
@@ -16,7 +20,14 @@ The editor offers the following <b>options</b>:
 - [x] **Bold**
 - [x] *Italic*
 - [x] <u>Underline</u>
+- [x] ~~Strikethrough~~
 - [x] Different Heading
+- [x] Text Alignment
+- [x] Font size
+- [x] Font color
+- [x] Font family
+- [x] Background color
+- [x] Export with .txt, .rtf, .pdf, .json
 
 ## Installation
 
