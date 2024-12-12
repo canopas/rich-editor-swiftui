@@ -65,9 +65,20 @@ struct EditorView: View {
 # Demo
 [Sample](https://github.com/canopas/rich-editor-swiftui/tree/main/RichEditorDemo) app demonstrates how simple the usage of the library actually is.
 
+## Tech stack
+
+RichEditorSwiftUI utilizes the latest Apple technologies and adheres to industry best practices. Below is the current tech stack used in the development process:
+
+- MVVM Architecture
+- SwiftUI
+- Swift
+- Xcode
+
 # Bugs and Feedback
 For bugs, questions, and discussions please use the [Github Issues](https://github.com/canopas/rich-editor-swiftui/issues).
 
+## Contribution
+Currently, we are not accepting any contributions.
 
 ## Credits
 RichEditor for SwiftUI is owned and maintained by the [Canopas team](https://canopas.com/). For project updates and releases, you can follow them on X at [@canopas_eng](https://x.com/canopas_eng).
