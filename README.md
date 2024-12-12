@@ -142,7 +142,7 @@ struct EditorView: View {
         .inspector(isPresented: $isInspectorPresented) {
             RichTextFormat.Sidebar(context: state)
                 #if os(macOS)
-                    .inspectorColumnWidth(min: 200, ideal: 200, max: 315)
+                    .inspectorColumnWidth(min: 200, ideal: 200, max: 320)
                 #endif
         }
     }
