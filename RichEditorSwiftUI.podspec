@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
 
   s.module_name      = 'RichEditorSwiftUI'
   s.requires_arc     = true
-  s.swift_version    = '5.5'
+  s.swift_version    = '5.9'
 
   s.preserve_paths   = 'README.md'
 
