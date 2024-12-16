@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
   s.license          = { :type => "MIT", :file => "LICENSE.md" }
   s.author           = { "Jimmy" => "jimmy@canopas.com" }
   s.source           = { :git => "https://github.com/canopas/rich-editor-swiftui.git", :tag => s.version.to_s }
-  s.source_files     = "Sources/**/*.swift"
-  s.social_media_url = 'https://twitter.com/canopassoftware'
+  s.source_files     = "Sources/*.swift"
+  s.social_media_url = 'https://x.com/canopas_eng'
 
   s.module_name      = 'RichEditorSwiftUI'
   s.requires_arc     = true
