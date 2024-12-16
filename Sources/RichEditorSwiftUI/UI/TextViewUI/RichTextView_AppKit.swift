@@ -107,13 +107,36 @@ open class RichTextView: NSTextView, RichTextViewComponent {
      - text: The text to edit with the text view.
      - format: The rich text format to edit.
      */
-    open func setup() {
-        setupSharedBehavior()
+    open func setup(
+        with text: NSAttributedString,
+        format: RichTextDataFormat?
+    ) {
+        setupSharedBehavior(with: text, format)
         allowsImageEditing = true
         allowsUndo = true
         layoutManager?.defaultAttachmentScaling = NSImageScaling.scaleProportionallyDown
         isContinuousSpellCheckingEnabled = configuration.isContinuousSpellCheckingEnabled
         setup(theme)
+    }
+
+    public func setup(with richText: RichText) {
+        var tempSpans: [RichTextSpanInternal] = []
+        var text = ""
+        richText.spans.forEach({
+            let span = RichTextSpanInternal(from: text.utf16Length,
+                                            to: (text.utf16Length + $0.insert.utf16Length - 1),
+                                            attributes: $0.attributes)
+            tempSpans.append(span)
+            text += $0.insert
+        })
+
+        let str = NSMutableAttributedString(string: text)
+
+        tempSpans.forEach { span in
+            str.addAttributes(span.attributes?.toAttributes(font: .standardRichTextFont) ?? [:], range: span.spanRange)
+        }
+
+        setup(with: str, format: .archivedData)
     }
 
     // MARK: - Open Functionality

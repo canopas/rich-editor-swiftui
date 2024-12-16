@@ -1,122 +1,177 @@
 {
     "spans": [
         {
-            "insert": "RichEditor",
+            "insert": "RichEditorSwiftUI",
             "attributes": {
-                "bold": true,
+                "color": "#FF9500",
+                "size": 24,
+                "font": "Academy Engraved LET"
+            }
+        },
+        {
+            "attributes": {},
+            "insert": "\n\nIt’s Support "
+        },
+        {
+            "insert": "bold",
+            "attributes": {
+                "bold": true
+            }
+        },
+        {
+            "attributes": {},
+            "insert": ", "
+        },
+        {
+            "attributes": {
+                "italic": true
+            },
+            "insert": "italic"
+        },
+        {
+            "attributes": {},
+            "insert": ", "
+        },
+        {
+            "attributes": {
+                "underline": true
+            },
+            "insert": "underline"
+        },
+        {
+            "attributes": {},
+            "insert": " and "
+        },
+        {
+            "insert": "striketrhough",
+            "attributes": {
+                "strike": true
+            }
+        },
+        {
+            "attributes": {},
+            "insert": " formats.\n\nWe have different headings\n"
+        },
+        {
+            "insert": "Heading 1\n",
+            "attributes": {
                 "header": 1
             }
         },
         {
-            "insert": "\niOS ",
-            "attributes": {}
-        },
-        {
-            "insert": "RichEditorSwiftUI ",
+            "insert": "Heading 2",
             "attributes": {
-                "bold": true,
-                "italic": true
+                "header": 2
             }
         },
         {
-            "insert": "Rich editor for ",
-            "attributes": {}
+            "attributes": {},
+            "insert": "\n"
         },
         {
-            "insert": "SwiftUI.\n\n",
+            "insert": "Heading 3\n",
             "attributes": {
-                "bold": true,
-                "underline": true
-            }
-        },
-        {
-            "insert": "Features",
-            "attributes": {
-                "bold": true,
                 "header": 3
             }
         },
         {
-            "insert": "\nThe editor offers the following ",
+            "insert": "Heading 4\n",
+            "attributes": {
+                "header": 4
+            }
+        },
+        {
+            "insert": "Heading 5\n",
+            "attributes": {
+                "header": 5
+            }
+        },
+        {
+            "insert": "Heading 6\n",
+            "attributes": {
+                "header": 6
+            }
+        },
+        {
+            "insert": "\nHere we have ",
             "attributes": {}
         },
         {
-            "insert": "options:\n",
+            "attributes": {
+                "size": 24
+            },
+            "insert": "large"
+        },
+        {
+            "attributes": {},
+            "insert": " and "
+        },
+        {
+            "attributes": {
+                "size": 10
+            },
+            "insert": "small"
+        },
+        {
+            "attributes": {},
+            "insert": " text and "
+        },
+        {
+            "insert": "custom fonts",
+            "attributes": {
+                "font": "ChalkboardSE-Light",
+                "color": "#007AFF"
+            }
+        },
+        {
+            "insert": " as well.\n\nYou can align text differently\nHere is the left align\n",
+            "attributes": {}
+        },
+        {
+            "attributes": {
+                "align": "center"
+            },
+            "insert": "This is center align\n"
+        },
+        {
+            "insert": "This is right align\n",
+            "attributes": {
+                "align": "right"
+            }
+        },
+        {
+            "attributes": {},
+            "insert": "\nDifferent font "
+        },
+        {
+            "insert": "color",
+            "attributes": {
+                "color": "#34C759"
+            }
+        },
+        {
+            "insert": " and ",
+            "attributes": {}
+        },
+        {
+            "insert": "background",
+            "attributes": {
+                "background": "#32ADE6"
+            }
+        },
+        {
+            "insert": "\n\nThank You! Team ",
+            "attributes": {}
+        },
+        {
             "attributes": {
                 "bold": true,
-                "italic": true,
-                "underline": true
-            }
+                "color": "#F67C8E"
+            },
+            "insert": "Canopas"
         },
         {
-            "insert": "\n",
-            "attributes": {}
-        },
-        {
-            "insert": "Bold\n",
-            "attributes": {
-                "bold": true
-            }
-        },
-        {
-            "insert": "Italic\n",
-            "attributes": {
-                "italic": true
-            }
-        },
-        {
-            "insert": "Underline\n",
-            "attributes": {
-                "underline": true
-            }
-        },
-        {
-            "insert": "Different ",
-            "attributes": {}
-        },
-        {
-            "insert": "Headings\n\n",
-            "attributes": {
-                "bold": true,
-                "italic": true,
-                "underline": true
-            }
-        },
-        {
-            "insert": "\n",
-            "attributes": {}
-        },
-        {
-            "insert": "Credits",
-            "attributes": {
-                "bold": true,
-                "header": 3
-            }
-        },
-        {
-            "insert": "\n\n",
-            "attributes": {}
-        },
-        {
-            "insert": "RichEditor ",
-            "attributes": {
-                "bold": true
-            }
-        },
-        {
-            "insert": "for SwiftUI is developed and maintained by the ",
-            "attributes": {}
-        },
-        {
-            "insert": "Canopas Team.",
-            "attributes": {
-                "bold": true,
-                "italic": true,
-                "underline": true
-            }
-        },
-        {
-            "insert": "\n\nThank You! 😊\n\n",
+            "insert": " 😊",
             "attributes": {}
         }
     ]

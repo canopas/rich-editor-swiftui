@@ -65,9 +65,11 @@ public struct RichTextEditor: ViewRepresentable {
     ///   - viewConfiguration: A platform-specific view configuration, if any.
     public init(
         context: ObservedObject<RichEditorState>,
+        format: RichTextDataFormat = .archivedData,
         viewConfiguration: @escaping ViewConfiguration = { _ in }
     ) {
         self._context = context
+        self.format = format
         self.viewConfiguration = viewConfiguration
     }
 
@@ -77,6 +79,8 @@ public struct RichTextEditor: ViewRepresentable {
     private var context: RichEditorState
     
     private var viewConfiguration: ViewConfiguration
+
+    private var format: RichTextDataFormat
 
     @Environment(\.richTextEditorConfig)
     private var config
@@ -106,7 +110,7 @@ public struct RichTextEditor: ViewRepresentable {
 
 #if iOS || os(tvOS) || os(visionOS)
     public func makeUIView(context: Context) -> some UIView {
-        textView.setup()
+        textView.setup(with: self.context.attributedString, format: format)
         textView.configuration = config
         textView.theme = style
         viewConfiguration(textView)
@@ -119,15 +123,10 @@ public struct RichTextEditor: ViewRepresentable {
             self.textView.typingAttributes = [.font: style.font]
         }
     }
-
 #else
 
     public func makeNSView(context: Context) -> some NSView {
-        if self.context.internalSpans.isEmpty {
-            textView.setup()
-        } else {
-            textView.setup()
-        }
+        textView.setup(with: self.context.attributedString, format: format)
         textView.configuration = config
         textView.theme = style
         viewConfiguration(textView)

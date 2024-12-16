@@ -134,11 +134,13 @@ public class RichEditorState: ObservableObject {
         return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes) })
     }
 
+    var internalRichText: RichText = .init()
     //MARK: - Initializers
     /**
      Init with richText which is of type RichText
      */
     public init(richText: RichText) {
+        internalRichText = richText
         let input = richText.spans.map({ $0.insert }).joined()
         var tempSpans: [RichTextSpanInternal] = []
         var text = ""
@@ -154,6 +156,9 @@ public class RichEditorState: ObservableObject {
 
         tempSpans.forEach { span in
             str.addAttributes(span.attributes?.toAttributes(font: .standardRichTextFont) ?? [:], range: span.spanRange)
+            if span.attributes?.color == nil {
+                str.addAttributes([.foregroundColor: RichTextView.Theme.standard.fontColor], range: span.spanRange)
+            }
         }
 
         self.attributedString = str
@@ -186,7 +191,6 @@ public class RichEditorState: ObservableObject {
 
         rawText = input
     }
-
 }
 
 public extension RichEditorState {
