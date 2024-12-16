@@ -238,6 +238,12 @@ extension RichTextCoordinator {
         sync(&context.paragraphStyle, with: textView.richTextParagraphStyle ?? .default)
         sync(&context.textAlignment, with: textView.richTextAlignment ?? .left)
 
+        RichTextColor.allCases.forEach {
+            if let color = textView.richTextColor($0) {
+                context.setColor($0, to: color)
+            }
+        }
+
         let styles = textView.richTextStyles
         RichTextStyle.allCases.forEach {
             let style = styles.hasStyle($0)

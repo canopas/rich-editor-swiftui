@@ -61,9 +61,15 @@ public protocol RichTextViewComponent: AnyObject,
     var typingAttributes: RichTextAttributes { get set }
 
     // MARK: - Setup
-
     /// Setup the view with a text and data format.
-    func setup()
+    func setup(
+        with text: NSAttributedString,
+        format: RichTextDataFormat?
+    )
+
+    func setup(
+        with text: RichText
+    )
 
     // MARK: - Functions
 
@@ -111,13 +117,13 @@ public extension RichTextViewComponent {
     }
 
     /// Setup the view with data and a data format.
-//    func setup(
-//        with data: Data,
-//        format: RichTextDataFormat
-//    ) throws {
-//        let string = try NSAttributedString(data: data, format: format)
-//        setup(with: string, format: format)
-//    }
+    func setup(
+        with data: Data,
+        format: RichTextDataFormat
+    ) throws {
+        let string = try NSAttributedString(data: data, format: format)
+        setup(with: string, format: format)
+    }
 
     /// Get the image configuration for a certain format.
 //    func standardImageConfiguration(

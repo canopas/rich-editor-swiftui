@@ -28,18 +28,19 @@ open class RichTextView: UITextView, RichTextViewComponent {
     // MARK: - Initializers
 
     public convenience init(
-        data: Data
-//        format: RichTextDataFormat = .archivedData
+        data: Data,
+        format: RichTextDataFormat = .archivedData
     ) throws {
         self.init()
-//        try self.setup(with: data)
+        try self.setup(with: data, format: format)
     }
 
     public convenience init(
-        string: NSAttributedString? = nil
+        string: NSAttributedString,
+        format: RichTextDataFormat = .archivedData
     ) {
         self.init()
-        self.setup()
+        self.setup(with: string, format: format)
     }
 
     public convenience init(
@@ -61,7 +62,9 @@ open class RichTextView: UITextView, RichTextViewComponent {
     }
 
     public var theme: Theme = .standard {
-        didSet { setup(theme) }
+        didSet {
+            setup(theme)
+        }
     }
 
     /// The style to use when highlighting text in the view.
@@ -101,7 +104,7 @@ open class RichTextView: UITextView, RichTextViewComponent {
     private var isInitialFrameSetupNeeded = true
 
     /// Keeps track of the data format used by the view.
-//    private var richTextDataFormat: RichTextDataFormat = .archivedData
+    private var richTextDataFormat: RichTextDataFormat = .archivedData
 
     // MARK: - Overrides
 
@@ -118,7 +121,7 @@ open class RichTextView: UITextView, RichTextViewComponent {
             if frame.size == .zero { return }
             if !isInitialFrameSetupNeeded { return }
             isInitialFrameSetupNeeded = false
-//            setup()
+            setup(with: attributedString, format: richTextDataFormat)
         }
     }
 
@@ -160,8 +163,39 @@ open class RichTextView: UITextView, RichTextViewComponent {
      - text: The text to edit with the text view.
      - format: The rich text format to edit.
      */
-    open func setup() {
+    open func setup(
+        with text: NSAttributedString,
+        format: RichTextDataFormat? = nil
+    ) {
+//        text.autosizeImageAttachments(maxSize: imageAttachmentMaxSize)
+        setupSharedBehavior(with: text, format)
+        if let format {
+            richTextDataFormat = format
+        }
         setup(theme)
+    }
+
+    open func setup(with richText: RichText) {
+        var tempSpans: [RichTextSpanInternal] = []
+        var text = ""
+        richText.spans.forEach({
+            let span = RichTextSpanInternal(from: text.utf16Length,
+                                            to: (text.utf16Length + $0.insert.utf16Length - 1),
+                                            attributes: $0.attributes)
+            tempSpans.append(span)
+            text += $0.insert
+        })
+
+        let str = NSMutableAttributedString(string: text)
+
+        tempSpans.forEach { span in
+            str.addAttributes(span.attributes?.toAttributes(font: .standardRichTextFont) ?? [:], range: span.spanRange)
+            if span.attributes?.color == nil {
+                str.addAttributes([.foregroundColor: theme.fontColor], range: span.spanRange)
+            }
+        }
+
+        setup(with: str, format: .archivedData)
     }
 
     // MARK: - Open Functionality

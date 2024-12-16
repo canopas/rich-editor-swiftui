@@ -10,15 +10,20 @@ import SwiftUI
 
 extension RichTextView {
 
-    func setupSharedBehavior() {
+    func setupSharedBehavior(
+        with text: NSAttributedString,
+        _ format: RichTextDataFormat?
+    ) {
+        attributedString = .empty
+        attributedString = text
+
         setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 
-    func setup(_ theme: RichTextView.Theme, setupFont: Bool = false) {
-        if setupFont {
-            font = theme.font
-            textColor = theme.fontColor
-        }
+    func setup(_ theme: RichTextView.Theme) {
+        guard richText.string.isEmpty else { return }
+        font = theme.font
+        textColor = theme.fontColor
         backgroundColor = theme.backgroundColor
     }
 }

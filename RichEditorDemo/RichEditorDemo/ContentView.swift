@@ -46,6 +46,7 @@ struct ContentView: View {
 
                     }
                 )
+                .background(colorScheme == .dark ? .gray.opacity(0.3) : Color.white)
                 .cornerRadius(10)
 
                 #if os(iOS)
