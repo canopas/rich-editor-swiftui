@@ -17,8 +17,12 @@ extension RichAttributes {
     func toAttributes(font: FontRepresentable? = nil) -> RichTextAttributes {
         var attributes: RichTextAttributes = [:]
 
+        var defaultFont: FontRepresentable = .standardRichTextFont
+        #if !os(watchOS)
+            defaultFont = RichTextView.Theme.standard.font
+        #endif
         // Set the font size and handle headers
-        var font = font ?? RichTextView.Theme.standard.font
+        var font = font ?? defaultFont
         if let headerType = self.header?.getTextSpanStyle() {
             font = font
                 .updateFontSize(

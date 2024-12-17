@@ -58,18 +58,22 @@ struct ContentView: View {
                     )
                 #endif
             }
+            #if iOS || macOS
             .inspector(isPresented: $isInspectorPresented) {
                 RichTextFormat.Sidebar(context: state)
                     #if os(macOS)
                         .inspectorColumnWidth(min: 200, ideal: 200, max: 315)
                     #endif
             }
+            #endif
             .padding(10)
+            #if iOS || os(macOS)
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
                     toolBarGroup
                 }
             }
+            #endif
             .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
             .navigationTitle("Rich Editor")
             .alert("Enter file name", isPresented: getBindingAlert()) {
@@ -80,6 +84,7 @@ struct ContentView: View {
             }
             .focusedValue(\.richEditorState, state)
             .toolbarRole(.automatic)
+#if iOS || macOS || os(visionOS)
             .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
             .richTextFormatSidebarConfig(
                 .init(
@@ -88,9 +93,11 @@ struct ContentView: View {
                 )
             )
             .richTextFormatToolbarConfig(.init(colorPickers: []))
+            #endif
         }
     }
 
+    #if iOS || os(macOS)
     var toolBarGroup: some View {
         return Group {
             RichTextExportMenu.init(
@@ -125,6 +132,7 @@ struct ContentView: View {
             #endif
         }
     }
+    #endif
 
     func getBindingAlert() -> Binding<Bool> {
         .init(

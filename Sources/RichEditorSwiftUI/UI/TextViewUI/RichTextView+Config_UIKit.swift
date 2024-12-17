@@ -5,7 +5,7 @@
 //  Created by Divyesh Vekariya on 21/10/24.
 //
 
-#if canImport(UIKit) || os(tvOS) || os(visionOS)
+#if iOS || os(tvOS) || os(visionOS)
 import SwiftUI
 
 public extension RichTextView {
