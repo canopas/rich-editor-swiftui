@@ -12,8 +12,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Publish to CocoaPods
+      
+      - name: Install CocoaPods
+        run: gem install cocoapods
+
+      - name: Prepare and Publish
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
-          pod trunk push RichEditorSwiftUI.podspec
+          set -eo pipefail
+          pod lib lint --allow-warnings
+          pod trunk push RichEditorSwiftUI.podspec --allow-warnings
