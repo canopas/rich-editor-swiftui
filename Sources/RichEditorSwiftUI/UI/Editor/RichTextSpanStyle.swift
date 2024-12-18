@@ -125,10 +125,18 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
                     size: .standardRichTextFontSize
                 ) ?? font
             } else {
+#if os(watchOS)
+                return CGFloat.standardRichTextFontSize
+                #else
                 return RichTextView.Theme.standard.font
+#endif
             }
         case .color:
+#if os(watchOS)
+            return Color.primary
+#else
             return RichTextView.Theme.standard.fontColor
+#endif
         case .background:
             return ColorRepresentable.white
         case .align:

@@ -157,7 +157,13 @@ public class RichEditorState: ObservableObject {
         tempSpans.forEach { span in
             str.addAttributes(span.attributes?.toAttributes(font: .standardRichTextFont) ?? [:], range: span.spanRange)
             if span.attributes?.color == nil {
-                str.addAttributes([.foregroundColor: RichTextView.Theme.standard.fontColor], range: span.spanRange)
+                var color: ColorRepresentable = .clear
+                #if os(watchOS)
+                color = .black
+                #else
+                color = RichTextView.Theme.standard.fontColor
+                #endif
+                str.addAttributes([.foregroundColor: color], range: span.spanRange)
             }
         }
 

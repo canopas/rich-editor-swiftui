@@ -70,12 +70,12 @@ The editor offers the following <b>options</b>:
 ## mac Editor video
 
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/844d8843-41e9-44c2-8a0c-afedaa55c5cb" />
+  <video src="https://github.com/user-attachments/assets/844d8843-41e9-44c2-8a0c-afedaa55c5cb" width="90%"/>
 </div>
 
 ## Editor video
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/f99804fb-8612-4e46-b172-66567d1acf91" />
+  <video src="https://github.com/user-attachments/assets/f99804fb-8612-4e46-b172-66567d1acf91" width="90%"/>
 </div>
 
 ## Installation
@@ -88,7 +88,7 @@ Once you have your Swift package set up, adding RichEditorSwiftUI as a dependenc
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/canopas/rich-editor-swiftui.git", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/canopas/rich-editor-swiftui.git", .upToNextMajor(from: "1.1.0"))
 ]
 ```
 
@@ -97,7 +97,7 @@ dependencies: [
 [CocoaPods][] is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate RichEditorSwiftUI into your Xcode project using CocoaPods, specify it in your Podfile:
 
     target 'YourAppName' do
-        pod 'RichEditorSwiftUI', '~> 1.0.0'
+        pod 'RichEditorSwiftUI', '~> 1.1.0'
     end
 
 [CocoaPods]: https://cocoapods.org
