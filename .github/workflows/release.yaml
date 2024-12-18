@@ -1,6 +1,6 @@
 # This workflow release package on Cocoapods.
 
-name: CI
+name: Release
 on:
   push:
     branches:
