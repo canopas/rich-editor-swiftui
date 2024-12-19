@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// Get a binding for a certain color.
-    func binding(for color: RichTextColor) -> Binding<Color> {
+    public func binding(for color: RichTextColor) -> Binding<Color> {
         Binding(
             get: { Color(self.color(for: color) ?? .clear) },
             set: { self.updateStyleFor(color, to: .init($0)) }
@@ -18,12 +18,12 @@ public extension RichEditorState {
     }
 
     /// Get the value for a certain color.
-    func color(for color: RichTextColor) -> ColorRepresentable? {
+    public func color(for color: RichTextColor) -> ColorRepresentable? {
         colors[color]
     }
 
     /// Set the value for a certain color.
-    func setColor(
+    public func setColor(
         _ color: RichTextColor,
         to val: ColorRepresentable
     ) {
@@ -32,7 +32,9 @@ public extension RichEditorState {
         setColorInternal(color, to: val)
     }
 
-    func updateStyleFor(_ color: RichTextColor, to val: ColorRepresentable) {
+    public func updateStyleFor(
+        _ color: RichTextColor, to val: ColorRepresentable
+    ) {
         let value = Color(val)
         switch color {
         case .foreground:
@@ -56,8 +58,10 @@ extension RichEditorState {
         _ color: RichTextColor,
         to val: ColorRepresentable?
     ) {
-        guard let val else { return colors[color] = nil }
+        guard let val else {
+            colors[color] = nil
+            return
+        }
         colors[color] = val
     }
 }
-

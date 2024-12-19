@@ -5,17 +5,17 @@
 //  Created by Divyesh Vekariya on 18/11/24.
 //
 
-#if iOS || macOS || os(visionOS)
-import SwiftUI
+#if os(iOS) || os(macOS) || os(visionOS)
+    import SwiftUI
 
-public extension RichTextFormat {
+    extension RichTextFormat {
 
-    /**
+        /**
      This horizontal toolbar provides text format controls.
 
      This toolbar adapts the layout based on horizontal size
      class. The control row is split in two for compact size,
-     while macOS and regular sizes get a single row.
+     while os(macOS) and regular sizes get a single row.
 
      You can configure and style the view by applying config
      and style view modifiers to your view hierarchy:
@@ -28,115 +28,116 @@ public extension RichTextFormat {
      .richTextFormatToolbarConfig(...)
      ```
      */
-    struct Toolbar: RichTextFormatToolbarBase {
+        public struct Toolbar: RichTextFormatToolbarBase {
 
-        /**
+            /**
          Create a rich text format sheet.
 
          - Parameters:
          - context: The context to apply changes to.
          */
-        public init(
-            context: RichEditorState
-        ) {
-            self._context = ObservedObject(wrappedValue: context)
-        }
-
-        @ObservedObject
-        private var context: RichEditorState
-
-        @Environment(\.richTextFormatToolbarConfig)
-        var config
-
-        @Environment(\.richTextFormatToolbarStyle)
-        var style
-
-        @Environment(\.horizontalSizeClass)
-        private var horizontalSizeClass
-
-        public var body: some View {
-            VStack(spacing: style.spacing) {
-                controls
-                if hasColorPickers {
-                    Divider()
-                    colorPickers(for: context)
-                }
+            public init(
+                context: RichEditorState
+            ) {
+                self._context = ObservedObject(wrappedValue: context)
             }
-            .labelsHidden()
-            .padding(.vertical, style.padding)
-            .environment(\.sizeCategory, .medium)
-//            .background(background)
+
+            @ObservedObject
+            private var context: RichEditorState
+
+            @Environment(\.richTextFormatToolbarConfig)
+            var config
+
+            @Environment(\.richTextFormatToolbarStyle)
+            var style
+
+            @Environment(\.horizontalSizeClass)
+            private var horizontalSizeClass
+
+            public var body: some View {
+                VStack(spacing: style.spacing) {
+                    controls
+                    if hasColorPickers {
+                        Divider()
+                        colorPickers(for: context)
+                    }
+                }
+                .labelsHidden()
+                .padding(.vertical, style.padding)
+                .environment(\.sizeCategory, .medium)
+                //            .background(background)
+                #if macOS
+                    .frame(minWidth: 650)
+                #endif
+            }
+        }
+    }
+
+    // MARK: - Views
+
+    extension RichTextFormat.Toolbar {
+
+        fileprivate var useSingleLine: Bool {
             #if macOS
-            .frame(minWidth: 650)
+                true
+            #else
+                horizontalSizeClass == .regular
             #endif
         }
     }
-}
 
-// MARK: - Views
+    extension RichTextFormat.Toolbar {
 
-private extension RichTextFormat.Toolbar {
+        fileprivate var background: some View {
+            Color.clear
+                .overlay(Color.primary.opacity(0.1))
+                .shadow(color: .black.opacity(0.1), radius: 5)
+                .edgesIgnoringSafeArea(.all)
+        }
 
-    var useSingleLine: Bool {
-        #if macOS
-        true
-        #else
-        horizontalSizeClass == .regular
-        #endif
-    }
-}
+        @ViewBuilder
+        fileprivate var controls: some View {
+            if useSingleLine {
+                HStack {
+                    controlsContent
+                }
+                .padding(.horizontal, style.padding)
+            } else {
+                VStack(spacing: style.spacing) {
+                    controlsContent
+                }
+                .padding(.horizontal, style.padding)
+            }
+        }
 
-private extension RichTextFormat.Toolbar {
-
-    var background: some View {
-        Color.clear
-            .overlay(Color.primary.opacity(0.1))
-            .shadow(color: .black.opacity(0.1), radius: 5)
-            .edgesIgnoringSafeArea(.all)
-    }
-
-    @ViewBuilder
-    var controls: some View {
-        if useSingleLine {
+        @ViewBuilder
+        fileprivate var controlsContent: some View {
             HStack {
-                controlsContent
-            }
-            .padding(.horizontal, style.padding)
-        } else {
-            VStack(spacing: style.spacing) {
-                controlsContent
-            }
-            .padding(.horizontal, style.padding)
-        }
-    }
-
-    @ViewBuilder
-    var controlsContent: some View {
-        HStack {
-            #if macOS
-            headerPicker(context: context)
-            fontPicker(value: $context.fontName)
-                .onChangeBackPort(of: context.fontName) { newValue in
-                    context.updateStyle(style: .font(newValue))
+                #if macOS
+                    headerPicker(context: context)
+                    fontPicker(value: $context.fontName)
+                        .onChangeBackPort(of: context.fontName) { newValue in
+                            context.updateStyle(style: .font(newValue))
+                        }
+                #endif
+                styleToggleGroup(for: context)
+                otherMenuToggleGroup(for: context)
+                if !useSingleLine {
+                    Spacer()
                 }
-            #endif
-            styleToggleGroup(for: context)
-            if !useSingleLine {
-                Spacer()
+                fontSizePicker(for: context)
+                if horizontalSizeClass == .regular {
+                    Spacer()
+                }
             }
-            fontSizePicker(for: context)
-            if horizontalSizeClass == .regular {
-                Spacer()
+            HStack {
+                #if !macOS
+                    headerPicker(context: context)
+                #endif
+                alignmentPicker(context: context)
+                //            superscriptButtons(for: context, greedy: false)
+                //            indentButtons(for: context, greedy: false)
             }
-        }
-        HStack {
-            #if !macOS
-            headerPicker(context: context)
-            #endif
-            alignmentPicker(context: context)
-//            superscriptButtons(for: context, greedy: false)
-//            indentButtons(for: context, greedy: false)
         }
     }
-}
 #endif

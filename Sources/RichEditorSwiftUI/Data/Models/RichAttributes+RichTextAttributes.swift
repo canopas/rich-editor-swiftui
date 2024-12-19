@@ -5,13 +5,13 @@
 //  Created by Divyesh Vekariya on 24/10/24.
 //
 
-#if canImport(UIKit)
-import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#endif
-
 import SwiftUI
+
+#if canImport(UIKit)
+    import UIKit
+#elseif canImport(AppKit)
+    import AppKit
+#endif
 
 extension RichAttributes {
     func toAttributes(font: FontRepresentable? = nil) -> RichTextAttributes {
@@ -24,7 +24,8 @@ extension RichAttributes {
         // Set the font size and handle headers
         var font = font ?? defaultFont
         if let headerType = self.header?.getTextSpanStyle() {
-            font = font
+            font =
+                font
                 .updateFontSize(
                     size: font.pointSize * headerType.fontSizeMultiplier
                 )
@@ -68,7 +69,8 @@ extension RichAttributes {
         }
 
         if let background {
-            attributes[.backgroundColor] = ColorRepresentable(Color(hex: background))
+            attributes[.backgroundColor] = ColorRepresentable(
+                Color(hex: background))
         }
 
         if let align {
@@ -77,11 +79,11 @@ extension RichAttributes {
         }
 
         // Handle indent and paragraph styles
-//        if let indentLevel = indent {
-//            let paragraphStyle = NSMutableParagraphStyle()
-//            paragraphStyle.headIndent = CGFloat(indentLevel * 10)  // Adjust indentation as needed
-//            attributes[.paragraphStyle] = paragraphStyle
-//        }
+        //        if let indentLevel = indent {
+        //            let paragraphStyle = NSMutableParagraphStyle()
+        //            paragraphStyle.headIndent = CGFloat(indentLevel * 10)  // Adjust indentation as needed
+        //            attributes[.paragraphStyle] = paragraphStyle
+        //        }
 
         return attributes
     }

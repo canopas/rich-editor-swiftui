@@ -7,18 +7,16 @@
 
 import Foundation
 
-/**
- This protocol extends ``RichTextReader`` with functionality
- for reading rich text data for the current rich text.
-
- The protocol is implemented by `NSAttributedString` as well
- as other types in the library.
- */
+/// This protocol extends ``RichTextReader`` with functionality
+/// for reading rich text data for the current rich text.
+///
+/// The protocol is implemented by `NSAttributedString` as well
+/// as other types in the library.
 public protocol RichTextDataReader: RichTextReader {}
 
 extension NSAttributedString: RichTextDataReader {}
 
-public extension RichTextDataReader {
+extension RichTextDataReader {
 
     /**
      Generate rich text data from the current rich text.
@@ -26,7 +24,7 @@ public extension RichTextDataReader {
      - Parameters:
        - format: The data format to use.
      */
-    func richTextData(
+    public func richTextData(
         for format: RichTextDataFormat
     ) throws -> Data {
         switch format {
@@ -38,22 +36,22 @@ public extension RichTextDataReader {
     }
 }
 
-private extension RichTextDataReader {
+extension RichTextDataReader {
 
     /// The full text range.
-    var textRange: NSRange {
+    fileprivate var textRange: NSRange {
         NSRange(location: 0, length: richText.length)
     }
 
     /// The full text range.
-    func documentAttributes(
+    fileprivate func documentAttributes(
         for documentType: NSAttributedString.DocumentType
     ) -> [NSAttributedString.DocumentAttributeKey: Any] {
         [.documentType: documentType]
     }
 
     /// Generate archived formatted data.
-    func richTextArchivedData() throws -> Data {
+    fileprivate func richTextArchivedData() throws -> Data {
         try NSKeyedArchiver.archivedData(
             withRootObject: richText,
             requiringSecureCoding: false
@@ -61,17 +59,18 @@ private extension RichTextDataReader {
     }
 
     /// Generate plain text formatted data.
-    func richTextPlainTextData() throws -> Data {
+    fileprivate func richTextPlainTextData() throws -> Data {
         let string = richText.string
         guard let data = string.data(using: .utf8) else {
-            throw RichTextDataError
+            throw
+                RichTextDataError
                 .invalidData(in: string)
         }
         return data
     }
 
     /// Generate RTF formatted data.
-    func richTextRtfData() throws -> Data {
+    fileprivate func richTextRtfData() throws -> Data {
         try richText.data(
             from: textRange,
             documentAttributes: documentAttributes(for: .rtf)
@@ -79,7 +78,7 @@ private extension RichTextDataReader {
     }
 
     /// Generate RTFD formatted data.
-    func richTextRtfdData() throws -> Data {
+    fileprivate func richTextRtfdData() throws -> Data {
         try richText.data(
             from: textRange,
             documentAttributes: documentAttributes(for: .rtfd)
@@ -87,12 +86,12 @@ private extension RichTextDataReader {
     }
 
     #if macOS
-    /// Generate Word formatted data.
-    func richTextWordData() throws -> Data {
-        try richText.data(
-            from: textRange,
-            documentAttributes: documentAttributes(for: .docFormat)
-        )
-    }
+        /// Generate Word formatted data.
+        func richTextWordData() throws -> Data {
+            try richText.data(
+                from: textRange,
+                documentAttributes: documentAttributes(for: .docFormat)
+            )
+        }
     #endif
 }

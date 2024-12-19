@@ -7,10 +7,10 @@
 
 import Foundation
 
-public extension RichTextViewComponent {
+extension RichTextViewComponent {
 
     /// Get a certain color.
-    func richTextColor(
+    public func richTextColor(
         _ color: RichTextColor
     ) -> ColorRepresentable? {
         guard let attribute = color.attribute else { return nil }
@@ -18,7 +18,7 @@ public extension RichTextViewComponent {
     }
 
     /// Get a certain color at a certain range.
-    func richTextColor(
+    public func richTextColor(
         _ color: RichTextColor,
         at range: NSRange
     ) -> ColorRepresentable? {
@@ -27,7 +27,7 @@ public extension RichTextViewComponent {
     }
 
     /// Set a certain color.
-    func setRichTextColor(
+    public func setRichTextColor(
         _ color: RichTextColor,
         to val: ColorRepresentable
     ) {
@@ -37,7 +37,7 @@ public extension RichTextViewComponent {
     }
 
     /// Set a certain colors at a certain range.
-    func setRichTextColor(
+    public func setRichTextColor(
         _ color: RichTextColor,
         to val: ColorRepresentable,
         at range: NSRange

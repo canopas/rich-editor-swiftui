@@ -7,9 +7,7 @@
 
 import SwiftUI
 
-/**
- This struct can be used to style rich text highlighting.
- */
+/// This struct can be used to style rich text highlighting.
 public struct RichTextHighlightingStyle: Equatable, Hashable {
 
     /**
@@ -34,10 +32,10 @@ public struct RichTextHighlightingStyle: Equatable, Hashable {
     public let foregroundColor: Color
 }
 
-public extension RichTextHighlightingStyle {
+extension RichTextHighlightingStyle {
 
     /// The standard rich text highlighting style.
     ///
     /// You can set a new value to change the global default.
-    static var standard = Self()
+    public static var standard = Self()
 }

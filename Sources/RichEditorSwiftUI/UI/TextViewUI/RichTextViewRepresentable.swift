@@ -6,15 +6,15 @@
 //
 
 #if macOS
-import AppKit
+    import AppKit
 
-/// This typealias bridges UIKit & AppKit native text views.
-public typealias RichTextViewRepresentable = NSTextView
+    /// This typealias bridges UIKit & AppKit native text views.
+    public typealias RichTextViewRepresentable = NSTextView
 #endif
 
-#if iOS || os(tvOS) || os(visionOS)
-import UIKit
+#if os(iOS) || os(tvOS) || os(visionOS)
+    import UIKit
 
-/// This typealias bridges UIKit & AppKit native text views.
-public typealias RichTextViewRepresentable = UITextView
+    /// This typealias bridges UIKit & AppKit native text views.
+    public typealias RichTextViewRepresentable = UITextView
 #endif

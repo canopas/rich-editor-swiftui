@@ -8,14 +8,14 @@
 import Foundation
 
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-import AppKit
+    import AppKit
 #endif
 
-public extension RichTextViewComponent {
+extension RichTextViewComponent {
 
     /**
      Paste text into the text view, at a certain index.
@@ -27,7 +27,7 @@ public extension RichTextViewComponent {
      cursor should be moved to the end of the pasted content,
      by default `false`.
      */
-    func pasteText(
+    public func pasteText(
         _ text: String,
         at index: Int,
         moveCursorToPastedContent: Bool = false
@@ -52,4 +52,3 @@ public extension RichTextViewComponent {
         }
     }
 }
-

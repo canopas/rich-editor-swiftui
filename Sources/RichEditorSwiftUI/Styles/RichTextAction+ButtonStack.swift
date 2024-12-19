@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextAction {
+extension RichTextAction {
 
     /**
      This view lists ``RichTextAction`` buttons in a stack.
@@ -15,7 +15,7 @@ public extension RichTextAction {
      Since this view uses multiple values, it binds directly
      to a ``RichTextContext`` instead of individual values.
      */
-    struct ButtonStack: View {
+    public struct ButtonStack: View {
 
         /**
          Create a rich text action button stack.

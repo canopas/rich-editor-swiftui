@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 extension RichEditorState {
 
     internal struct LineInfo {
@@ -31,7 +30,9 @@ extension RichEditorState {
         return getCurrentLineInfo(rawText, selectedRange: selectedRange)
     }
 
-    internal func getCurrentLineInfo(_ string: String, selectedRange: NSRange) -> LineInfo {
+    internal func getCurrentLineInfo(_ string: String, selectedRange: NSRange)
+        -> LineInfo
+    {
 
         /// Determines if the user has selected (ie. highlighted) any text
         var hasSelectedText: Bool {
@@ -43,33 +44,34 @@ extension RichEditorState {
             selectedRange.location
         }
 
-
         //The line number that we're currently iterating on
         var lineNumber = 0
 
         //The line number & line of text that we believe the caret to be on
         var selectedLineNumber = 0
-        var selectedLineRange  = selectedRange
+        var selectedLineRange = selectedRange
         var selectedLineOfText = ""
         var caretLocationInLine = 0
 
         var foundSelectedLine = false
 
         //Iterate over every line in our TextView
-        string.enumerateSubstrings(in: string.startIndex..<string.endIndex, options: .byLines) {(substring, substringRange, _, _) in
+        string.enumerateSubstrings(
+            in: string.startIndex..<string.endIndex, options: .byLines
+        ) { (substring, substringRange, _, _) in
             //The range of this current line
             let range = NSRange(substringRange, in: string)
 
             //Calculate the start location of our line and the end location of our line, in context to our TextView.string as a whole
             let startOfLine = range.location
-            let endOfLine   = range.location + range.length
+            let endOfLine = range.location + range.length
 
             //If the CaretLocation is between the start of this line, and the end of this line, we can assume that the caret is on this line
             if caretLocation >= startOfLine && caretLocation <= endOfLine {
                 // MARK the line number
                 selectedLineNumber = lineNumber
                 selectedLineOfText = substring ?? ""
-                selectedLineRange  = range
+                selectedLineRange = range
                 caretLocationInLine = caretLocation - startOfLine
 
                 foundSelectedLine = true
@@ -82,8 +84,10 @@ extension RichEditorState {
         if caretLocation > 0 && !foundSelectedLine {
             selectedLineNumber = lineNumber
             selectedLineOfText = ""
-            selectedLineRange  = NSRange(location: caretLocation, length: 0)
+            selectedLineRange = NSRange(location: caretLocation, length: 0)
         }
-        return LineInfo(lineNumber: selectedLineNumber, lineRange: selectedLineRange, lineString: selectedLineOfText, caretLocation: caretLocationInLine)
+        return LineInfo(
+            lineNumber: selectedLineNumber, lineRange: selectedLineRange,
+            lineString: selectedLineOfText, caretLocation: caretLocationInLine)
     }
 }

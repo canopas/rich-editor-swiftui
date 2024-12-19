@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// Get a binding for a certain TextAlignment style.
-    func textAlignmentBinding() -> Binding<RichTextAlignment> {
+    public func textAlignmentBinding() -> Binding<RichTextAlignment> {
         Binding(
             get: { self.currentTextAlignment() },
             set: { self.setTextAlignmentStyle($0) }
@@ -18,12 +18,12 @@ public extension RichEditorState {
     }
 
     /// Check whether or not the context has a certain TextAlignment style.
-    func currentTextAlignment() -> RichTextAlignment {
+    public func currentTextAlignment() -> RichTextAlignment {
         return textAlignment
     }
 
     /// Set whether or not the context has a certain TextAlignment style.
-    func setTextAlignmentStyle(
+    public func setTextAlignmentStyle(
         _ alignment: RichTextAlignment
     ) {
         guard alignment != textAlignment else { return }
@@ -31,11 +31,10 @@ public extension RichEditorState {
         setTextAlignmentInternal(alignment: alignment)
     }
 
-    func setTextAlignmentInternal(
+    public func setTextAlignmentInternal(
         alignment: RichTextAlignment
     ) {
         guard alignment != textAlignment else { return }
         textAlignment = alignment
     }
 }
-

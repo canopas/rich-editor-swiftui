@@ -9,29 +9,27 @@ import CoreGraphics
 import Foundation
 
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #elseif canImport(AppKit) && !targetEnvironment(macCatalyst)
-import AppKit
+    import AppKit
 #endif
 
-/**
- This protocol provides a common interface for the UIKit and
- AppKit ``RichTextView`` components.
-
- By implementing this protocol, the library does not have to
- do a bunch of `#if` platform checks within the code.
-
- This component can read and write many different attributes
- from and to its rich text, using the underlying features of
- ``RichTextAttributeReader`` and ``RichTextAttributeWriter``.
-
- The protocol implements and extends many other protocols to
- provide more features for components with more capabilities.
- */
+/// This protocol provides a common interface for the UIKit and
+/// AppKit ``RichTextView`` components.
+///
+/// By implementing this protocol, the library does not have to
+/// do a bunch of `#if` platform checks within the code.
+///
+/// This component can read and write many different attributes
+/// from and to its rich text, using the underlying features of
+/// ``RichTextAttributeReader`` and ``RichTextAttributeWriter``.
+///
+/// The protocol implements and extends many other protocols to
+/// provide more features for components with more capabilities.
 public protocol RichTextViewComponent: AnyObject,
-                                       RichTextPresenter,
-                                       RichTextAttributeReader,
-                                       RichTextAttributeWriter
+    RichTextPresenter,
+    RichTextAttributeReader,
+    RichTextAttributeWriter
 {
 
     /// The text view's frame.
@@ -43,13 +41,13 @@ public protocol RichTextViewComponent: AnyObject,
     /// Whether or not the text view is the first responder.
     var isFirstResponder: Bool { get }
 
-#if iOS || macOS || os(tvOS) || os(visionOS)
-    /// The text view's layout manager, if any.
-    var layoutManagerWrapper: NSLayoutManager? { get }
+    #if os(iOS) || os(macOS) || os(tvOS) || os(visionOS)
+        /// The text view's layout manager, if any.
+        var layoutManagerWrapper: NSLayoutManager? { get }
 
-    /// The text view's text storage, if any.
-    var textStorageWrapper: NSTextStorage? { get }
-#endif
+        /// The text view's text storage, if any.
+        var textStorageWrapper: NSTextStorage? { get }
+    #endif
 
     /// The text view's mutable attributed string, if any.
     var mutableAttributedString: NSMutableAttributedString? { get }
@@ -97,27 +95,27 @@ public protocol RichTextViewComponent: AnyObject,
 
 // MARK: - Public Extension
 
-public extension RichTextViewComponent {
+extension RichTextViewComponent {
 
     /// Show an alert with a title, message and OK button.
-    func alert(title: String, message: String) {
+    public func alert(title: String, message: String) {
         alert(title: title, message: message, buttonTitle: "OK")
     }
 
     /// Delete all characters in a certain range.
-    func deleteCharacters(in range: NSRange) {
+    public func deleteCharacters(in range: NSRange) {
         mutableAttributedString?.deleteCharacters(in: range)
     }
 
     /// Move the text cursor to a certain input index.
-    func moveInputCursor(to index: Int) {
+    public func moveInputCursor(to index: Int) {
         let newRange = NSRange(location: index, length: 0)
         let safeRange = safeRange(for: newRange)
         setSelectedRange(safeRange)
     }
 
     /// Setup the view with data and a data format.
-    func setup(
+    public func setup(
         with data: Data,
         format: RichTextDataFormat
     ) throws {
@@ -126,20 +124,20 @@ public extension RichTextViewComponent {
     }
 
     /// Get the image configuration for a certain format.
-//    func standardImageConfiguration(
-//        for format: RichTextDataFormat
-//    ) -> RichTextImageConfiguration {
-//        let insertConfig = standardImageInsertConfiguration(for: format)
-//        return RichTextImageConfiguration(
-//            pasteConfiguration: insertConfig,
-//            dropConfiguration: insertConfig,
-//            maxImageSize: (width: .frame, height: .frame))
-//    }
+    //    func standardImageConfiguration(
+    //        for format: RichTextDataFormat
+    //    ) -> RichTextImageConfiguration {
+    //        let insertConfig = standardImageInsertConfiguration(for: format)
+    //        return RichTextImageConfiguration(
+    //            pasteConfiguration: insertConfig,
+    //            dropConfiguration: insertConfig,
+    //            maxImageSize: (width: .frame, height: .frame))
+    //    }
 
     /// Get the image insert config for a certain format.
-//    func standardImageInsertConfiguration(
-//        for format: RichTextDataFormat
-//    ) -> RichTextImageInsertConfiguration {
-//        format.supportsImages ? .enabled : .disabled
-//    }
+    //    func standardImageInsertConfiguration(
+    //        for format: RichTextDataFormat
+    //    ) -> RichTextImageInsertConfiguration {
+    //        format.supportsImages ? .enabled : .disabled
+    //    }
 }

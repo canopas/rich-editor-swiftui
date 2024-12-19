@@ -8,24 +8,27 @@
 import SwiftUI
 
 extension String {
-    subscript (i: Int) -> String {
-        return self[i ..< i + 1]
+    subscript(i: Int) -> String {
+        return self[i..<i + 1]
     }
 
     func substring(fromIndex: Int) -> String {
-        return self[min(fromIndex, count) ..< count]
+        return self[min(fromIndex, count)..<count]
     }
 
     func substring(toIndex: Int) -> String {
-        return self[0 ..< max(0, toIndex)]
+        return self[0..<max(0, toIndex)]
     }
 
-    subscript (r: Range<Int>) -> String {
-        let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)),
-                                            upper: min(count, max(0, r.upperBound))))
+    subscript(r: Range<Int>) -> String {
+        let range = Range(
+            uncheckedBounds: (
+                lower: max(0, min(count, r.lowerBound)),
+                upper: min(count, max(0, r.upperBound))
+            ))
         let start = index(startIndex, offsetBy: range.lowerBound)
         let end = index(start, offsetBy: range.upperBound - range.lowerBound)
-        return String(self[start ..< end])
+        return String(self[start..<end])
     }
 
     func substring(from range: NSRange) -> String {
@@ -42,7 +45,9 @@ internal struct NSFontTraitMask: OptionSet {
     internal static let unboldFontMask = NSFontTraitMask(rawValue: 1 << 1)
     internal static let italicFontMask = NSFontTraitMask(rawValue: 1 << 2)
     internal static let unitalicFontMask = NSFontTraitMask(rawValue: 1 << 3)
-    internal static let all: NSFontTraitMask = [.boldFontMask, .unboldFontMask, .italicFontMask, .unitalicFontMask]
+    internal static let all: NSFontTraitMask = [
+        .boldFontMask, .unboldFontMask, .italicFontMask, .unitalicFontMask,
+    ]
     internal init(rawValue: Int) {
         self.rawValue = rawValue
     }
@@ -73,70 +78,67 @@ internal struct NSFontTraitMask: OptionSet {
 //    }
 //}
 
+/// This extension makes it possible to fetch characters from a
+/// string, as discussed here:
+///
+/// https://stackoverflow.com/questions/24092884/get-nth-character-of-a-string-in-swift-programming-language
+extension StringProtocol {
 
-/**
- This extension makes it possible to fetch characters from a
- string, as discussed here:
-
- https://stackoverflow.com/questions/24092884/get-nth-character-of-a-string-in-swift-programming-language
- */
-public extension StringProtocol {
-
-    func character(at index: Int) -> String.Element? {
+    public func character(at index: Int) -> String.Element? {
         if index < 0 { return nil }
         guard count > index else { return nil }
         return self[index]
     }
 
-    func character(at index: UInt) -> String.Element? {
+    public func character(at index: UInt) -> String.Element? {
         character(at: Int(index))
     }
 
-    subscript(_ offset: Int) -> Element {
+    public subscript(_ offset: Int) -> Element {
         self[index(startIndex, offsetBy: offset)]
     }
 
-    subscript(_ range: Range<Int>) -> SubSequence {
+    public subscript(_ range: Range<Int>) -> SubSequence {
         prefix(range.lowerBound + range.count).suffix(range.count)
     }
 
-    subscript(_ range: ClosedRange<Int>) -> SubSequence {
+    public subscript(_ range: ClosedRange<Int>) -> SubSequence {
         prefix(range.lowerBound + range.count).suffix(range.count)
     }
 
-    subscript(_ range: PartialRangeThrough<Int>) -> SubSequence {
+    public subscript(_ range: PartialRangeThrough<Int>) -> SubSequence {
         prefix(range.upperBound.advanced(by: 1))
     }
 
-    subscript(_ range: PartialRangeUpTo<Int>) -> SubSequence {
+    public subscript(_ range: PartialRangeUpTo<Int>) -> SubSequence {
         prefix(range.upperBound)
     }
 
-    subscript(_ range: PartialRangeFrom<Int>) -> SubSequence {
-        suffix(Swift.max(0, count-range.lowerBound))
+    public subscript(_ range: PartialRangeFrom<Int>) -> SubSequence {
+        suffix(Swift.max(0, count - range.lowerBound))
     }
 }
 
-private extension LosslessStringConvertible {
+extension LosslessStringConvertible {
 
-    var string: String { .init(self) }
+    fileprivate var string: String { .init(self) }
 }
 
-private extension BidirectionalCollection {
+extension BidirectionalCollection {
 
-    subscript(safe offset: Int) -> Element? {
+    fileprivate subscript(safe offset: Int) -> Element? {
         if isEmpty { return nil }
-        guard let index = index(
-            startIndex,
-            offsetBy: offset,
-            limitedBy: index(before: endIndex))
+        guard
+            let index = index(
+                startIndex,
+                offsetBy: offset,
+                limitedBy: index(before: endIndex))
         else { return nil }
         return self[index]
     }
 }
 
-
-internal extension String {
+extension String {
     /**
      This will provide length of string with UTF16 character count
      */

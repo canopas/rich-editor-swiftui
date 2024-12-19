@@ -18,10 +18,10 @@ public protocol RichTextLabelValue: Hashable {
     var title: String { get }
 }
 
-public extension RichTextLabelValue {
+extension RichTextLabelValue {
 
     /// The standard label to use for the value.
-    var label: some View {
+    public var label: some View {
         Label(
             title: { Text(title) },
             icon: { icon }

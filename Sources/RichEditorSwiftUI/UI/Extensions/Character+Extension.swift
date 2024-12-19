@@ -14,4 +14,3 @@ extension Character {
         self == .newLine || self == .carriageReturn
     }
 }
-

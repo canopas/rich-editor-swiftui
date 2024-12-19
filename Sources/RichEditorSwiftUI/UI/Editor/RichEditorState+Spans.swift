@@ -12,14 +12,16 @@ import SwiftUI
 extension RichEditorState {
     func getStringWith(from: Int, to: Int) -> String {
         guard (to - from) >= 0 else { return "" }
-        return attributedString.string.substring(from: .init(location: from, length: (to - from)))
+        return attributedString.string.substring(
+            from: .init(location: from, length: (to - from)))
     }
 
     /**
      This will provide RichText which is encoded from input and editor text
      */
     internal func getRichText() -> RichText {
-        return attributedString.string.isEmpty ? RichText() : RichText(spans: spans)
+        return attributedString.string.isEmpty
+            ? RichText() : RichText(spans: spans)
     }
 
     /**
@@ -78,14 +80,17 @@ extension RichEditorState {
         switch event {
         case .didChangeSelection(let range, let text):
             selectedRange = range
-            guard rawText.count == text.string.count && selectedRange.isCollapsed else {
+            guard
+                rawText.count == text.string.count && selectedRange.isCollapsed
+            else {
                 return
             }
             onSelectionDidChanged()
         case .didBeginEditing(let range, _):
             selectedRange = range
         case .didChange:
-            onTextFieldValueChange(newText: attributedString, selection: selectedRange)
+            onTextFieldValueChange(
+                newText: attributedString, selection: selectedRange)
         case .didEndEditing:
             selectedRange = .init(location: 0, length: 0)
         }
@@ -97,7 +102,9 @@ extension RichEditorState {
      - newText: is updated NSMutableAttributedString
      - selection: is the range of the selected text
      */
-    private func onTextFieldValueChange(newText: NSAttributedString, selection: NSRange) {
+    private func onTextFieldValueChange(
+        newText: NSAttributedString, selection: NSRange
+    ) {
         self.selectedRange = selection
 
         if newText.string.count > rawText.count {
@@ -131,8 +138,11 @@ extension RichEditorState {
         activeAttributes = [:]
         activeStyles.insert(style)
 
-        if style.isHeaderStyle || style.isDefault || style.isList || style.isAlignmentStyle {
-            handleAddOrRemoveStyleToLine(in: selectedRange, style: style, byAdding: !style.isDefault)
+        if style.isHeaderStyle || style.isDefault || style.isList
+            || style.isAlignmentStyle
+        {
+            handleAddOrRemoveStyleToLine(
+                in: selectedRange, style: style, byAdding: !style.isDefault)
         } else if !selectedRange.isCollapsed {
             let addStyle = checkIfStyleIsActiveWithSameAttributes(style)
             processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
@@ -141,7 +151,9 @@ extension RichEditorState {
         updateCurrentSpanStyle()
     }
 
-    func checkIfStyleIsActiveWithSameAttributes(_ style: RichTextSpanStyle) -> Bool {
+    func checkIfStyleIsActiveWithSameAttributes(_ style: RichTextSpanStyle)
+        -> Bool
+    {
         var addStyle: Bool = true
         switch style {
         case .size(let size):
@@ -176,6 +188,8 @@ extension RichEditorState {
             if let alignment {
                 addStyle = alignment != self.textAlignment || alignment != .left
             }
+        case .link(let link):
+            addStyle = self.link != link
         default:
             return addStyle
         }
@@ -193,17 +207,22 @@ extension RichEditorState {
         if selectedRange.isCollapsed {
             newStyles = getRichSpanStyleByTextIndex(selectedRange.location - 1)
         } else {
-            newStyles =  Set(getRichSpanStyleListByTextRange(selectedRange))
+            newStyles = Set(getRichSpanStyleListByTextRange(selectedRange))
         }
 
-        guard activeStyles != newStyles && selectedRange.location != 0 else { return }
+        guard activeStyles != newStyles && selectedRange.location != 0 else {
+            return
+        }
         activeStyles = newStyles
         var attributes: [NSAttributedString.Key: Any] = [:]
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: FontRepresentable.standardRichTextFont)
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(
+                font: FontRepresentable.standardRichTextFont)
         })
 
-        headerType = activeStyles.first(where: { $0.isHeaderStyle })?.headerType ?? .default
+        headerType =
+            activeStyles.first(where: { $0.isHeaderStyle })?.headerType
+            ?? .default
 
         activeAttributes = attributes
     }
@@ -221,7 +240,9 @@ extension RichEditorState {
         guard !activeStyles.contains(style) else { return }
         activeStyles.insert(style)
 
-        if (style.isHeaderStyle || style.isDefault || style.isList || style.isAlignmentStyle) {
+        if style.isHeaderStyle || style.isDefault || style.isList
+            || style.isAlignmentStyle
+        {
             handleAddOrRemoveStyleToLine(in: selectedRange, style: style)
         } else if !selectedRange.isCollapsed {
             processSpansFor(new: style, in: selectedRange)
@@ -242,7 +263,8 @@ extension RichEditorState {
         updateTypingAttributes()
 
         if style.isHeaderStyle || style.isDefault || style.isList {
-            handleAddOrRemoveStyleToLine(in: selectedRange, style: style, byAdding: false)
+            handleAddOrRemoveStyleToLine(
+                in: selectedRange, style: style, byAdding: false)
         } else if !selectedRange.isCollapsed {
             processSpansFor(new: style, in: selectedRange, addStyle: false)
         }
@@ -255,7 +277,8 @@ extension RichEditorState {
         var attributes: [NSAttributedString.Key: Any] = [:]
 
         activeStyles.forEach({
-            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(font: FontRepresentable.standardRichTextFont)
+            attributes[$0.attributedStringKey] = $0.defaultAttributeValue(
+                font: FontRepresentable.standardRichTextFont)
         })
 
         activeAttributes = attributes
@@ -277,8 +300,10 @@ extension RichEditorState {
         let startTypeIndex = selectedRange.location - typedChars
         let startTypeChar = newValue.string.utf16.map({ $0 })[startTypeIndex]
 
-        if startTypeChar == "\n".utf16.first && startTypeChar == "\n".utf16.last,
-           activeStyles.contains(where: { $0.isHeaderStyle }) {
+        if startTypeChar == "\n".utf16.first
+            && startTypeChar == "\n".utf16.last,
+            activeStyles.contains(where: { $0.isHeaderStyle })
+        {
             activeStyles.removeAll()
         }
 
@@ -286,8 +311,12 @@ extension RichEditorState {
 
         moveSpansForward(startTypeIndex: startTypeIndex, by: typedChars)
 
-        let startParts = internalSpans.filter { $0.closedRange.contains(startTypeIndex - 1) }
-        let endParts = internalSpans.filter { $0.closedRange.contains(startTypeIndex) }
+        let startParts = internalSpans.filter {
+            $0.closedRange.contains(startTypeIndex - 1)
+        }
+        let endParts = internalSpans.filter {
+            $0.closedRange.contains(startTypeIndex)
+        }
         let commonParts = Set(startParts).intersection(Set(endParts))
 
         var addedInFirstPart: Bool = false
@@ -304,19 +333,31 @@ extension RichEditorState {
 
         if !addedInFirstPart {
             endParts.filter { !commonParts.contains($0) }.forEach { part in
-                processSpan(part, typedChars: typedChars, startTypeIndex: startTypeIndex, selectedStyles: &selectedStyles, forward: true)
+                processSpan(
+                    part, typedChars: typedChars,
+                    startTypeIndex: startTypeIndex,
+                    selectedStyles: &selectedStyles, forward: true)
             }
         }
 
         commonParts.forEach { part in
-            processSpan(part, typedChars: typedChars, startTypeIndex: startTypeIndex, selectedStyles: &selectedStyles)
+            processSpan(
+                part, typedChars: typedChars, startTypeIndex: startTypeIndex,
+                selectedStyles: &selectedStyles)
         }
 
         internalSpans = mergeSameStyledSpans(internalSpans)
 
-        guard !internalSpans.contains(where: { $0.closedRange.contains(startTypeIndex) }) else { return }
-        let toIndex = typedChars > 1 ? (startTypeIndex + typedChars - 1) : startTypeIndex
-        let span = RichTextSpanInternal(from: startTypeIndex, to: toIndex, attributes: getRichAttributesFor(styles: Array(selectedStyles)))
+        guard
+            !internalSpans.contains(where: {
+                $0.closedRange.contains(startTypeIndex)
+            })
+        else { return }
+        let toIndex =
+            typedChars > 1 ? (startTypeIndex + typedChars - 1) : startTypeIndex
+        let span = RichTextSpanInternal(
+            from: startTypeIndex, to: toIndex,
+            attributes: getRichAttributesFor(styles: Array(selectedStyles)))
         internalSpans.append(span)
     }
 
@@ -328,7 +369,11 @@ extension RichEditorState {
 
      This will update the span according to requirement, like break, remove, merge or extend.
      */
-    private func processSpan(_ richTextSpan: RichTextSpanInternal, typedChars: Int, startTypeIndex: Int, selectedStyles: inout Set<RichTextSpanStyle>, forward: Bool = false) {
+    private func processSpan(
+        _ richTextSpan: RichTextSpanInternal, typedChars: Int,
+        startTypeIndex: Int, selectedStyles: inout Set<RichTextSpanStyle>,
+        forward: Bool = false
+    ) {
         let newFromIndex = richTextSpan.from + typedChars
         let newToIndex = richTextSpan.to + typedChars
 
@@ -338,16 +383,22 @@ extension RichEditorState {
                 selectedStyles.removeAll()
             } else {
                 if forward {
-                    internalSpans[index] = richTextSpan.copy(from: newFromIndex, to: newToIndex)
+                    internalSpans[index] = richTextSpan.copy(
+                        from: newFromIndex, to: newToIndex)
                 } else {
-                    divideSpanAndAddTextWithCurrentStyle(span: richTextSpan, typedChars: typedChars, startTypeIndex: startTypeIndex, with: &selectedStyles)
+                    divideSpanAndAddTextWithCurrentStyle(
+                        span: richTextSpan, typedChars: typedChars,
+                        startTypeIndex: startTypeIndex, with: &selectedStyles)
                     selectedStyles.removeAll()
                 }
             }
         }
     }
 
-    func divideSpanAndAddTextWithCurrentStyle(span: RichTextSpanInternal, typedChars: Int, startTypeIndex: Int, with styles: inout Set<RichTextSpanStyle>) {
+    func divideSpanAndAddTextWithCurrentStyle(
+        span: RichTextSpanInternal, typedChars: Int, startTypeIndex: Int,
+        with styles: inout Set<RichTextSpanStyle>
+    ) {
         guard let index = internalSpans.firstIndex(of: span) else { return }
         let extendedSpan = span.copy(to: span.to + typedChars)
 
@@ -355,7 +406,10 @@ extension RichEditorState {
         let endIndex = startTypeIndex + typedChars - 1
 
         var spansToAdd: [RichTextSpanInternal] = []
-        spansToAdd.append(RichTextSpanInternal(from: startIndex, to: endIndex, attributes:  getRichAttributesFor(styles: Array(styles))))
+        spansToAdd.append(
+            RichTextSpanInternal(
+                from: startIndex, to: endIndex,
+                attributes: getRichAttributesFor(styles: Array(styles))))
 
         if startTypeIndex == extendedSpan.from {
             spansToAdd.append(extendedSpan.copy(from: endIndex))
@@ -365,8 +419,9 @@ extension RichEditorState {
             spansToAdd.append(extendedSpan.copy(to: startIndex - 1))
             spansToAdd.append(extendedSpan.copy(from: endIndex + 1))
         }
-        internalSpans.removeAll(where: { $0 == span})
-        internalSpans.insert(contentsOf: spansToAdd.sorted(by: { $0.from < $1.from }), at: index)
+        internalSpans.removeAll(where: { $0 == span })
+        internalSpans.insert(
+            contentsOf: spansToAdd.sorted(by: { $0.from < $1.from }), at: index)
     }
 
     /**
@@ -382,7 +437,8 @@ extension RichEditorState {
 
         filteredSpans.forEach { part in
             if let index = internalSpans.firstIndex(of: part) {
-                internalSpans[index] = part.copy(from: part.from + step, to: part.to + step)
+                internalSpans[index] = part.copy(
+                    from: part.from + step, to: part.to + step)
             }
         }
     }
@@ -408,27 +464,43 @@ extension RichEditorState {
         let startRemoveIndex = selectedRange.location
         let endRemoveIndex = selectedRange.location + removedCharsCount - 1
         let removeRange = startRemoveIndex...endRemoveIndex
-        let start = rawText.utf16.index(rawText.startIndex, offsetBy: startRemoveIndex)
-        let end = rawText.utf16.index(rawText.startIndex, offsetBy: endRemoveIndex)
+        let start = rawText.utf16.index(
+            rawText.startIndex, offsetBy: startRemoveIndex)
+        let end = rawText.utf16.index(
+            rawText.startIndex, offsetBy: endRemoveIndex)
 
-        if startRemoveIndex != endRemoveIndex, let newLineIndex = String(rawText[start...end]).map({ $0 }).lastIndex(of: "\n"), newLineIndex >= 0 {
-            handleRemoveHeaderStyle(newText: newText.string, at: removeRange.nsRange, newLineIndex: newLineIndex)
+        if startRemoveIndex != endRemoveIndex,
+            let newLineIndex = String(rawText[start...end]).map({ $0 })
+                .lastIndex(of: "\n"), newLineIndex >= 0
+        {
+            handleRemoveHeaderStyle(
+                newText: newText.string, at: removeRange.nsRange,
+                newLineIndex: newLineIndex)
         }
 
         let partsCopy = internalSpans
 
-        let lowerBound = removeRange.lowerBound //- (selectedRange.length < removedCharsCount ? 1 : 0)
+        let lowerBound = removeRange.lowerBound  //- (selectedRange.length < removedCharsCount ? 1 : 0)
 
         for part in partsCopy {
             if let index = internalSpans.firstIndex(of: part) {
                 if removeRange.upperBound < part.from {
-                    internalSpans[index] = part.copy(from: part.from - (removedCharsCount), to: part.to - (removedCharsCount))
-                } else if lowerBound <= part.from && removeRange.upperBound >= part.to {
+                    internalSpans[index] = part.copy(
+                        from: part.from - (removedCharsCount),
+                        to: part.to - (removedCharsCount))
+                } else if lowerBound <= part.from
+                    && removeRange.upperBound >= part.to
+                {
                     internalSpans.removeAll(where: { $0 == part })
                 } else if lowerBound <= part.from {
-                    internalSpans[index] = part.copy(from: max(0, lowerBound), to: min(newText.string.utf16Length, part.to - removedCharsCount))
+                    internalSpans[index] = part.copy(
+                        from: max(0, lowerBound),
+                        to: min(
+                            newText.string.utf16Length,
+                            part.to - removedCharsCount))
                 } else if removeRange.upperBound <= part.to {
-                    internalSpans[index] = part.copy(to: part.to - removedCharsCount)
+                    internalSpans[index] = part.copy(
+                        to: part.to - removedCharsCount)
                 } else if lowerBound < part.to {
                     internalSpans[index] = part.copy(to: lowerBound)
                 }
@@ -445,11 +517,12 @@ extension RichEditorState {
      This will move the span according to it's position if it is after the typed character then it will move forward by number or typed character which is step.
      */
     private func moveSpansBackward(endTypeIndex: Int, by step: Int) {
-        let filteredSpans = internalSpans.filter { $0.to > endTypeIndex}
+        let filteredSpans = internalSpans.filter { $0.to > endTypeIndex }
 
         filteredSpans.forEach { part in
             if let index = internalSpans.firstIndex(of: part) {
-                internalSpans[index] = part.copy(from: part.from - step, to: part.to - step)
+                internalSpans[index] = part.copy(
+                    from: part.from - step, to: part.to - step)
             }
         }
     }
@@ -463,10 +536,15 @@ extension RichEditorState {
      - Parameters:
      - style: is of type RichTextSpanStyle
      */
-    private func handleAddOrRemoveStyleToLine(in range: NSRange, style: RichTextSpanStyle, byAdding: Bool = true) {
+    private func handleAddOrRemoveStyleToLine(
+        in range: NSRange, style: RichTextSpanStyle, byAdding: Bool = true
+    ) {
         guard !rawText.isEmpty else { return }
 
-        let range = style.isList ? getListRangeFor(range, in: rawText) : rawText.getHeaderRangeFor(range)
+        let range =
+            style.isList
+            ? getListRangeFor(range, in: rawText)
+            : rawText.getHeaderRangeFor(range)
         processSpansFor(new: style, in: range, addStyle: byAdding)
     }
 
@@ -477,13 +555,18 @@ extension RichEditorState {
      - range: is the NSRange
      - newLineIndex: is string index of new line where is it located
      */
-    private func handleRemoveHeaderStyle(newText: String? = nil, at range: NSRange, newLineIndex: Int) {
+    private func handleRemoveHeaderStyle(
+        newText: String? = nil, at range: NSRange, newLineIndex: Int
+    ) {
         let text = newText ?? rawText
         let startIndex = max(0, text.map({ $0 }).index(before: newLineIndex))
 
         let endIndex = text.map({ $0 }).index(after: newLineIndex)
 
-        let selectedParts = internalSpans.filter({ ($0.from < endIndex && $0.to >= startIndex && $0.attributes?.header != nil) })
+        let selectedParts = internalSpans.filter({
+            ($0.from < endIndex && $0.to >= startIndex
+                && $0.attributes?.header != nil)
+        })
 
         internalSpans.removeAll(where: { selectedParts.contains($0) })
     }
@@ -495,7 +578,9 @@ extension RichEditorState {
      - styles: is of type [RichTextSpanStyle]
      - range: is of type NSRange
      */
-    private func processSpansFor(new style: RichTextSpanStyle, in range: NSRange, addStyle: Bool = true) {
+    private func processSpansFor(
+        new style: RichTextSpanStyle, in range: NSRange, addStyle: Bool = true
+    ) {
         guard !range.isCollapsed else {
             return
         }
@@ -509,9 +594,12 @@ extension RichEditorState {
         partialOverlap.removeAll(where: { completeOverlap.contains($0) })
         sameSpans.removeAll(where: { completeOverlap.contains($0) })
 
-        let partialOverlapSpan = processPartialOverlappingSpans(partialOverlap, range: range, style: style, addStyle: addStyle)
-        let completeOverlapSpan = processCompleteOverlappingSpans(completeOverlap, range: range, style: style, addStyle: addStyle)
-        let sameSpan = processSameSpans(sameSpans, range: range, style: style, addStyle: addStyle)
+        let partialOverlapSpan = processPartialOverlappingSpans(
+            partialOverlap, range: range, style: style, addStyle: addStyle)
+        let completeOverlapSpan = processCompleteOverlappingSpans(
+            completeOverlap, range: range, style: style, addStyle: addStyle)
+        let sameSpan = processSameSpans(
+            sameSpans, range: range, style: style, addStyle: addStyle)
 
         processedSpans.append(contentsOf: partialOverlapSpan)
         processedSpans.append(contentsOf: completeOverlapSpan)
@@ -519,26 +607,39 @@ extension RichEditorState {
 
         processedSpans = mergeSameStyledSpans(processedSpans)
 
-        internalSpans.removeAll(where: { $0.closedRange.overlaps(range.closedRange) })
-        internalSpans.append(contentsOf:  processedSpans)
+        internalSpans.removeAll(where: {
+            $0.closedRange.overlaps(range.closedRange)
+        })
+        internalSpans.append(contentsOf: processedSpans)
         internalSpans = mergeSameStyledSpans(internalSpans)
         internalSpans.sort(by: { $0.from < $1.from })
     }
 
-    private func processCompleteOverlappingSpans(_ spans: [RichTextSpanInternal], range: NSRange, style: RichTextSpanStyle, addStyle: Bool = true) -> [RichTextSpanInternal] {
+    private func processCompleteOverlappingSpans(
+        _ spans: [RichTextSpanInternal], range: NSRange,
+        style: RichTextSpanStyle, addStyle: Bool = true
+    ) -> [RichTextSpanInternal] {
         var processedSpans: [RichTextSpanInternal] = []
 
         for span in spans {
             if span.closedRange.isInRange(range.closedRange) {
-                processedSpans.append(span.copy(attributes: span.attributes?.copy(with: style, byAdding: addStyle)))
+                processedSpans.append(
+                    span.copy(
+                        attributes: span.attributes?.copy(
+                            with: style, byAdding: addStyle)))
             } else {
                 if span.from < range.lowerBound {
                     let leftPart = span.copy(to: range.lowerBound - 1)
                     processedSpans.append(leftPart)
                 }
 
-                if span.from <= (range.lowerBound) && span.to >= (range.upperBound - 1) {
-                    let centerPart = span.copy(from: range.lowerBound, to: range.upperBound - 1, attributes: span.attributes?.copy(with: style, byAdding: addStyle))
+                if span.from <= (range.lowerBound)
+                    && span.to >= (range.upperBound - 1)
+                {
+                    let centerPart = span.copy(
+                        from: range.lowerBound, to: range.upperBound - 1,
+                        attributes: span.attributes?.copy(
+                            with: style, byAdding: addStyle))
                     processedSpans.append(centerPart)
                 }
 
@@ -554,17 +655,26 @@ extension RichEditorState {
         return processedSpans
     }
 
-    private func processPartialOverlappingSpans(_ spans: [RichTextSpanInternal], range: NSRange, style: RichTextSpanStyle, addStyle: Bool = true) -> [RichTextSpanInternal] {
+    private func processPartialOverlappingSpans(
+        _ spans: [RichTextSpanInternal], range: NSRange,
+        style: RichTextSpanStyle, addStyle: Bool = true
+    ) -> [RichTextSpanInternal] {
         var processedSpans: [RichTextSpanInternal] = []
 
         for span in spans {
             if span.from < range.location {
                 let leftPart = span.copy(to: range.lowerBound - 1)
-                let rightPart = span.copy(from: range.lowerBound, attributes: span.attributes?.copy(with: style, byAdding: addStyle))
+                let rightPart = span.copy(
+                    from: range.lowerBound,
+                    attributes: span.attributes?.copy(
+                        with: style, byAdding: addStyle))
                 processedSpans.append(leftPart)
                 processedSpans.append(rightPart)
             } else {
-                let leftPart = span.copy(to: min(span.to, range.upperBound), attributes: span.attributes?.copy(with: style, byAdding: addStyle))
+                let leftPart = span.copy(
+                    to: min(span.to, range.upperBound),
+                    attributes: span.attributes?.copy(
+                        with: style, byAdding: addStyle))
                 let rightPart = span.copy(from: range.location)
                 processedSpans.append(leftPart)
                 processedSpans.append(rightPart)
@@ -575,24 +685,35 @@ extension RichEditorState {
         return processedSpans
     }
 
-    private func processSameSpans(_ spans: [RichTextSpanInternal], range: NSRange, style: RichTextSpanStyle, addStyle: Bool = true) -> [RichTextSpanInternal] {
+    private func processSameSpans(
+        _ spans: [RichTextSpanInternal], range: NSRange,
+        style: RichTextSpanStyle, addStyle: Bool = true
+    ) -> [RichTextSpanInternal] {
         var processedSpans: [RichTextSpanInternal] = []
 
-        processedSpans = spans.map({ $0.copy(attributes: $0.attributes?.copy(with: style, byAdding: addStyle)) })
+        processedSpans = spans.map({
+            $0.copy(
+                attributes: $0.attributes?.copy(with: style, byAdding: addStyle)
+            )
+        })
 
         processedSpans = mergeSameStyledSpans(processedSpans)
         return processedSpans
     }
 
     // merge adjacent spans with same style
-    private func mergeSameStyledSpans(_ spans: [RichTextSpanInternal]) -> [RichTextSpanInternal] {
+    private func mergeSameStyledSpans(_ spans: [RichTextSpanInternal])
+        -> [RichTextSpanInternal]
+    {
         guard !spans.isEmpty else { return [] }
         var mergedSpans: [RichTextSpanInternal] = []
         var previousSpan: RichTextSpanInternal?
 
         for span in spans.sorted(by: { $0.from < $1.from }) {
             if let current = previousSpan {
-                if span.attributes?.stylesSet() == current.attributes?.stylesSet() {
+                if span.attributes?.stylesSet()
+                    == current.attributes?.stylesSet()
+                {
                     // Merge overlapping spans
                     previousSpan = current.copy(to: max(current.to, span.to))
                 } else {
@@ -625,8 +746,12 @@ extension RichEditorState {
         let fromIndex = range.lowerBound
         let toIndex = range.isCollapsed ? fromIndex : range.upperBound
 
-        let newLineStartIndex = text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(of: "\n".utf16.last) ?? 0
-        let newLineEndIndex = text.utf16.suffix(from: text.utf16.index(text.utf16.startIndex, offsetBy: toIndex - 1)).map({ $0 }).firstIndex(of: "\n".utf16.last)
+        let newLineStartIndex =
+            text.utf16.prefix(fromIndex).map({ $0 }).lastIndex(
+                of: "\n".utf16.last) ?? 0
+        let newLineEndIndex = text.utf16.suffix(
+            from: text.utf16.index(text.utf16.startIndex, offsetBy: toIndex - 1)
+        ).map({ $0 }).firstIndex(of: "\n".utf16.last)
 
         ///Added +1 to start new line after \n otherwise it will create bullets for previous line as well
         let startIndex = max(0, (newLineStartIndex + 1))
@@ -648,8 +773,12 @@ extension RichEditorState {
      - Parameters:
      - selectedRange:  is of type NSRange
      */
-    private func getOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
-        return internalSpans.filter { $0.closedRange.overlaps(selectedRange.closedRange) }
+    private func getOverlappingSpans(for selectedRange: NSRange)
+        -> [RichTextSpanInternal]
+    {
+        return internalSpans.filter {
+            $0.closedRange.overlaps(selectedRange.closedRange)
+        }
     }
 
     /**
@@ -657,8 +786,12 @@ extension RichEditorState {
      - Parameters:
      - selectedRange: selectedRange is of type NSRange
      */
-    func getPartialOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
-        return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isPartialOverlap(selectedRange.closedRange) })
+    func getPartialOverlappingSpans(for selectedRange: NSRange)
+        -> [RichTextSpanInternal]
+    {
+        return getOverlappingSpans(for: selectedRange).filter({
+            $0.closedRange.isPartialOverlap(selectedRange.closedRange)
+        })
     }
 
     /**
@@ -666,8 +799,13 @@ extension RichEditorState {
      - Parameters:
      - selectedRange: selectedRange is of type NSRange
      */
-    func getCompleteOverlappingSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
-        return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isInRange(selectedRange.closedRange) || selectedRange.closedRange.isInRange($0.closedRange)})
+    func getCompleteOverlappingSpans(for selectedRange: NSRange)
+        -> [RichTextSpanInternal]
+    {
+        return getOverlappingSpans(for: selectedRange).filter({
+            $0.closedRange.isInRange(selectedRange.closedRange)
+                || selectedRange.closedRange.isInRange($0.closedRange)
+        })
     }
 
     /**
@@ -677,10 +815,11 @@ extension RichEditorState {
      */
 
     func getSameSpans(for selectedRange: NSRange) -> [RichTextSpanInternal] {
-        return getOverlappingSpans(for: selectedRange).filter({ $0.closedRange.isSameAs(selectedRange.closedRange) })
+        return getOverlappingSpans(for: selectedRange).filter({
+            $0.closedRange.isSameAs(selectedRange.closedRange)
+        })
     }
 }
-
 
 //MARK: - Helper Methods
 extension RichEditorState {
@@ -698,8 +837,13 @@ extension RichEditorState {
      - Parameters:
      - index: index or location of text
      */
-    private func getRichSpanStyleByTextIndex(_ index: Int) -> Set<RichTextSpanStyle> {
-        let styles = Set(internalSpans.filter { index >= $0.from && index <= $0.to }.map { $0.attributes?.styles() ?? []}.flatMap({ $0 }))
+    private func getRichSpanStyleByTextIndex(_ index: Int) -> Set<
+        RichTextSpanStyle
+    > {
+        let styles = Set(
+            internalSpans.filter { index >= $0.from && index <= $0.to }.map {
+                $0.attributes?.styles() ?? []
+            }.flatMap({ $0 }))
         return styles
     }
 
@@ -708,8 +852,12 @@ extension RichEditorState {
      - Parameters:
      - range: range of text which is of type NSRange
      */
-    private func getRichSpanStyleListByTextRange(_ range: NSRange) -> [RichTextSpanStyle] {
-        return internalSpans.filter({ range.closedRange.overlaps($0.closedRange) }).map { $0.attributes?.styles() ?? [] }.flatMap({ $0 })
+    private func getRichSpanStyleListByTextRange(_ range: NSRange)
+        -> [RichTextSpanStyle]
+    {
+        return internalSpans.filter({
+            range.closedRange.overlaps($0.closedRange)
+        }).map { $0.attributes?.styles() ?? [] }.flatMap({ $0 })
     }
 }
 
@@ -744,6 +892,8 @@ extension RichEditorState {
             if let alignment, alignment != self.textAlignment {
                 actionPublisher.send(.setAlignment(alignment))
             }
+        case .link(let link):
+            actionPublisher.send(.setLink(link))
         }
     }
 }

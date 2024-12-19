@@ -10,7 +10,8 @@ import SwiftUI
 extension Color {
     var hexString: String? {
         // Convert to ColorRepresentable and get components
-        guard let components = ColorRepresentable(self).cgColor.components else { return nil }
+        guard let components = ColorRepresentable(self).cgColor.components
+        else { return nil }
 
         let r = components[0]
         let g = components.count >= 3 ? components[1] : r
@@ -19,24 +20,26 @@ extension Color {
 
         // Format the hex string with alpha if necessary
         if a < 1.0 {
-            return String(format: "#%02lX%02lX%02lX%02lX",
-                          lround(Double(r * 255)),
-                          lround(Double(g * 255)),
-                          lround(Double(b * 255)),
-                          lround(Double(a * 255)))
+            return String(
+                format: "#%02lX%02lX%02lX%02lX",
+                lround(Double(r * 255)),
+                lround(Double(g * 255)),
+                lround(Double(b * 255)),
+                lround(Double(a * 255)))
         } else {
-            return String(format: "#%02lX%02lX%02lX",
-                          lround(Double(r * 255)),
-                          lround(Double(g * 255)),
-                          lround(Double(b * 255)))
+            return String(
+                format: "#%02lX%02lX%02lX",
+                lround(Double(r * 255)),
+                lround(Double(g * 255)),
+                lround(Double(b * 255)))
         }
     }
 }
 
-
-public extension Color {
-    init(hex string: String) {
-        var string: String = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+extension Color {
+    public init(hex string: String) {
+        var string: String = string.trimmingCharacters(
+            in: CharacterSet.whitespacesAndNewlines)
         if string.hasPrefix("#") {
             _ = string.removeFirst()
         }
@@ -77,7 +80,7 @@ public extension Color {
             let blue = Double(b) / 255.0
             self.init(.sRGB, red: red, green: green, blue: blue, opacity: 1)
         } else if string.count == 8 {
-            let mask = 0x000000FF
+            let mask = 0x0000_00FF
             let r = Int(color >> 24) & mask
             let g = Int(color >> 16) & mask
             let b = Int(color >> 8) & mask
@@ -109,9 +112,13 @@ extension ColorRepresentable {
         }
 
         if alpha {
-            return String(format: "%02lX%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255), lroundf(a * 255))
+            return String(
+                format: "%02lX%02lX%02lX%02lX", lroundf(r * 255),
+                lroundf(g * 255), lroundf(b * 255), lroundf(a * 255))
         } else {
-            return String(format: "%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
+            return String(
+                format: "%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255),
+                lroundf(b * 255))
         }
     }
 }

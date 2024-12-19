@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextFont {
+extension RichTextFont {
 
     /**
      This font picker can be used to pick a font from a list,
@@ -31,7 +31,7 @@ public extension RichTextFont {
 
      Note that this picker will not apply all configurations.
      */
-    struct Picker: View {
+    public struct Picker: View {
 
         /**
          Create a font picker.
@@ -76,31 +76,37 @@ public extension RichTextFont {
     }
 }
 
-private extension RichTextFont.PickerFont {
+extension RichTextFont.PickerFont {
 
     /**
      A system font has a font name that may be resolved to a
      different name when picked. We must thus try to pattern
      match, using the currently selected font name.
      */
-    func matches(_ fontName: String) -> Bool {
+    fileprivate func matches(_ fontName: String) -> Bool {
         let compare = fontName.lowercased()
         let fontName = self.fontName.lowercased()
         if fontName == compare { return true }
-        if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "")) { return true }
-        if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "-")) { return true }
+        if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "")) {
+            return true
+        }
+        if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "-"))
+        {
+            return true
+        }
         return false
     }
 
     /**
      Use the selected font name as tag for the selected font.
      */
-    func tag(for selectedFont: Self?, selectedName: String) -> String {
+    fileprivate func tag(for selectedFont: Self?, selectedName: String)
+        -> String
+    {
         let isSelected = fontName == selectedFont?.fontName
         return isSelected ? selectedName : fontName
     }
 }
-
 
 //extension View {
 //
@@ -114,7 +120,7 @@ private extension RichTextFont.PickerFont {
 //                    self.label("Default")
 //                    self.pickerStyle(.automatic).label(".automatic")
 //                    self.pickerStyle(.inline).label(".inline")
-//                    #if iOS || macOS
+//                    #if os(iOS) || macOS
 //                    self.pickerStyle(.menu).label(".menu")
 //                    #endif
 //                    #if iOS
@@ -122,12 +128,12 @@ private extension RichTextFont.PickerFont {
 //                        pickerStyle(.navigationLink).label(".navigationLink")
 //                    }
 //                    #endif
-//                    #if iOS || macOS
-//                    if #available(iOS 17.0, macOS 14.0, watchOS 10.0, *) {
+//                    #if os(iOS) || macOS
+//                    if #available(iOS 17.0, os(macOS) 14.0, watchOS 10.0, *) {
 //                        pickerStyle(.palette).label(".palette")
 //                    }
 //                    #endif
-//                    #if iOS || macOS || os(tvOS) || os(visionOS)
+//                    #if os(iOS) || os(macOS) || os(tvOS) || os(visionOS)
 //                    self.pickerStyle(.segmented).label(".segmented")
 //                    #endif
 //                    #if iOS

@@ -7,23 +7,23 @@
 
 import SwiftUI
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// Get a binding for a certain style.
-    func binding(for style: RichTextStyle) -> Binding<Bool> {
+    public func binding(for style: RichTextStyle) -> Binding<Bool> {
         Binding(
             get: { Bool(self.hasStyle(style)) },
-            set: { [weak self]_ in self?.setStyle(style) }
+            set: { [weak self] _ in self?.setStyle(style) }
         )
     }
 
     /// Check whether or not the context has a certain style.
-    func hasStyle(_ style: RichTextStyle) -> Bool {
+    public func hasStyle(_ style: RichTextStyle) -> Bool {
         styles[style] == true
     }
 
     /// Set whether or not the context has a certain style.
-    func setStyle(
+    public func setStyle(
         _ style: RichTextStyle,
         to val: Bool
     ) {
@@ -33,11 +33,11 @@ public extension RichEditorState {
     }
 
     /// Toggle a certain style for the context.
-    func toggleStyle(_ style: RichTextStyle) {
+    public func toggleStyle(_ style: RichTextStyle) {
         setStyle(style, to: !hasStyle(style))
     }
 
-    func setStyle(_ style: RichTextStyle) {
+    public func setStyle(_ style: RichTextStyle) {
         toggleStyle(style: style.richTextSpanStyle)
     }
 }
@@ -49,8 +49,10 @@ extension RichEditorState {
         _ style: RichTextStyle,
         to val: Bool?
     ) {
-        guard let val else { return styles[style] = nil }
+        guard let val else {
+            styles[style] = nil
+            return
+        }
         styles[style] = val
     }
 }
-

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextStyle {
+extension RichTextStyle {
 
     /**
      This button can be used to toggle a ``RichTextStyle``.
@@ -15,7 +15,7 @@ public extension RichTextStyle {
      This view renders a plain `Button`, which means you can
      use and configure with plain SwiftUI.
      */
-    struct Button: View {
+    public struct Button: View {
 
         /**
          Create a rich text style button.
@@ -95,13 +95,13 @@ extension View {
     }
 }
 
-private extension RichTextStyle.Button {
+extension RichTextStyle.Button {
 
-    var isOn: Bool {
+    fileprivate var isOn: Bool {
         value.wrappedValue
     }
 
-    func toggle() {
+    fileprivate func toggle() {
         value.wrappedValue.toggle()
     }
 }

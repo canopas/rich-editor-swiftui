@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-public extension RichTextFont {
+extension RichTextFont {
 
     /// This type can configure a ``RichTextFont/Picker``.
     ///
     /// This configuration contains configuration properties
     /// for many different font pickers types. Some of these
     /// properties are not used in some pickers.
-    struct PickerConfig {
+    public struct PickerConfig {
 
         /// Create a custom font picker config.
         ///
@@ -52,16 +52,16 @@ public extension RichTextFont {
     }
 }
 
-public extension RichTextFont.PickerConfig {
+extension RichTextFont.PickerConfig {
 
     /// The standard font picker configuration.
-    static var standard: Self { .init() }
+    public static var standard: Self { .init() }
 }
 
-public extension RichTextFont.PickerConfig {
+extension RichTextFont.PickerConfig {
 
     /// The fonts to list for a given selection.
-    func fontsToList(for selection: FontName) -> [Font] {
+    public func fontsToList(for selection: FontName) -> [Font] {
         if moveSelectionTopmost {
             return fonts.moveTopmost(selection)
         } else {
@@ -70,19 +70,19 @@ public extension RichTextFont.PickerConfig {
     }
 }
 
-public extension View {
+extension View {
 
     /// Apply a ``RichTextFont`` picker configuration.
-    func richTextFontPickerConfig(
+    public func richTextFontPickerConfig(
         _ config: RichTextFont.PickerConfig
     ) -> some View {
         self.environment(\.richTextFontPickerConfig, config)
     }
 }
 
-private extension RichTextFont.PickerConfig {
+extension RichTextFont.PickerConfig {
 
-    struct Key: EnvironmentKey {
+    fileprivate struct Key: EnvironmentKey {
 
         public static var defaultValue: RichTextFont.PickerConfig {
             .standard
@@ -90,11 +90,11 @@ private extension RichTextFont.PickerConfig {
     }
 }
 
-public extension EnvironmentValues {
+extension EnvironmentValues {
 
     /// This value can bind to a font picker config.
-    var richTextFontPickerConfig: RichTextFont.PickerConfig {
-        get { self [RichTextFont.PickerConfig.Key.self] }
-        set { self [RichTextFont.PickerConfig.Key.self] = newValue }
+    public var richTextFontPickerConfig: RichTextFont.PickerConfig {
+        get { self[RichTextFont.PickerConfig.Key.self] }
+        set { self[RichTextFont.PickerConfig.Key.self] = newValue }
     }
 }

@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-/**
- This is an internal version of the original that is defined
- and available in https://github.com/danielsaidi/swiftuikit.
- This will not be made public or documented for this library.
- */
+/// This is an internal version of the original that is defined
+/// and available in https://github.com/danielsaidi/swiftuikit.
+/// This will not be made public or documented for this library.
 struct ForEachPicker<Item: Identifiable, ItemView: View>: View {
 
     init(
@@ -51,20 +49,20 @@ struct ForEachPicker<Item: Identifiable, ItemView: View>: View {
     }
 }
 
-private extension ForEachPicker {
+extension ForEachPicker {
 
-    var selectedId: Item.ID {
+    fileprivate var selectedId: Item.ID {
         selection.wrappedValue.id
     }
 }
 
-private extension ForEachPicker {
+extension ForEachPicker {
 
-    func isSelected(_ item: Item) -> Bool {
+    fileprivate func isSelected(_ item: Item) -> Bool {
         selectedId == item.id
     }
 
-    func select(_ item: Item) {
+    fileprivate func select(_ item: Item) {
         if animatedSelection {
             selectWithAnimation(item)
         } else {
@@ -72,13 +70,13 @@ private extension ForEachPicker {
         }
     }
 
-    func selectWithAnimation(_ item: Item) {
+    fileprivate func selectWithAnimation(_ item: Item) {
         withAnimation {
             selectWithoutAnimation(item)
         }
     }
 
-    func selectWithoutAnimation(_ item: Item) {
+    fileprivate func selectWithoutAnimation(_ item: Item) {
         selection.wrappedValue = item
         if dismissAfterPick {
             dismiss()

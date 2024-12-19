@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextStyle {
+extension RichTextStyle {
 
     /**
      This toggle can be used to toggle a ``RichTextStyle``.
@@ -16,7 +16,7 @@ public extension RichTextStyle {
      use and configure with plain SwiftUI. The one exception
      is the tint color, which is set with a style.
      */
-    struct Toggle: View {
+    public struct Toggle: View {
 
         /**
          Create a rich text style toggle toggle.
@@ -62,9 +62,9 @@ public extension RichTextStyle {
 
         public var body: some View {
             #if os(tvOS) || os(watchOS)
-            toggle
+                toggle
             #else
-            toggle.toggleStyle(.button)
+                toggle.toggleStyle(.button)
             #endif
         }
 
@@ -79,10 +79,9 @@ public extension RichTextStyle {
     }
 }
 
-private extension RichTextStyle.Toggle {
+extension RichTextStyle.Toggle {
 
-    var isOn: Bool {
+    fileprivate var isOn: Bool {
         value.wrappedValue
     }
 }
-

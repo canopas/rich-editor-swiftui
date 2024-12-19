@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-public enum RichTextStyle: String, CaseIterable, Identifiable, RichTextLabelValue {
+public enum RichTextStyle: String, CaseIterable, Identifiable,
+    RichTextLabelValue
+{
 
     case bold
     case italic
@@ -15,24 +17,24 @@ public enum RichTextStyle: String, CaseIterable, Identifiable, RichTextLabelValu
     case strikethrough
 }
 
-public extension RichTextStyle {
+extension RichTextStyle {
 
     /// All available rich text styles.
-    static var all: [Self] { allCases }
+    public static var all: [Self] { allCases }
 }
 
-public extension Collection where Element == RichTextStyle {
+extension Collection where Element == RichTextStyle {
 
     /// All available rich text styles.
-    static var all: [RichTextStyle] { RichTextStyle.allCases }
+    public static var all: [RichTextStyle] { RichTextStyle.allCases }
 }
 
-public extension RichTextStyle {
+extension RichTextStyle {
 
-    var id: String { rawValue }
+    public var id: String { rawValue }
 
     /// The standard icon to use for the trait.
-    var icon: Image {
+    public var icon: Image {
         switch self {
         case .bold: .richTextStyleBold
         case .italic: .richTextStyleItalic
@@ -42,12 +44,12 @@ public extension RichTextStyle {
     }
 
     /// The localized style title.
-    var title: String {
+    public var title: String {
         titleKey.text
     }
 
     /// The localized style title key.
-    var titleKey: RTEL10n {
+    public var titleKey: RTEL10n {
         switch self {
         case .bold: .styleBold
         case .italic: .styleItalic
@@ -64,7 +66,7 @@ public extension RichTextStyle {
        - traits: The symbolic traits to inspect.
        - attributes: The rich text attributes to inspect.
      */
-    static func styles(
+    public static func styles(
         in traits: FontTraitsRepresentable?,
         attributes: RichTextAttributes?
     ) -> [RichTextStyle] {
@@ -75,15 +77,15 @@ public extension RichTextStyle {
     }
 }
 
-public extension Collection where Element == RichTextStyle {
+extension Collection where Element == RichTextStyle {
 
     /// Check if the collection contains a certain style.
-    func hasStyle(_ style: RichTextStyle) -> Bool {
+    public func hasStyle(_ style: RichTextStyle) -> Bool {
         contains(style)
     }
 
     /// Check if a certain style change should be applied.
-    func shouldAddOrRemove(
+    public func shouldAddOrRemove(
         _ style: RichTextStyle,
         _ newValue: Bool
     ) -> Bool {
@@ -94,35 +96,34 @@ public extension Collection where Element == RichTextStyle {
 }
 
 #if canImport(UIKit)
-public extension RichTextStyle {
+    extension RichTextStyle {
 
-    /// The symbolic font traits for the style, if any.
-    var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
-        switch self {
-        case .bold: .traitBold
-        case .italic: .traitItalic
-        case .strikethrough: nil
-        case .underline: nil
+        /// The symbolic font traits for the style, if any.
+        public var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
+            switch self {
+            case .bold: .traitBold
+            case .italic: .traitItalic
+            case .strikethrough: nil
+            case .underline: nil
+            }
         }
     }
-}
 #endif
 
 #if macOS
-public extension RichTextStyle {
+    extension RichTextStyle {
 
-    /// The symbolic font traits for the trait, if any.
-    var symbolicTraits: NSFontDescriptor.SymbolicTraits? {
-        switch self {
-        case .bold: .bold
-        case .italic: .italic
-        case .strikethrough: nil
-        case .underline: nil
+        /// The symbolic font traits for the trait, if any.
+        public var symbolicTraits: NSFontDescriptor.SymbolicTraits? {
+            switch self {
+            case .bold: .bold
+            case .italic: .italic
+            case .strikethrough: nil
+            case .underline: nil
+            }
         }
     }
-}
 #endif
-
 
 extension RichTextStyle {
     var richTextSpanStyle: RichTextSpanStyle {

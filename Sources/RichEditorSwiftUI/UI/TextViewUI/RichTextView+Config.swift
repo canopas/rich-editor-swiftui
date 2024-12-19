@@ -7,12 +7,12 @@
 
 import Foundation
 
-#if iOS || macOS || os(tvOS) || os(visionOS)
-public extension RichTextView.Configuration {
+#if os(iOS) || os(macOS) || os(tvOS) || os(visionOS)
+    extension RichTextView.Configuration {
 
-    /// The standard rich text view configuration.
-    ///
-    /// You can set a new value to change the global default.
-    static var standard = Self()
-}
+        /// The standard rich text view configuration.
+        ///
+        /// You can set a new value to change the global default.
+        public static var standard = Self()
+    }
 #endif

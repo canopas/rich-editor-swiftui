@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextColor {
+extension RichTextColor {
 
     /**
      This picker can be used to select a rich text color.
@@ -18,7 +18,7 @@ public extension RichTextColor {
      The quick color list is empty by default. You can add a
      custom set of colors, for instance `.quickPickerColors`.
      */
-    struct Picker: View {
+    public struct Picker: View {
 
         /**
          Create a rich text color picker that binds to a color.
@@ -71,53 +71,53 @@ public extension RichTextColor {
     }
 }
 
-private extension RichTextColor.Picker {
+extension RichTextColor.Picker {
 
-    var hasColors: Bool {
+    fileprivate var hasColors: Bool {
         !quickColors.isEmpty
     }
 }
 
-public extension Color {
+extension Color {
 
     /// Get a curated list of quick color picker colors.
-    static var quickPickerColors: [Self] {
+    public static var quickPickerColors: [Self] {
         [
             .black, .gray, .white,
             .red, .pink, .orange, .yellow,
             .indigo, .purple, .blue, .cyan, .teal, .mint,
-            .green, .brown
+            .green, .brown,
         ]
     }
 }
 
-public extension Collection where Element == Color {
+extension Collection where Element == Color {
 
     /// Get a curated list of quick color picker colors.
-    static var quickPickerColors: [Element] {
+    public static var quickPickerColors: [Element] {
         Element.quickPickerColors
     }
 }
 
-private extension RichTextColor.Picker {
+extension RichTextColor.Picker {
 
     @ViewBuilder
-    var iconView: some View {
+    fileprivate var iconView: some View {
         if let icon {
             icon.frame(minWidth: 30)
         }
     }
 
     @ViewBuilder
-    var picker: some View {
-        #if iOS || macOS || os(visionOS)
-        ColorPicker("", selection: $value)
-            .fixedSize()
-            .padding(.horizontal, spacing)
+    fileprivate var picker: some View {
+        #if os(iOS) || os(macOS) || os(visionOS)
+            ColorPicker("", selection: $value)
+                .fixedSize()
+                .padding(.horizontal, spacing)
         #endif
     }
 
-    var quickPicker: some View {
+    fileprivate var quickPicker: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: spacing) {
                 ForEach(Array(quickColors.enumerated()), id: \.offset) {
@@ -129,7 +129,7 @@ private extension RichTextColor.Picker {
         }.frame(maxWidth: .infinity)
     }
 
-    func quickPickerButton(for color: Color?) -> some View {
+    fileprivate func quickPickerButton(for color: Color?) -> some View {
         Button {
             value = type.adjust(color, for: colorScheme)
         } label: {
@@ -142,7 +142,7 @@ private extension RichTextColor.Picker {
         .buttonStyle(ColorButtonStyle())
     }
 
-    var quickPickerDivider: some View {
+    fileprivate var quickPickerDivider: some View {
         Divider()
             .padding(0)
             .frame(maxHeight: 30)

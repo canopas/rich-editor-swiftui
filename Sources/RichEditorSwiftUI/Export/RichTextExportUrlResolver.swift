@@ -7,13 +7,11 @@
 
 import Foundation
 
-/**
- This protocol can be implemented by types that can generate
- file urls, for instance when exporting rich text files.
-
- The protocol is implemented by `FileManager`, which is used
- by default by the library.
- */
+/// This protocol can be implemented by types that can generate
+/// file urls, for instance when exporting rich text files.
+///
+/// The protocol is implemented by `FileManager`, which is used
+/// by default by the library.
 public protocol RichTextExportUrlResolver {
 
     /**

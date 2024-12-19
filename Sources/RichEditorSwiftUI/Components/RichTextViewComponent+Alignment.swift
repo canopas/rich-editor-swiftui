@@ -8,22 +8,22 @@
 import Foundation
 
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #elseif canImport(AppKit) && !targetEnvironment(macCatalyst)
-import AppKit
+    import AppKit
 #endif
 
-public extension RichTextViewComponent {
+extension RichTextViewComponent {
 
     /// Get the text alignment.
-    var richTextAlignment: RichTextAlignment? {
+    public var richTextAlignment: RichTextAlignment? {
         guard let style = richTextParagraphStyle else { return nil }
         return RichTextAlignment(style.alignment)
     }
 
     /// Set the text alignment.
-    func setRichTextAlignment(_ alignment: RichTextAlignment) {
-//        if richTextAlignment == alignment { return }
+    public func setRichTextAlignment(_ alignment: RichTextAlignment) {
+        //        if richTextAlignment == alignment { return }
         let style = NSMutableParagraphStyle(
             from: richTextParagraphStyle,
             alignment: alignment

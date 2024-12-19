@@ -7,12 +7,14 @@
 
 import Foundation
 
-
-internal func readJSONFromFile<T: Decodable>(fileName: String,
-                                             type: T.Type,
-                                             bundle: Bundle? = nil) -> T? {
+internal func readJSONFromFile<T: Decodable>(
+    fileName: String,
+    type: T.Type,
+    bundle: Bundle? = nil
+) -> T? {
     if let url = (bundle ?? Bundle.main)
-        .url(forResource: fileName, withExtension: "json") {
+        .url(forResource: fileName, withExtension: "json")
+    {
         do {
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
@@ -25,15 +27,13 @@ internal func readJSONFromFile<T: Decodable>(fileName: String,
     return nil
 }
 
-
 internal class RichBundleFakeClass {}
 
-internal extension Bundle {
+extension Bundle {
     static var richBundle: Bundle {
         return Bundle(for: RichBundleFakeClass.self)
     }
 }
-
 
 func encode<T: Encodable>(model: T?) throws -> String? {
     guard let model else { return nil }

@@ -5,77 +5,77 @@
 //  Created by Divyesh Vekariya on 22/10/24.
 //
 
-#if iOS || macOS || os(visionOS)
-import SwiftUI
+#if os(iOS) || os(macOS) || os(visionOS)
+    import SwiftUI
 
-/// This struct can style a ``RichTextKeyboardToolbar``.
-public struct RichTextKeyboardToolbarStyle {
+    /// This struct can style a ``RichTextKeyboardToolbar``.
+    public struct RichTextKeyboardToolbarStyle {
 
-    /// Create a custom toolbar style
-    ///
-    /// - Parameters:
-    ///   - toolbarHeight: The height of the toolbar, by default `50`.
-    ///   - itemSpacing: The spacing between toolbar items, by default `15`.
-    ///   - shadowColor: The toolbar's shadow color, by default transparent black.
-    ///   - shadowRadius: The toolbar's shadow radius, by default `3`.
-    public init(
-        toolbarHeight: Double = 50,
-        itemSpacing: Double = 15,
-        shadowColor: Color = .black.opacity(0.1),
-        shadowRadius: Double = 3
-    ) {
-        self.toolbarHeight = toolbarHeight
-        self.itemSpacing = itemSpacing
-        self.shadowColor = shadowColor
-        self.shadowRadius = shadowRadius
+        /// Create a custom toolbar style
+        ///
+        /// - Parameters:
+        ///   - toolbarHeight: The height of the toolbar, by default `50`.
+        ///   - itemSpacing: The spacing between toolbar items, by default `15`.
+        ///   - shadowColor: The toolbar's shadow color, by default transparent black.
+        ///   - shadowRadius: The toolbar's shadow radius, by default `3`.
+        public init(
+            toolbarHeight: Double = 50,
+            itemSpacing: Double = 15,
+            shadowColor: Color = .black.opacity(0.1),
+            shadowRadius: Double = 3
+        ) {
+            self.toolbarHeight = toolbarHeight
+            self.itemSpacing = itemSpacing
+            self.shadowColor = shadowColor
+            self.shadowRadius = shadowRadius
+        }
+
+        /// The height of the toolbar.
+        public var toolbarHeight: Double
+
+        /// The spacing between toolbar items.
+        public var itemSpacing: Double
+
+        /// The toolbar's shadow color.
+        public var shadowColor: Color
+
+        /// The toolbar's shadow radius.
+        public var shadowRadius: Double
     }
 
-    /// The height of the toolbar.
-    public var toolbarHeight: Double
+    extension RichTextKeyboardToolbarStyle {
 
-    /// The spacing between toolbar items.
-    public var itemSpacing: Double
-
-    /// The toolbar's shadow color.
-    public var shadowColor: Color
-
-    /// The toolbar's shadow radius.
-    public var shadowRadius: Double
-}
-
-public extension RichTextKeyboardToolbarStyle {
-
-    /// The standard rich text keyboard toolbar style.
-    ///
-    /// You can set a new value to change the global default.
-    static var standard = Self()
-}
-
-public extension View {
-
-    /// Apply a ``RichTextKeyboardToolbar`` style.
-    func richTextKeyboardToolbarStyle(
-        _ style: RichTextKeyboardToolbarStyle
-    ) -> some View {
-        self.environment(\.richTextKeyboardToolbarStyle, style)
+        /// The standard rich text keyboard toolbar style.
+        ///
+        /// You can set a new value to change the global default.
+        public static var standard = Self()
     }
-}
 
-private extension RichTextKeyboardToolbarStyle {
+    extension View {
 
-    struct Key: EnvironmentKey {
-
-        static var defaultValue: RichTextKeyboardToolbarStyle = .standard
+        /// Apply a ``RichTextKeyboardToolbar`` style.
+        public func richTextKeyboardToolbarStyle(
+            _ style: RichTextKeyboardToolbarStyle
+        ) -> some View {
+            self.environment(\.richTextKeyboardToolbarStyle, style)
+        }
     }
-}
 
-public extension EnvironmentValues {
+    extension RichTextKeyboardToolbarStyle {
 
-    /// This value can bind to a keyboard toolbar style.
-    var richTextKeyboardToolbarStyle: RichTextKeyboardToolbarStyle {
-        get { self [RichTextKeyboardToolbarStyle.Key.self] }
-        set { self [RichTextKeyboardToolbarStyle.Key.self] = newValue }
+        fileprivate struct Key: EnvironmentKey {
+
+            static var defaultValue: RichTextKeyboardToolbarStyle = .standard
+        }
     }
-}
+
+    extension EnvironmentValues {
+
+        /// This value can bind to a keyboard toolbar style.
+        public var richTextKeyboardToolbarStyle: RichTextKeyboardToolbarStyle {
+            get { self[RichTextKeyboardToolbarStyle.Key.self] }
+            set { self[RichTextKeyboardToolbarStyle.Key.self] = newValue }
+        }
+    }
 
 #endif

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextStyle {
+extension RichTextStyle {
 
     /**
      This view can list ``RichTextStyle/Toggle``s for a list
@@ -16,7 +16,7 @@ public extension RichTextStyle {
      Since this view uses multiple styles, it binds directly
      to a ``RichTextContext`` instead of individual values.
      */
-    struct ToggleStack: View {
+    public struct ToggleStack: View {
 
         /**
          Create a rich text style toggle button group.
