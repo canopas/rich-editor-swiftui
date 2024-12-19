@@ -13,12 +13,10 @@ extension RichEditorState {
             alertController.showAlert(
                 title: "Want to remove link", message: "It will remove link",
                 onOk: { [weak self] in
-                    print("==== ok pressed for removal of link")
                     guard let self else { return }
                     self.updateStyle(style: .link(self.link))
                 },
                 onCancel: {
-                    print("==== canceled link")
                     return
                 })
         } else {
@@ -26,7 +24,6 @@ extension RichEditorState {
                 title: "Enter url", message: "", placeholder: "Enter link",
                 defaultText: "",
                 onTextChange: { text in
-                    print("==== text updated with \(text)")
                 },
                 completion: { [weak self] finalText in
                     self?.updateStyle(style: .link(finalText))
