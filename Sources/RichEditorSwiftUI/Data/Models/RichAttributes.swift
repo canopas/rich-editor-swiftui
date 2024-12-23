@@ -201,7 +201,8 @@ extension RichAttributes {
                 ? (byAdding ? att.background! : nil) : self.background),
             align: (att.align != nil
                 ? (byAdding ? att.align! : nil) : self.align),
-            link: (att.link != nil ? (byAdding ? att.link! : nil) : self.link)
+            ///nil link indicates removal as well so removing link if `byAdding == false && att.link == nil`
+            link: (att.link != nil ? (byAdding ? att.link! : nil) : (att.link == nil && !byAdding) ? nil : self.link)
         )
     }
 }

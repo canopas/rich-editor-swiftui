@@ -90,27 +90,26 @@
             }
 
             open func textViewDidChange(_ textView: UITextView) {
-                syncWithTextView()
                 context.onTextViewEvent(
                     .didChange(
                         selectedRange: textView.selectedRange,
                         text: textView.attributedText
                     )
                 )
+                syncWithTextView()
             }
 
             open func textViewDidChangeSelection(_ textView: UITextView) {
-                syncWithTextView()
                 context.onTextViewEvent(
                     .didChangeSelection(
                         selectedRange: textView.selectedRange,
                         text: textView.attributedText
                     )
                 )
+                syncWithTextView()
             }
 
             open func textViewDidEndEditing(_ textView: UITextView) {
-                syncWithTextView()
                 context.onTextViewEvent(
                     .didEndEditing(
                         selectedRange: textView.selectedRange,
@@ -118,6 +117,7 @@
                     )
                 )
                 context.isEditingText = false
+                syncWithTextView()
             }
         #endif
 

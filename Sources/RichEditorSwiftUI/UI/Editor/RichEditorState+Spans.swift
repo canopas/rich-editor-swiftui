@@ -189,7 +189,7 @@ extension RichEditorState {
                 addStyle = alignment != self.textAlignment || alignment != .left
             }
         case .link(let link):
-            addStyle = self.link != link
+            addStyle = link != nil
         default:
             return addStyle
         }

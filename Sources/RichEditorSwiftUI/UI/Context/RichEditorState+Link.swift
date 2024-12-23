@@ -11,10 +11,10 @@ extension RichEditorState {
     func insertLink(value: Bool) {
         if link != nil {
             alertController.showAlert(
-                title: "Want to remove link", message: "It will remove link",
+                title: "Remove link", message: "It will remove link from selected text",
                 onOk: { [weak self] in
                     guard let self else { return }
-                    self.updateStyle(style: .link(self.link))
+                    self.updateStyle(style: .link())
                 },
                 onCancel: {
                     return
