@@ -24,6 +24,7 @@ The editor offers the following <b>options</b>:
 - [x] Font family
 - [x] Background color
 - [x] Export with .txt, .rtf, .pdf, .json
+- [x] Link
 
 ## Screenshots
 
@@ -73,7 +74,7 @@ The editor offers the following <b>options</b>:
   <video src="https://github.com/user-attachments/assets/844d8843-41e9-44c2-8a0c-afedaa55c5cb" width="90%"/>
 </div>
 
-## Editor video
+## iPhone Editor video
 <div align="center">
   <video src="https://github.com/user-attachments/assets/f99804fb-8612-4e46-b172-66567d1acf91" width="90%"/>
 </div>
@@ -160,11 +161,12 @@ RichEditorSwiftUI utilizes the latest Apple technologies and adheres to industry
 - Swift
 - Xcode
 
+## Contribution
+
+The Canopas team enthusiastically welcomes contributions and project participation! There are a bunch of things you can do if you want to contribute! The [Contributor Guide](CONTRIBUTING.md) has all the information you need for everything from reporting bugs to contributing entire new features. Please don't hesitate to jump in if you'd like to, or even ask us questions if something isn't clear.
+
 # Bugs and Feedback
 For bugs, questions, and discussions please use the [Github Issues](https://github.com/canopas/rich-editor-swiftui/issues).
-
-## Contribution
-Currently, we are not accepting any contributions.
 
 ## Credits
 RichEditor for SwiftUI is owned and maintained by the [Canopas team](https://canopas.com/). For project updates and releases, you can follow them on X at [@canopas_eng](https://x.com/canopas_eng).
