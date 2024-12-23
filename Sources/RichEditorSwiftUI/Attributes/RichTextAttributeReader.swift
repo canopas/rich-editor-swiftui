@@ -7,29 +7,27 @@
 
 import Foundation
 
-/**
- This protocol extends ``RichTextReader`` with functionality
- for reading rich text attributes for the current rich text.
- 
- The protocol is implemented by `NSAttributedString` as well
- as other types in the library.
- */
+/// This protocol extends ``RichTextReader`` with functionality
+/// for reading rich text attributes for the current rich text.
+///
+/// The protocol is implemented by `NSAttributedString` as well
+/// as other types in the library.
 public protocol RichTextAttributeReader: RichTextReader {}
 
 extension NSAttributedString: RichTextAttributeReader {}
 
-public extension RichTextAttributeReader {
-    
+extension RichTextAttributeReader {
+
     /// Get a rich text attribute at a certain range.
-    func richTextAttribute<Value>(
+    public func richTextAttribute<Value>(
         _ attribute: RichTextAttribute,
         at range: NSRange
     ) -> Value? {
         richTextAttributes(at: range)[attribute] as? Value
     }
-    
+
     /// Get all rich text attributes at a certain range.
-    func richTextAttributes(
+    public func richTextAttributes(
         at range: NSRange
     ) -> RichTextAttributes {
         if richText.string.utf16Length == 0 { return [:] }
@@ -39,24 +37,24 @@ public extension RichTextAttributeReader {
 }
 
 //  RichTextAttributeReader+Font
-public extension RichTextAttributeReader {
-    
+extension RichTextAttributeReader {
+
     /// Get the font at a certain range.
-    func richTextFont(at range: NSRange) -> FontRepresentable? {
+    public func richTextFont(at range: NSRange) -> FontRepresentable? {
         richTextAttribute(.font, at: range)
     }
-    
+
     /// Get the font size (in points) at a certain range.
-    func richTextFontSize(at range: NSRange) -> CGFloat? {
+    public func richTextFontSize(at range: NSRange) -> CGFloat? {
         richTextFont(at: range)?.pointSize
     }
 }
 
 //  RichTextAttributeReader+Style
-public extension RichTextAttributeReader {
-    
+extension RichTextAttributeReader {
+
     /// Get the text styles at a certain range.
-    func richTextStyles(at range: NSRange) -> [RichTextSpanStyle] {
+    public func richTextStyles(at range: NSRange) -> [RichTextSpanStyle] {
         let attributes = richTextAttributes(at: range)
         let traits = richTextFont(at: range)?.fontDescriptor.symbolicTraits
         var styles = traits?.enabledRichTextStyles ?? []

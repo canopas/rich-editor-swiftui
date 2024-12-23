@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-/**
- This is an internal version of the original that is defined
- and available in https://github.com/danielsaidi/swiftuikit.
- This will not be made public or documented for this library.
- */
+/// This is an internal version of the original that is defined
+/// and available in https://github.com/danielsaidi/swiftuikit.
+/// This will not be made public or documented for this library.
 struct ListPickerSection<Item: Identifiable>: Identifiable {
 
     init(title: String, items: [Item]) {

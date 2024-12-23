@@ -14,11 +14,13 @@ public struct RichTextSpanInternal {
     //    public let insert: String
     public let attributes: RichAttributes?
 
-    public init(id: String = UUID().uuidString,
-                from: Int,
-                to: Int,
-                //                insert: String,
-                attributes: RichAttributes? = RichAttributes()) {
+    public init(
+        id: String = UUID().uuidString,
+        from: Int,
+        to: Int,
+        //                insert: String,
+        attributes: RichAttributes? = RichAttributes()
+    ) {
         self.id = id
         self.from = from
         self.to = to
@@ -28,12 +30,14 @@ public struct RichTextSpanInternal {
 }
 
 extension RichTextSpanInternal: Equatable {
-    public static func == (lhs: RichTextSpanInternal,
-                           rhs: RichTextSpanInternal) -> Bool {
+    public static func == (
+        lhs: RichTextSpanInternal,
+        rhs: RichTextSpanInternal
+    ) -> Bool {
         return lhs.from == rhs.from
-        && lhs.to == rhs.to
-        //        && lhs.insert == rhs.insert
-        && lhs.attributes == rhs.attributes
+            && lhs.to == rhs.to
+            //        && lhs.insert == rhs.insert
+            && lhs.attributes == rhs.attributes
     }
 }
 
@@ -62,10 +66,12 @@ extension RichTextSpanInternal {
 }
 
 extension RichTextSpanInternal {
-    public func copy(from: Int? = nil,
-                     to: Int? = nil,
-                     //                     insert: String? = nil,
-                     attributes: RichAttributes? = nil) -> RichTextSpanInternal {
+    public func copy(
+        from: Int? = nil,
+        to: Int? = nil,
+        //                     insert: String? = nil,
+        attributes: RichAttributes? = nil
+    ) -> RichTextSpanInternal {
         return RichTextSpanInternal(
             from: (from != nil ? from! : self.from),
             to: (to != nil ? to! : self.to),

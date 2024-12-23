@@ -7,32 +7,32 @@
 
 import Foundation
 
-public extension RichTextViewComponent {
+extension RichTextViewComponent {
 
     /// Get all attributes.
-    var richTextAttributes: RichTextAttributes {
+    public var richTextAttributes: RichTextAttributes {
         if hasSelectedRange {
             return richTextAttributes(at: selectedRange)
         }
 
-#if macOS
-        let range = NSRange(location: selectedRange.location - 1, length: 1)
-        let safeRange = safeRange(for: range)
-        return richTextAttributes(at: safeRange)
-#else
-        return typingAttributes
-#endif
+        #if macOS
+            let range = NSRange(location: selectedRange.location - 1, length: 1)
+            let safeRange = safeRange(for: range)
+            return richTextAttributes(at: safeRange)
+        #else
+            return typingAttributes
+        #endif
     }
 
     /// Get a certain attribute.
-    func richTextAttribute<Value>(
+    public func richTextAttribute<Value>(
         _ attribute: RichTextAttribute
     ) -> Value? {
         richTextAttributes[attribute] as? Value
     }
 
     /// Set a certain attribute.
-    func setRichTextAttribute(
+    public func setRichTextAttribute(
         _ attribute: RichTextAttribute,
         to value: Any
     ) {
@@ -44,7 +44,7 @@ public extension RichTextViewComponent {
     }
 
     /// Set certain attributes.
-    func setRichTextAttributes(
+    public func setRichTextAttributes(
         _ attributes: RichTextAttributes
     ) {
         attributes.forEach { attribute, value in
@@ -52,10 +52,29 @@ public extension RichTextViewComponent {
         }
     }
 
-    func setNewRichTextAttributes(
+    public func setNewRichTextAttributes(
         _ attributes: RichTextAttributes
     ) {
         typingAttributes = attributes
     }
-}
 
+    /// Remove a certain attribute.
+    public func removeRichTextAttribute(
+        _ attribute: RichTextAttribute
+    ) {
+        if hasSelectedRange {
+            removeRichTextAttribute(attribute, at: selectedRange)
+        } else {
+            typingAttributes[attribute] = nil
+        }
+    }
+
+    /// Remove certain attributes.
+    public func removeRichTextAttributes(
+        _ attributes: RichTextAttributes
+    ) {
+        attributes.forEach { attribute, value in
+            removeRichTextAttribute(attribute)
+        }
+    }
+}

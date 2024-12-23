@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-/**
- This enum defines supported rich text alignments, like left,
- right, center, and justified.
- */
-public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identifiable, RichTextLabelValue {
+/// This enum defines supported rich text alignments, like left,
+/// right, center, and justified.
+public enum RichTextAlignment: String, CaseIterable, Codable, Equatable,
+    Identifiable, RichTextLabelValue
+{
 
     /**
      Initialize a rich text alignment with a native alignment.
@@ -21,11 +21,11 @@ public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identif
      */
     public init(_ alignment: NSTextAlignment) {
         switch alignment {
-            case .left: self = .left
-            case .right: self = .right
-            case .center: self = .center
-            case .justified: self = .justify
-            default: self = .left
+        case .left: self = .left
+        case .right: self = .right
+        case .center: self = .center
+        case .justified: self = .justify
+        default: self = .left
         }
     }
 
@@ -42,33 +42,33 @@ public enum RichTextAlignment: String, CaseIterable, Codable, Equatable, Identif
     case right
 }
 
-public extension RichTextAlignment {
-    func getTextSpanStyle() -> RichTextSpanStyle {
+extension RichTextAlignment {
+    public func getTextSpanStyle() -> RichTextSpanStyle {
         return .align(self)
     }
 }
 
-public extension Collection where Element == RichTextAlignment {
+extension Collection where Element == RichTextAlignment {
 
-    static var all: [Element] { RichTextAlignment.allCases }
+    public static var all: [Element] { RichTextAlignment.allCases }
 }
 
-public extension RichTextAlignment {
+extension RichTextAlignment {
 
     /// The unique alignment ID.
-    var id: String { rawValue }
+    public var id: String { rawValue }
 
     /// The standard icon to use for the alignment.
-    var icon: Image { nativeAlignment.icon }
+    public var icon: Image { nativeAlignment.icon }
 
     /// The standard title to use for the alignment.
-    var title: String { nativeAlignment.title }
+    public var title: String { nativeAlignment.title }
 
     /// The standard title key to use for the alignment.
-    var titleKey: RTEL10n { nativeAlignment.titleKey }
+    public var titleKey: RTEL10n { nativeAlignment.titleKey }
 
     /// The native alignment of the alignment.
-    var nativeAlignment: NSTextAlignment {
+    public var nativeAlignment: NSTextAlignment {
         switch self {
         case .left: .left
         case .right: .right
@@ -80,10 +80,10 @@ public extension RichTextAlignment {
 
 extension NSTextAlignment: RichTextLabelValue {}
 
-public extension NSTextAlignment {
+extension NSTextAlignment {
 
     /// The standard icon to use for the alignment.
-    var icon: Image {
+    public var icon: Image {
         switch self {
         case .left: .richTextAlignmentLeft
         case .right: .richTextAlignmentRight
@@ -94,12 +94,12 @@ public extension NSTextAlignment {
     }
 
     /// The standard title to use for the alignment.
-    var title: String {
+    public var title: String {
         titleKey.text
     }
 
     /// The standard title key to use for the alignment.
-    var titleKey: RTEL10n {
+    public var titleKey: RTEL10n {
         switch self {
         case .left: .textAlignmentLeft
         case .right: .textAlignmentRight
@@ -109,4 +109,3 @@ public extension NSTextAlignment {
         }
     }
 }
-

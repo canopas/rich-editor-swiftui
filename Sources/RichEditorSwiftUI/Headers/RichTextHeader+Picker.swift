@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextHeader {
+extension RichTextHeader {
 
     /**
      This picker can be used to pick a Header type.
@@ -25,7 +25,7 @@ public extension RichTextHeader {
      }
      ```
      */
-    struct Picker: View {
+    public struct Picker: View {
 
         /**
          Create a font size picker.
@@ -48,8 +48,10 @@ public extension RichTextHeader {
 
         public var body: some View {
             SwiftUI.Picker("", selection: $selection) {
-                ForEach(values,
-                        id: \.self) {
+                ForEach(
+                    values,
+                    id: \.self
+                ) {
                     text(for: $0)
                         .tag($0)
                 }
@@ -58,13 +60,12 @@ public extension RichTextHeader {
     }
 }
 
-private extension RichTextHeader.Picker {
+extension RichTextHeader.Picker {
 
-    func text(
+    fileprivate func text(
         for headerType: HeaderType
     ) -> some View {
         Text(headerType.titleLabel)
             .fixedSize(horizontal: true, vertical: false)
     }
 }
-

@@ -8,7 +8,9 @@
 import Foundation
 import SwiftUI
 
-public enum HeaderType: Int, CaseIterable, Codable, Equatable, Identifiable, RichTextLabelValue {
+public enum HeaderType: Int, CaseIterable, Codable, Equatable, Identifiable,
+    RichTextLabelValue
+{
     case `default` = 0
     case h1 = 1
     case h2 = 2
@@ -49,19 +51,18 @@ public enum HeaderType: Int, CaseIterable, Codable, Equatable, Identifiable, Ric
     }
 }
 
+extension Collection where Element == HeaderType {
 
-public extension Collection where Element == HeaderType {
-
-    static var all: [Element] { HeaderType.allCases }
+    public static var all: [Element] { HeaderType.allCases }
 }
 
-public extension HeaderType {
+extension HeaderType {
 
     /// The unique header ID.
-    var id: String { "\(rawValue)" }
+    public var id: String { "\(rawValue)" }
 
     /// The standard icon to use for the header.
-    var icon: Image {
+    public var icon: Image {
         switch self {
         case .default: .richTextHeaderDefault
         case .h1: .richTextHeader1
@@ -74,10 +75,10 @@ public extension HeaderType {
     }
 
     /// standard title to use for the headers.
-    var title: String { titleKey.text }
+    public var title: String { titleKey.text }
 
     /// The standard title key to use for the header.
-    var titleKey: RTEL10n {
+    public var titleKey: RTEL10n {
         switch self {
         case .default: .headerDefault
         case .h1: .header1

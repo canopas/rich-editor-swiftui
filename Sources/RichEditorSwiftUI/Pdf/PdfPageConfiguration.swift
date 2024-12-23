@@ -19,7 +19,8 @@ public struct PdfPageConfiguration: Equatable {
      */
     public init(
         pageSize: CGSize = CGSize(width: 595.2, height: 841.8),
-        pageMargins: PdfPageMargins = .init(all: 72)) {
+        pageMargins: PdfPageMargins = .init(all: 72)
+    ) {
         self.pageSize = pageSize
         self.pageMargins = pageMargins
     }
@@ -31,21 +32,21 @@ public struct PdfPageConfiguration: Equatable {
     public var pageMargins: PdfPageMargins
 }
 
-public extension PdfPageConfiguration {
+extension PdfPageConfiguration {
 
     /// The standard PDF page configuration.
-    static var standard: Self { .init() }
+    public static var standard: Self { .init() }
 }
 
-public extension PdfPageConfiguration {
+extension PdfPageConfiguration {
 
     /// Get the paper rectangle.
-    var paperRect: CGRect {
+    public var paperRect: CGRect {
         CGRect(x: 0, y: 0, width: pageSize.width, height: pageSize.height)
     }
 
     /// Get the printable rectangle.
-    var printableRect: CGRect {
+    public var printableRect: CGRect {
         CGRect(
             x: pageMargins.left,
             y: pageMargins.top,

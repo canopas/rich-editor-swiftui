@@ -7,16 +7,13 @@
 
 import Foundation
 
-/**
- This export service can be used to export rich text content
- to files with a certain format.
-
- Files are by default written to the app document folder. It
- can be changed by providing another searchpath directory in
- the initializer.
- */
+/// This export service can be used to export rich text content
+/// to files with a certain format.
+///
+/// Files are by default written to the app document folder. It
+/// can be changed by providing another searchpath directory in
+/// the initializer.
 public class StandardRichTextExportService: RichTextExportService {
-    
 
     /**
      Create a standard rich text export service.
@@ -125,14 +122,17 @@ public class StandardRichTextExportService: RichTextExportService {
     /**
      Get `Data` for with provided `RichTextDataFormat`
      */
-    public func getDataFor(_ string: NSAttributedString, format: RichTextDataFormat) throws -> Data {
+    public func getDataFor(
+        _ string: NSAttributedString, format: RichTextDataFormat
+    ) throws -> Data {
         return try string.richTextData(for: format)
     }
 
     /**
      Get `Data` for `PDF` format.
      */
-    public func getDataForPdfFormat(_ string: NSAttributedString) throws -> Data {
+    public func getDataForPdfFormat(_ string: NSAttributedString) throws -> Data
+    {
         return try string.richTextPdfData()
     }
 

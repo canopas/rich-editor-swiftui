@@ -8,25 +8,23 @@
 import Foundation
 import UniformTypeIdentifiers
 
-/**
- This enum specifies rich text data formats.
-
- Different formats have different capabilities. For instance,
- ``rtf`` supports rich text, styles, etc., while ``plainText``
- only handles text. ``archivedData`` can archive text, image
- data and attachments in binary archives. This is convenient
- when only targeting Apple platforms, but restricts how data
- can be used elsewhere.
-
- ``archivedData`` uses an `rtk` file extension, as well as a
- `UTType.archivedData` uniform type. You can create a custom
- ``vendorArchivedData(id:fileExtension:fileFormatText:uniformType:)``
- value to specify a custom data format.
-
- Remember to configure your app for handling the UTTypes you
- want to support, as well as the file extensions you want to
- open with the app. Take a look at the demo app for examples.
- */
+/// This enum specifies rich text data formats.
+///
+/// Different formats have different capabilities. For instance,
+/// ``rtf`` supports rich text, styles, etc., while ``plainText``
+/// only handles text. ``archivedData`` can archive text, image
+/// data and attachments in binary archives. This is convenient
+/// when only targeting Apple platforms, but restricts how data
+/// can be used elsewhere.
+///
+/// ``archivedData`` uses an `rtk` file extension, as well as a
+/// `UTType.archivedData` uniform type. You can create a custom
+/// ``vendorArchivedData(id:fileExtension:fileFormatText:uniformType:)``
+/// value to specify a custom data format.
+///
+/// Remember to configure your app for handling the UTTypes you
+/// want to support, as well as the file extensions you want to
+/// open with the app. Take a look at the demo app for examples.
 public enum RichTextDataFormat: Equatable, Identifiable {
 
     /// Archived data that's persisted with a keyed archiver.
@@ -47,23 +45,23 @@ public enum RichTextDataFormat: Equatable, Identifiable {
     )
 }
 
-public extension Collection where Element == RichTextDataFormat {
+extension Collection where Element == RichTextDataFormat {
 
     /// Get all library supported data formats.
-    static var libraryFormats: [Element] {
+    public static var libraryFormats: [Element] {
         Element.libraryFormats
     }
 }
 
-public extension RichTextDataFormat {
+extension RichTextDataFormat {
 
     /// Get all library supported data formats.
-    static var libraryFormats: [Self] {
+    public static var libraryFormats: [Self] {
         [.archivedData, .plainText, .rtf]
     }
 
     /// The format's unique identifier.
-    var id: String {
+    public var id: String {
         switch self {
         case .archivedData: "archivedData"
         case .plainText: "plainText"
@@ -73,7 +71,7 @@ public extension RichTextDataFormat {
     }
 
     /// The formats that a format can be converted to.
-    var convertibleFormats: [Self] {
+    public var convertibleFormats: [Self] {
         switch self {
         case .vendorArchivedData: Self.libraryFormats.removing(.archivedData)
         default: Self.libraryFormats.removing(self)
@@ -81,7 +79,7 @@ public extension RichTextDataFormat {
     }
 
     /// The format's file format display text.
-    var fileFormatText: String {
+    public var fileFormatText: String {
         switch self {
         case .archivedData: RTEL10n.fileFormatRtk.text
         case .plainText: RTEL10n.fileFormatTxt.text
@@ -91,7 +89,7 @@ public extension RichTextDataFormat {
     }
 
     /// Whether or not the format is an archived data type.
-    var isArchivedDataFormat: Bool {
+    public var isArchivedDataFormat: Bool {
         switch self {
         case .archivedData: true
         case .plainText: false
@@ -101,7 +99,7 @@ public extension RichTextDataFormat {
     }
 
     /// The format's standard file extension.
-    var standardFileExtension: String {
+    public var standardFileExtension: String {
         switch self {
         case .archivedData: "rtk"
         case .plainText: "txt"
@@ -111,7 +109,7 @@ public extension RichTextDataFormat {
     }
 
     /// Whether or not the format supports images.
-    var supportsImages: Bool {
+    public var supportsImages: Bool {
         switch self {
         case .archivedData: true
         case .plainText: false
@@ -121,7 +119,7 @@ public extension RichTextDataFormat {
     }
 
     /// The format's uniform type.
-    var uniformType: UTType {
+    public var uniformType: UTType {
         switch self {
         case .archivedData: .archivedData
         case .plainText: .plainText
@@ -131,9 +129,9 @@ public extension RichTextDataFormat {
     }
 }
 
-private extension Collection where Element == RichTextDataFormat {
+extension Collection where Element == RichTextDataFormat {
 
-    func removing(_ format: Element) -> [Element] {
+    fileprivate func removing(_ format: Element) -> [Element] {
         filter { $0 != format }
     }
 }

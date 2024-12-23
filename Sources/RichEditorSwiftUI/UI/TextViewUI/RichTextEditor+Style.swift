@@ -5,37 +5,36 @@
 //  Created by Divyesh Vekariya on 21/10/24.
 //
 
-#if iOS || macOS || os(tvOS) || os(visionOS)
-import SwiftUI
+#if os(iOS) || os(macOS) || os(tvOS) || os(visionOS)
+    import SwiftUI
 
-/// This struct can be used to style a ``RichTextEditor``.
-public typealias RichTextEditorStyle = RichTextView.Theme
+    /// This struct can be used to style a ``RichTextEditor``.
+    public typealias RichTextEditorStyle = RichTextView.Theme
 
-public extension View {
+    extension View {
 
-    /// Apply a ``RichTextEditor`` style.
-    func richTextEditorStyle(
-        _ style: RichTextEditorStyle
-    ) -> some View {
-        self.environment(\.richTextEditorStyle, style)
+        /// Apply a ``RichTextEditor`` style.
+        public func richTextEditorStyle(
+            _ style: RichTextEditorStyle
+        ) -> some View {
+            self.environment(\.richTextEditorStyle, style)
+        }
     }
-}
 
-private extension RichTextEditorStyle {
+    extension RichTextEditorStyle {
 
-    struct Key: EnvironmentKey {
+        fileprivate struct Key: EnvironmentKey {
 
-        static var defaultValue: RichTextEditorStyle = .standard
+            static var defaultValue: RichTextEditorStyle = .standard
+        }
     }
-}
 
-public extension EnvironmentValues {
+    extension EnvironmentValues {
 
-    /// This value can bind to a rich text editor style.
-    var richTextEditorStyle: RichTextEditorStyle {
-        get { self [RichTextEditorStyle.Key.self] }
-        set { self [RichTextEditorStyle.Key.self] = newValue }
+        /// This value can bind to a rich text editor style.
+        public var richTextEditorStyle: RichTextEditorStyle {
+            get { self[RichTextEditorStyle.Key.self] }
+            set { self[RichTextEditorStyle.Key.self] = newValue }
+        }
     }
-}
 #endif
-

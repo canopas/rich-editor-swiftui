@@ -26,7 +26,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         .font(),
         .color(),
         .background(),
-        .align()
+        .align(),
     ]
 
     public func hash(into hasher: inout Hasher) {
@@ -58,6 +58,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     case color(Color? = nil)
     case background(Color? = nil)
     case align(RichTextAlignment? = nil)
+    case link(String? = nil)
 
     var key: String {
         switch self {
@@ -85,8 +86,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return "h6"
         case .bullet:
             return "bullet"
-            //        case .ordered:
-            //            return "ordered"
+        //        case .ordered:
+        //            return "ordered"
         case .size:
             return "size"
         case .font:
@@ -97,6 +98,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return "background"
         case .align(let alignment):
             return "align" + "\(alignment?.rawValue ?? "")"
+        case .link(let link):
+            return "link" + (link ?? "")
         }
     }
 
@@ -108,7 +111,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
             return getFontWithUpdating(font: font)
         case .bullet(let indent):
-            return getListStyleAttributeValue(listType ?? .bullet(), indent: indent)
+            return getListStyleAttributeValue(
+                listType ?? .bullet(), indent: indent)
         case .strikethrough:
             return NSUnderlineStyle.single.rawValue
         case .size(let size):
@@ -125,22 +129,24 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
                     size: .standardRichTextFontSize
                 ) ?? font
             } else {
-#if os(watchOS)
-                return CGFloat.standardRichTextFontSize
+                #if os(watchOS)
+                    return CGFloat.standardRichTextFontSize
                 #else
-                return RichTextView.Theme.standard.font
-#endif
+                    return RichTextView.Theme.standard.font
+                #endif
             }
         case .color:
-#if os(watchOS)
-            return Color.primary
-#else
-            return RichTextView.Theme.standard.fontColor
-#endif
+            #if os(watchOS)
+                return Color.primary
+            #else
+                return RichTextView.Theme.standard.fontColor
+            #endif
         case .background:
             return ColorRepresentable.white
         case .align:
             return RichTextAlignment.left.nativeAlignment
+        case .link(let link):
+            return link ?? ""
         }
     }
 
@@ -148,7 +154,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         switch self {
         case .underline:
             return .underlineStyle
-        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .size, .font:
+        case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .size,
+            .font:
             return .font
         case .bullet, .align:
             return .paragraphStyle
@@ -158,10 +165,14 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             return .foregroundColor
         case .background:
             return .backgroundColor
+        case .link:
+            return .link
         }
     }
 
-    public static func == (lhs: RichTextSpanStyle, rhs: RichTextSpanStyle) -> Bool {
+    public static func == (lhs: RichTextSpanStyle, rhs: RichTextSpanStyle)
+        -> Bool
+    {
         return lhs.key == rhs.key
     }
 
@@ -267,9 +278,10 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         switch self {
         case .default:
             return font
-        case .bold,.italic:
+        case .bold, .italic:
             return font.addFontStyle(self)
-        case .underline, .bullet, .strikethrough, .color, .background, .align:
+        case .underline, .bullet, .strikethrough, .color, .background, .align,
+            .link:
             return font
         case .h1:
             return font.updateFontSize(multiple: 1.5)
@@ -291,7 +303,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
             }
         case .font(let name):
             if let name {
-                return FontRepresentable(name: name, size: font.pointSize) ?? font
+                return FontRepresentable(name: name, size: font.pointSize)
+                    ?? font
             } else {
                 return font
             }
@@ -315,54 +328,58 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
         }
     }
 
-    func getFontAfterRemovingStyle(font: FontRepresentable) -> FontRepresentable {
+    func getFontAfterRemovingStyle(font: FontRepresentable) -> FontRepresentable
+    {
         switch self {
         case .bold, .italic, .bullet:
             return font.removeFontStyle(self)
-        case .underline, .strikethrough, .color, .background, .align:
+        case .underline, .strikethrough, .color, .background, .align, .link:
             return font
         case .default, .h1, .h2, .h3, .h4, .h5, .h6, .size, .font:
             return font.updateFontSize(size: .standardRichTextFontSize)
         }
     }
 
-    func getListStyleAttributeValue(_ listType: ListType, indent: Int? = nil) -> NSMutableParagraphStyle {
+    func getListStyleAttributeValue(_ listType: ListType, indent: Int? = nil)
+        -> NSMutableParagraphStyle
+    {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .left
-        let listItem = TextList(markerFormat: listType.getMarkerFormat(), options: 0)
-        paragraphStyle.textLists = Array(repeating: listItem, count: (indent ?? 0) + 1)
+        let listItem = TextList(
+            markerFormat: listType.getMarkerFormat(), options: 0)
+        paragraphStyle.textLists = Array(
+            repeating: listItem, count: (indent ?? 0) + 1)
         return paragraphStyle
     }
 }
 
 #if canImport(UIKit)
-public extension RichTextSpanStyle {
+    extension RichTextSpanStyle {
 
-    /// The symbolic font traits for the style, if any.
-    var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
-        switch self {
-        case .bold: .traitBold
-        case .italic: .traitItalic
-        default: nil
+        /// The symbolic font traits for the style, if any.
+        public var symbolicTraits: UIFontDescriptor.SymbolicTraits? {
+            switch self {
+            case .bold: .traitBold
+            case .italic: .traitItalic
+            default: nil
+            }
         }
     }
-}
 #endif
 
 #if macOS
-public extension RichTextSpanStyle {
+    extension RichTextSpanStyle {
 
-    /// The symbolic font traits for the trait, if any.
-    var symbolicTraits: NSFontDescriptor.SymbolicTraits? {
-        switch self {
-        case .bold: .bold
-        case .italic: .italic
-        default: nil
+        /// The symbolic font traits for the trait, if any.
+        public var symbolicTraits: NSFontDescriptor.SymbolicTraits? {
+            switch self {
+            case .bold: .bold
+            case .italic: .italic
+            default: nil
+            }
         }
     }
-}
 #endif
-
 
 extension RichTextSpanStyle {
     func getRichAttribute() -> RichAttributes? {
@@ -401,12 +418,13 @@ extension RichTextSpanStyle {
             return RichAttributes(background: background?.hexString)
         case .align(let alignment):
             return RichAttributes(align: alignment)
+        case .link(let link):
+            return RichAttributes(link: link)
         }
     }
 }
 
-
-public extension Collection where Element == RichTextSpanStyle {
+extension Collection where Element == RichTextSpanStyle {
 
     /**
      Check if the collection contains a certain style.
@@ -414,12 +432,12 @@ public extension Collection where Element == RichTextSpanStyle {
      - Parameters:
      - style: The style to look for.
      */
-    func hasStyle(_ style: RichTextSpanStyle) -> Bool {
+    public func hasStyle(_ style: RichTextSpanStyle) -> Bool {
         contains(style)
     }
 
     /// Check if a certain style change should be applied.
-    func shouldAddOrRemove(
+    public func shouldAddOrRemove(
         _ style: RichTextSpanStyle,
         _ newValue: Bool
     ) -> Bool {

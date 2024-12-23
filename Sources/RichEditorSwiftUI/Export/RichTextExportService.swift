@@ -7,10 +7,8 @@
 
 import Foundation
 
-/**
- This protocol can be implemented by any classes that can be
- used to export rich text to files.
- */
+/// This protocol can be implemented by any classes that can be
+/// used to export rich text to files.
 @preconcurrency @MainActor
 public protocol RichTextExportService: AnyObject {
 
@@ -58,7 +56,8 @@ public protocol RichTextExportService: AnyObject {
     /**
      Get `Data` for with provided `RichTextDataFormat`
      */
-    func getDataFor(_ string: NSAttributedString, format: RichTextDataFormat) throws -> Data
+    func getDataFor(_ string: NSAttributedString, format: RichTextDataFormat)
+        throws -> Data
 
     /**
      Get `Data` for `PDF` format.

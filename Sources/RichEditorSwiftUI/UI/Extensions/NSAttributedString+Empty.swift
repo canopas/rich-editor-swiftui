@@ -7,10 +7,10 @@
 
 import Foundation
 
-public extension NSAttributedString {
+extension NSAttributedString {
 
     /// Create an empty attributed string.
-    static var empty: NSAttributedString {
+    public static var empty: NSAttributedString {
         .init(string: "")
     }
 }

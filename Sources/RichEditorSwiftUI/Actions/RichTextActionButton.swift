@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextAction {
+extension RichTextAction {
 
     /**
      This button can be used to trigger a ``RichTextAction``.
@@ -15,7 +15,7 @@ public extension RichTextAction {
      This renders a plain `Button`, which means that you can
      use and configure it as a normal button.
      */
-    struct Button: View {
+    public struct Button: View {
         /**
          Create a rich text action button.
 
@@ -53,9 +53,9 @@ public extension RichTextAction {
     }
 }
 
-private extension RichTextAction.Button {
+extension RichTextAction.Button {
 
-    func triggerAction() {
+    fileprivate func triggerAction() {
         context.handle(action)
     }
 }

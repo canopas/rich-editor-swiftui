@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextFont {
+extension RichTextFont {
 
     /**
      This picker can be used to pick a font size.
@@ -26,7 +26,7 @@ public extension RichTextFont {
      .richTextFontSizePickerConfig(...)
      ```
      */
-    struct SizePicker: View {
+    public struct SizePicker: View {
 
         /**
          Create a font size picker.
@@ -48,10 +48,12 @@ public extension RichTextFont {
 
         public var body: some View {
             SwiftUI.Picker("", selection: $selection) {
-                ForEach(values(
-                    for: config.values,
-                    selection: selection
-                ), id: \.self) {
+                ForEach(
+                    values(
+                        for: config.values,
+                        selection: selection
+                    ), id: \.self
+                ) {
                     text(for: $0)
                         .tag($0)
                 }
@@ -60,10 +62,10 @@ public extension RichTextFont {
     }
 }
 
-public extension RichTextFont.SizePicker {
+extension RichTextFont.SizePicker {
 
     /// Get a list of values for a certain selection.
-    func values(
+    public func values(
         for values: [CGFloat],
         selection: CGFloat
     ) -> [CGFloat] {
@@ -72,13 +74,12 @@ public extension RichTextFont.SizePicker {
     }
 }
 
-private extension RichTextFont.SizePicker {
+extension RichTextFont.SizePicker {
 
-    func text(
+    fileprivate func text(
         for fontSize: CGFloat
     ) -> some View {
         Text("\(Int(fontSize))")
             .fixedSize(horizontal: true, vertical: false)
     }
 }
-

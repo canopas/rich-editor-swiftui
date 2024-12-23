@@ -5,16 +5,14 @@
 //  Created by Divyesh Vekariya on 21/10/24.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
-/**
- This enum defines rich text actions that can be executed on
- a rich text editor.
-
- This type also serves as a type namespace for other related
- types and views, like ``RichTextAction/Button``.
- */
+/// This enum defines rich text actions that can be executed on
+/// a rich text editor.
+///
+/// This type also serves as a type namespace for other related
+/// types and views, like ``RichTextAction/Button``.
 public enum RichTextAction: Identifiable, Equatable {
 
     /// Copy the currently selected text, if any.
@@ -24,13 +22,13 @@ public enum RichTextAction: Identifiable, Equatable {
     case dismissKeyboard
 
     /// Paste a single image.
-//    case pasteImage(RichTextInsertion<ImageRepresentable>)
-//
-//    /// Paste multiple images.
-//    case pasteImages(RichTextInsertion<[ImageRepresentable]>)
-//
-//    /// Paste plain text.
-//    case pasteText(RichTextInsertion<String>)
+    //    case pasteImage(RichTextInsertion<ImageRepresentable>)
+    //
+    //    /// Paste multiple images.
+    //    case pasteImages(RichTextInsertion<[ImageRepresentable]>)
+    //
+    //    /// Paste plain text.
+    //    case pasteText(RichTextInsertion<String>)
 
     /// A print command.
     case print
@@ -79,23 +77,26 @@ public enum RichTextAction: Identifiable, Equatable {
 
     /// Set HeaderStyle.
     case setHeaderStyle(_ style: RichTextSpanStyle)
+
+    /// Set link
+    case setLink(String? = nil)
 }
 
-public extension RichTextAction {
+extension RichTextAction {
 
-    typealias Publisher = PassthroughSubject<Self, Never>
+    public typealias Publisher = PassthroughSubject<Self, Never>
 
     /// The action's unique identifier.
-    var id: String { title }
+    public var id: String { title }
 
     /// The action's standard icon.
-    var icon: Image {
+    public var icon: Image {
         switch self {
         case .copy: .richTextCopy
         case .dismissKeyboard: .richTextDismissKeyboard
-//        case .pasteImage: .richTextDocuments
-//        case .pasteImages: .richTextDocuments
-//        case .pasteText: .richTextDocuments
+        //        case .pasteImage: .richTextDocuments
+        //        case .pasteImages: .richTextDocuments
+        //        case .pasteText: .richTextDocuments
         case .print: .richTextPrint
         case .redoLatestChange: .richTextRedo
         case .selectRange: .richTextSelection
@@ -112,21 +113,22 @@ public extension RichTextAction {
         case .toggleStyle(let val): val.icon
         case .undoLatestChange: .richTextUndo
         case .setHeaderStyle: .richTextIgnoreIt
+        case .setLink: .richTextLink
         }
     }
 
     /// The localized label to use for the action.
-    var label: some View {
+    public var label: some View {
         icon.label(title)
     }
 
     /// The localized title to use in the main menu.
-    var menuTitle: String {
+    public var menuTitle: String {
         menuTitleKey.text
     }
 
     /// The localized title key to use in the main menu.
-    var menuTitleKey: RTEL10n {
+    public var menuTitleKey: RTEL10n {
         switch self {
         case .stepIndent(let points): .menuIndent(points)
         default: titleKey
@@ -134,18 +136,18 @@ public extension RichTextAction {
     }
 
     /// The localized action title.
-    var title: String {
+    public var title: String {
         titleKey.text
     }
 
     /// The localized action title key.
-    var titleKey: RTEL10n {
+    public var titleKey: RTEL10n {
         switch self {
         case .copy: .actionCopy
         case .dismissKeyboard: .actionDismissKeyboard
-//        case .pasteImage: .pasteImage
-//        case .pasteImages: .pasteImages
-//        case .pasteText: .pasteText
+        //        case .pasteImage: .pasteImage
+        //        case .pasteImages: .pasteImages
+        //        case .pasteText: .pasteText
         case .print: .actionPrint
         case .redoLatestChange: .actionRedoLatestChange
         case .selectRange: .selectRange
@@ -161,6 +163,7 @@ public extension RichTextAction {
         case .stepSuperscript(let steps): .actionStepSuperscript(steps)
         case .toggleStyle(let style): style.titleKey
         case .undoLatestChange: .actionUndoLatestChange
+        case .setLink: .link
         case .setHeaderStyle: .ignoreIt
         }
     }
@@ -168,24 +171,23 @@ public extension RichTextAction {
 
 // MARK: - Aliases
 
-public extension RichTextAction {
+extension RichTextAction {
 
     /// A name alias for `.redoLatestChange`.
-    static var redo: RichTextAction { .redoLatestChange }
+    public static var redo: RichTextAction { .redoLatestChange }
 
     /// A name alias for `.undoLatestChange`.
-    static var undo: RichTextAction { .undoLatestChange }
+    public static var undo: RichTextAction { .undoLatestChange }
 }
 
-public extension CGFloat {
+extension CGFloat {
 
     /// The default rich text indent step size.
-    static var defaultRichTextIntentStepSize: CGFloat = 30.0
+    public static var defaultRichTextIntentStepSize: CGFloat = 30.0
 }
 
-public extension UInt {
+extension UInt {
 
     /// The default rich text indent step size.
-    static var defaultRichTextIntentStepSize: UInt = 30
+    public static var defaultRichTextIntentStepSize: UInt = 30
 }
-

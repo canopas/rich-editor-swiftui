@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
 
     /**
      Add a keyboard shortcut that toggles a certain style.
@@ -16,16 +16,16 @@ public extension View {
      keyboard shortcuts.
      */
     @ViewBuilder
-    func keyboardShortcut(for style: RichTextStyle) -> some View {
-        #if iOS || macOS || os(visionOS)
-        switch style {
-        case .bold: keyboardShortcut("b", modifiers: .command)
-        case .italic: keyboardShortcut("i", modifiers: .command)
-        case .strikethrough: self
-        case .underline: keyboardShortcut("u", modifiers: .command)
-        }
+    public func keyboardShortcut(for style: RichTextStyle) -> some View {
+        #if os(iOS) || os(macOS) || os(visionOS)
+            switch style {
+            case .bold: keyboardShortcut("b", modifiers: .command)
+            case .italic: keyboardShortcut("i", modifiers: .command)
+            case .strikethrough: self
+            case .underline: keyboardShortcut("u", modifiers: .command)
+            }
         #else
-        self
+            self
         #endif
     }
 }

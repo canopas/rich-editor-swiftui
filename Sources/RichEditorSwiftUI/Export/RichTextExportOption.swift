@@ -12,9 +12,9 @@ public enum RichTextExportOption: CaseIterable, Equatable, Identifiable {
     case json
 }
 
-public extension RichTextExportOption {
+extension RichTextExportOption {
     /// The format's unique identifier.
-    var id: String {
+    public var id: String {
         switch self {
         case .pdf: "pdf"
         case .json: "json"
@@ -22,7 +22,7 @@ public extension RichTextExportOption {
     }
 
     /// The format's file format display text.
-    var fileFormatText: String {
+    public var fileFormatText: String {
         switch self {
         case .pdf: RTEL10n.fileFormatPdf.text
         case .json: RTEL10n.fileFormatJson.text
@@ -30,7 +30,7 @@ public extension RichTextExportOption {
     }
 }
 
-public extension Collection where Element == RichTextExportOption {
+extension Collection where Element == RichTextExportOption {
 
-    static var all: [Element] { RichTextExportOption.allCases }
+    public static var all: [Element] { RichTextExportOption.allCases }
 }

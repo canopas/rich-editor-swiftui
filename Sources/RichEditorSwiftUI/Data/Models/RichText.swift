@@ -26,11 +26,12 @@ public struct RichTextSpan: Codable {
     public let insert: String
     public let attributes: RichAttributes?
 
-    public init(insert: String,
-                attributes: RichAttributes? = nil) {
+    public init(
+        insert: String,
+        attributes: RichAttributes? = nil
+    ) {
         //        self.id = id
         self.insert = insert
         self.attributes = attributes
     }
 }
-

@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-/**
- This enum defines supported rich text color types.
-
- The enum makes the colors identifiable and diffable.
- */
-public enum RichTextColor: String, CaseIterable, Codable, Equatable, Identifiable {
+/// This enum defines supported rich text color types.
+///
+/// The enum makes the colors identifiable and diffable.
+public enum RichTextColor: String, CaseIterable, Codable, Equatable,
+    Identifiable
+{
 
     /// Foreground color.
     case foreground
@@ -30,13 +30,13 @@ public enum RichTextColor: String, CaseIterable, Codable, Equatable, Identifiabl
     case underline
 }
 
-public extension RichTextColor {
+extension RichTextColor {
 
     /// The unique color ID.
-    var id: String { rawValue }
+    public var id: String { rawValue }
 
     /// The corresponding rich text attribute, if any.
-    var attribute: NSAttributedString.Key? {
+    public var attribute: NSAttributedString.Key? {
         switch self {
         case .foreground: .foregroundColor
         case .background: .backgroundColor
@@ -47,7 +47,7 @@ public extension RichTextColor {
     }
 
     /// The standard icon to use for the color.
-    var icon: Image {
+    public var icon: Image {
         switch self {
         case .foreground: .richTextColorForeground
         case .background: .richTextColorBackground
@@ -58,7 +58,7 @@ public extension RichTextColor {
     }
 
     /// The localized color title key.
-    var titleKey: RTEL10n {
+    public var titleKey: RTEL10n {
         switch self {
         case .foreground: .foregroundColor
         case .background: .backgroundColor
@@ -69,7 +69,7 @@ public extension RichTextColor {
     }
 
     /// Adjust a `color` for a certain `colorScheme`.
-    func adjust(
+    public func adjust(
         _ color: Color?,
         for scheme: ColorScheme
     ) -> Color {
@@ -80,8 +80,7 @@ public extension RichTextColor {
     }
 }
 
-public extension Collection where Element == RichTextColor {
+extension Collection where Element == RichTextColor {
 
-    static var allCases: [RichTextColor] { Element.allCases }
+    public static var allCases: [RichTextColor] { Element.allCases }
 }
-

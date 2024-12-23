@@ -11,7 +11,7 @@ extension NSRange {
     var isCollapsed: Bool {
         return self.length == 0 || self.upperBound == self.lowerBound
     }
-    
+
     var closedRange: ClosedRange<Int> {
         return lowerBound...(upperBound - (length > 0 ? 1 : 0))
     }
@@ -23,15 +23,18 @@ extension ClosedRange<Int> {
     }
 
     func isInRange(_ range: ClosedRange<Int>) -> Bool {
-        return range.contains(self.lowerBound) && range.contains(self.upperBound)
+        return range.contains(self.lowerBound)
+            && range.contains(self.upperBound)
     }
-    
+
     func isPartialOverlap(_ range: ClosedRange<Int>) -> Bool {
-        return self.contains(range.lowerBound) != self.contains(range.upperBound)
+        return self.contains(range.lowerBound)
+            != self.contains(range.upperBound)
     }
 
     func isSameAs(_ range: ClosedRange<Int>) -> Bool {
-        return (self.lowerBound == range.lowerBound) && (self.upperBound == range.upperBound)
+        return (self.lowerBound == range.lowerBound)
+            && (self.upperBound == range.upperBound)
     }
 }
 

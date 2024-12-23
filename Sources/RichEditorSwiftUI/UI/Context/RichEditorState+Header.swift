@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// Get a binding for a certain style.
-    func headerBinding() -> Binding<HeaderType> {
+    public func headerBinding() -> Binding<HeaderType> {
         Binding(
             get: { self.currentHeader() },
             set: { self.setHeaderStyle($0) }
@@ -18,12 +18,12 @@ public extension RichEditorState {
     }
 
     /// Check whether or not the context has a certain header style.
-    func currentHeader() -> HeaderType {
+    public func currentHeader() -> HeaderType {
         return headerType
     }
 
     /// Set whether or not the context has a certain header style.
-    func setHeaderStyle(
+    public func setHeaderStyle(
         _ header: HeaderType
     ) {
         guard header != headerType else { return }
@@ -31,4 +31,3 @@ public extension RichEditorState {
     }
 
 }
-

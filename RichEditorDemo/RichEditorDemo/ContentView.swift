@@ -46,7 +46,9 @@ struct ContentView: View {
 
                     }
                 )
-                .background(colorScheme == .dark ? .gray.opacity(0.3) : Color.white)
+                .background(
+                    colorScheme == .dark ? .gray.opacity(0.3) : Color.white
+                )
                 .cornerRadius(10)
 
                 #if os(iOS)
@@ -58,21 +60,22 @@ struct ContentView: View {
                     )
                 #endif
             }
-            #if iOS || macOS
-            .inspector(isPresented: $isInspectorPresented) {
-                RichTextFormat.Sidebar(context: state)
-                    #if os(macOS)
-                        .inspectorColumnWidth(min: 200, ideal: 200, max: 315)
-                    #endif
-            }
+            #if os(iOS) || os(macOS)
+                .inspector(isPresented: $isInspectorPresented) {
+                    RichTextFormat.Sidebar(context: state)
+                        #if os(macOS)
+                            .inspectorColumnWidth(
+                                min: 200, ideal: 200, max: 315)
+                        #endif
+                }
             #endif
             .padding(10)
-            #if iOS || os(macOS)
-            .toolbar {
-                ToolbarItemGroup(placement: .automatic) {
-                    toolBarGroup
+            #if os(iOS) || os(macOS)
+                .toolbar {
+                    ToolbarItemGroup(placement: .automatic) {
+                        toolBarGroup
+                    }
                 }
-            }
             #endif
             .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
             .navigationTitle("Rich Editor")
@@ -84,54 +87,54 @@ struct ContentView: View {
             }
             .focusedValue(\.richEditorState, state)
             .toolbarRole(.automatic)
-#if iOS || macOS || os(visionOS)
-            .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
-            .richTextFormatSidebarConfig(
-                .init(
-                    colorPickers: colorPickers,
-                    fontPicker: isMac
+            #if os(iOS) || os(macOS) || os(visionOS)
+                .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
+                .richTextFormatSidebarConfig(
+                    .init(
+                        colorPickers: colorPickers,
+                        fontPicker: isMac
+                    )
                 )
-            )
-            .richTextFormatToolbarConfig(.init(colorPickers: []))
+                .richTextFormatToolbarConfig(.init(colorPickers: []))
             #endif
         }
     }
 
-    #if iOS || os(macOS)
-    var toolBarGroup: some View {
-        return Group {
-            RichTextExportMenu.init(
-                formatAction: { format in
-                    exportFormat = format
-                },
-                otherOptionAction: { format in
-                    otherExportFormat = format
+    #if os(iOS) || os(macOS)
+        var toolBarGroup: some View {
+            return Group {
+                RichTextExportMenu.init(
+                    formatAction: { format in
+                        exportFormat = format
+                    },
+                    otherOptionAction: { format in
+                        otherExportFormat = format
+                    }
+                )
+                #if !os(macOS)
+                    .frame(width: 25, alignment: .center)
+                #endif
+                Button(
+                    action: {
+                        print("Exported JSON == \(state.outputAsString())")
+                    },
+                    label: {
+                        Image(systemName: "printer.inverse")
+                    }
+                )
+                #if !os(macOS)
+                    .frame(width: 25, alignment: .center)
+                #endif
+                Toggle(isOn: $isInspectorPresented) {
+                    Image.richTextFormatBrush
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
                 }
-            )
-            #if !os(macOS)
-                .frame(width: 25, alignment: .center)
-            #endif
-            Button(
-                action: {
-                    print("Exported JSON == \(state.outputAsString())")
-                },
-                label: {
-                    Image(systemName: "printer.inverse")
-                }
-            )
-            #if !os(macOS)
-                .frame(width: 25, alignment: .center)
-            #endif
-            Toggle(isOn: $isInspectorPresented) {
-                Image.richTextFormatBrush
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fit)
+                #if !os(macOS)
+                    .frame(width: 25, alignment: .center)
+                #endif
             }
-            #if !os(macOS)
-                .frame(width: 25, alignment: .center)
-            #endif
         }
-    }
     #endif
 
     func getBindingAlert() -> Binding<Bool> {

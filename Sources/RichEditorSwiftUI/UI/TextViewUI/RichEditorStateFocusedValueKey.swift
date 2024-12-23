@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// This key can be used to keep track of a context in a
     /// multi-windowed app.
-    struct FocusedValueKey: SwiftUI.FocusedValueKey {
+    public struct FocusedValueKey: SwiftUI.FocusedValueKey {
 
         public typealias Value = RichEditorState
     }
 }
 
-public extension FocusedValues {
+extension FocusedValues {
 
     /// This value can be used to keep track of a context in
     /// a multi-windowed app.
@@ -35,7 +35,7 @@ public extension FocusedValues {
     /// @FocusedValue(\.richEditorState)
     /// var richEditorState: RichEditorState?
     /// ```
-    var richEditorState: RichEditorState.FocusedValueKey.Value? {
+    public var richEditorState: RichEditorState.FocusedValueKey.Value? {
         get { self[RichEditorState.FocusedValueKey.self] }
         set { self[RichEditorState.FocusedValueKey.self] = newValue }
     }

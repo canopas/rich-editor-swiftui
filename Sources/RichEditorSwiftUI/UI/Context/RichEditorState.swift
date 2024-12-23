@@ -5,19 +5,17 @@
 //  Created by Divyesh Vekariya on 21/10/24.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
-/**
- This observable context can be used to affect and observe a
- ``RichTextEditor`` and its native text view.
-
- Use ``handle(_:)`` to trigger actions, e.g. to change fonts,
- text styles, text alignments, select a text range, etc.
-
- You can use ``RichEditorState/FocusedValueKey`` to handle a
- context with focus in a multi-windowed app.
- */
+/// This observable context can be used to affect and observe a
+/// ``RichTextEditor`` and its native text view.
+///
+/// Use ``handle(_:)`` to trigger actions, e.g. to change fonts,
+/// text styles, text alignments, select a text range, etc.
+///
+/// You can use ``RichEditorState/FocusedValueKey`` to handle a
+/// context with focus in a multi-windowed app.
 public class RichEditorState: ObservableObject {
 
     /// Create a new rich text context instance.
@@ -92,7 +90,8 @@ public class RichEditorState: ObservableObject {
 
     /// The style to apply when highlighting a range.
     @Published
-    public internal(set) var highlightingStyle = RichTextHighlightingStyle.standard
+    public internal(set) var highlightingStyle = RichTextHighlightingStyle
+        .standard
 
     /// The current paragraph style.
     @Published
@@ -102,6 +101,9 @@ public class RichEditorState: ObservableObject {
     @Published
     public internal(set) var styles = [RichTextStyle: Bool]()
 
+    @Published
+    public internal(set) var link: String? = nil
+
     // MARK: - Properties
 
     /// This publisher can emit actions to the coordinator.
@@ -110,18 +112,20 @@ public class RichEditorState: ObservableObject {
     /// The currently highlighted range, if any.
     public var highlightedRange: NSRange?
 
-//MARK: - Variables To Handle JSON
+    //MARK: - Variables To Handle JSON
     internal var adapter: EditorAdapter = DefaultAdapter()
 
     @Published internal var activeStyles: Set<RichTextSpanStyle> = []
-    @Published internal var activeAttributes: [NSAttributedString.Key: Any]? = [:]
-
+    @Published internal var activeAttributes: [NSAttributedString.Key: Any]? =
+        [:]
 
     internal var internalSpans: [RichTextSpanInternal] = []
 
     internal var rawText: String = ""
 
-    internal var updateAttributesQueue: [(span: RichTextSpanInternal, shouldApply: Bool)] = []
+    internal var updateAttributesQueue:
+        [(span: RichTextSpanInternal, shouldApply: Bool)] = []
+    internal let alertController: AlertController = AlertController()
 
     /**
      This will provide encoded text which is of type RichText
@@ -131,7 +135,11 @@ public class RichEditorState: ObservableObject {
     }
 
     internal var spans: RichTextSpans {
-        return internalSpans.map({ .init(insert: getStringWith(from: $0.from, to: $0.to), attributes: $0.attributes) })
+        return internalSpans.map({
+            .init(
+                insert: getStringWith(from: $0.from, to: $0.to),
+                attributes: $0.attributes)
+        })
     }
 
     var internalRichText: RichText = .init()
@@ -145,9 +153,10 @@ public class RichEditorState: ObservableObject {
         var tempSpans: [RichTextSpanInternal] = []
         var text = ""
         richText.spans.forEach({
-            let span = RichTextSpanInternal(from: text.utf16Length,
-                                            to: (text.utf16Length + $0.insert.utf16Length - 1),
-                                            attributes: $0.attributes)
+            let span = RichTextSpanInternal(
+                from: text.utf16Length,
+                to: (text.utf16Length + $0.insert.utf16Length - 1),
+                attributes: $0.attributes)
             tempSpans.append(span)
             text += $0.insert
         })
@@ -155,15 +164,18 @@ public class RichEditorState: ObservableObject {
         let str = NSMutableAttributedString(string: text)
 
         tempSpans.forEach { span in
-            str.addAttributes(span.attributes?.toAttributes(font: .standardRichTextFont) ?? [:], range: span.spanRange)
+            str.addAttributes(
+                span.attributes?.toAttributes(font: .standardRichTextFont)
+                    ?? [:], range: span.spanRange)
             if span.attributes?.color == nil {
                 var color: ColorRepresentable = .clear
                 #if os(watchOS)
-                color = .black
+                    color = .black
                 #else
-                color = RichTextView.Theme.standard.fontColor
+                    color = RichTextView.Theme.standard.fontColor
                 #endif
-                str.addAttributes([.foregroundColor: color], range: span.spanRange)
+                str.addAttributes(
+                    [.foregroundColor: color], range: span.spanRange)
             }
         }
 
@@ -187,10 +199,16 @@ public class RichEditorState: ObservableObject {
 
         let str = NSMutableAttributedString(string: input)
 
-        str.addAttributes([.font: FontRepresentable.standardRichTextFont], range: str.richTextRange)
+        str.addAttributes(
+            [.font: FontRepresentable.standardRichTextFont],
+            range: str.richTextRange)
         self.attributedString = str
 
-        self.internalSpans = [.init(from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0, attributes: RichAttributes())]
+        self.internalSpans = [
+            .init(
+                from: 0, to: input.utf16Length > 0 ? input.utf16Length - 1 : 0,
+                attributes: RichAttributes())
+        ]
 
         selectedRange = NSRange(location: 0, length: 0)
         activeStyles = []
@@ -199,68 +217,67 @@ public class RichEditorState: ObservableObject {
     }
 }
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// Whether or not the context has a selected range.
-    var hasHighlightedRange: Bool {
+    public var hasHighlightedRange: Bool {
         highlightedRange != nil
     }
 
     /// Whether or not the context has a selected range.
-    var hasSelectedRange: Bool {
+    public var hasSelectedRange: Bool {
         selectedRange.length > 0
     }
 }
 
-public extension RichEditorState {
+extension RichEditorState {
 
     /// Set ``highlightedRange`` to a new, optional range.
-    func highlightRange(_ range: NSRange?) {
+    public func highlightRange(_ range: NSRange?) {
         actionPublisher.send(.setHighlightedRange(range))
         highlightedRange = range
     }
 
     /// Reset the attributed string.
-    func resetAttributedString() {
+    public func resetAttributedString() {
         setAttributedString(to: "")
     }
 
     /// Reset the ``highlightedRange``.
-    func resetHighlightedRange() {
+    public func resetHighlightedRange() {
         guard hasHighlightedRange else { return }
         highlightedRange = nil
     }
 
     /// Reset the ``selectedRange``.
-    func resetSelectedRange() {
+    public func resetSelectedRange() {
         selectedRange = NSRange()
     }
 
     /// Set a new range and start editing.
-    func selectRange(_ range: NSRange) {
+    public func selectRange(_ range: NSRange) {
         isEditingText = true
         actionPublisher.send(.selectRange(range))
     }
 
     /// Set the attributed string to a new plain text.
-    func setAttributedString(to text: String) {
+    public func setAttributedString(to text: String) {
         setAttributedString(to: NSAttributedString(string: text))
     }
 
     /// Set the attributed string to a new rich text.
-    func setAttributedString(to string: NSAttributedString) {
+    public func setAttributedString(to string: NSAttributedString) {
         let mutable = NSMutableAttributedString(attributedString: string)
         actionPublisher.send(.setAttributedString(mutable))
     }
 
     /// Set ``isEditingText`` to `false`.
-    func stopEditingText() {
+    public func stopEditingText() {
         isEditingText = false
     }
 
     /// Toggle whether or not the text is being edited.
-    func toggleIsEditing() {
+    public func toggleIsEditing() {
         isEditingText.toggle()
     }
 }
-

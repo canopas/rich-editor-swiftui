@@ -1,6 +1,6 @@
 //
 // StandardFontSizeProvider.swift
-//  
+//
 //
 //  Created by Divyesh Vekariya on 12/01/24.
 //
@@ -15,27 +15,29 @@ extension Double: StandardFontSizeProvider {}
 
 extension RichEditorState: StandardFontSizeProvider {}
 
-#if iOS || macOS || os(tvOS)
-extension RichTextEditor: StandardFontSizeProvider {}
+#if os(iOS) || os(macOS) || os(tvOS)
+    extension RichTextEditor: StandardFontSizeProvider {}
 
-extension RichTextView: StandardFontSizeProvider {}
+    extension RichTextView: StandardFontSizeProvider {}
 #endif
 
-public extension StandardFontSizeProvider {
-    
+extension StandardFontSizeProvider {
+
     /**
      The standard font size to use for rich text.
-     
+
      You can change this value to affect all types that make
      use of this value.
      */
-    static var standardRichTextFontSize: CGFloat {
+    public static var standardRichTextFontSize: CGFloat {
         get { StandardFontSizeProviderStorage.standardRichTextFontSize }
-        set { StandardFontSizeProviderStorage.standardRichTextFontSize = newValue }
+        set {
+            StandardFontSizeProviderStorage.standardRichTextFontSize = newValue
+        }
     }
 }
 
 private class StandardFontSizeProviderStorage {
-    
+
     static var standardRichTextFontSize: CGFloat = 16
 }

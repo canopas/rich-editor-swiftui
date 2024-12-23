@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension RichTextFont {
+extension RichTextFont {
 
     /**
      This view uses a `List` to list a set of fonts of which
@@ -28,7 +28,7 @@ public extension RichTextFont {
      .richTextFontPickerConfig(...)
      ```
      */
-    struct ListPicker: View {
+    public struct ListPicker: View {
 
         /**
          Create a font list picker.
