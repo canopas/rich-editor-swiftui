@@ -38,6 +38,9 @@ public protocol RichTextViewComponent: AnyObject,
     /// The style to use when highlighting text in the view.
     var highlightingStyle: RichTextHighlightingStyle { get set }
 
+    /// The image configuration used by the rich text view.
+    var imageConfiguration: RichTextImageConfiguration { get set }
+
     /// Whether or not the text view is the first responder.
     var isFirstResponder: Bool { get }
 
@@ -124,20 +127,20 @@ extension RichTextViewComponent {
     }
 
     /// Get the image configuration for a certain format.
-    //    func standardImageConfiguration(
-    //        for format: RichTextDataFormat
-    //    ) -> RichTextImageConfiguration {
-    //        let insertConfig = standardImageInsertConfiguration(for: format)
-    //        return RichTextImageConfiguration(
-    //            pasteConfiguration: insertConfig,
-    //            dropConfiguration: insertConfig,
-    //            maxImageSize: (width: .frame, height: .frame))
-    //    }
+        func standardImageConfiguration(
+            for format: RichTextDataFormat
+        ) -> RichTextImageConfiguration {
+            let insertConfig = standardImageInsertConfiguration(for: format)
+            return RichTextImageConfiguration(
+                pasteConfiguration: insertConfig,
+                dropConfiguration: insertConfig,
+                maxImageSize: (width: .frame, height: .frame))
+        }
 
     /// Get the image insert config for a certain format.
-    //    func standardImageInsertConfiguration(
-    //        for format: RichTextDataFormat
-    //    ) -> RichTextImageInsertConfiguration {
-    //        format.supportsImages ? .enabled : .disabled
-    //    }
+        func standardImageInsertConfiguration(
+            for format: RichTextDataFormat
+        ) -> RichTextImageInsertConfiguration {
+            format.supportsImages ? .enabled : .disabled
+        }
 }

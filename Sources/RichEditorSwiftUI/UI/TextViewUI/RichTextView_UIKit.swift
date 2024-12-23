@@ -77,13 +77,13 @@
      setting the property manually or by setting up the view
      with a ``RichTextDataFormat`` that supports images.
      */
-        //    public var imageConfiguration: RichTextImageConfiguration = .disabled {
-        //        didSet {
-        //#if os(iOS) || os(visionOS)
-        //            refreshDropInteraction()
-        //#endif
-        //        }
-        //    }
+        public var imageConfiguration: RichTextImageConfiguration = .disabled {
+            didSet {
+                #if os(iOS) || os(visionOS)
+                    refreshDropInteraction()
+                #endif
+            }
+        }
 
         #if os(iOS) || os(visionOS)
 
@@ -124,33 +124,33 @@
             }
         }
 
-        //#if os(iOS) || os(visionOS)
-        //    /**
-        //     Check whether or not a certain action can be performed.
-        //     */
-        //    open override func canPerformAction(
-        //        _ action: Selector,
-        //        withSender sender: Any?
-        //    ) -> Bool {
-        //        let pasteboard = UIPasteboard.general
-        //        let hasImage = pasteboard.image != nil
-        //        let isPaste = action == #selector(paste(_:))
-        //        let canPerformImagePaste = imagePasteConfiguration != .disabled
-        //        if isPaste && hasImage && canPerformImagePaste { return true }
-        //        return super.canPerformAction(action, withSender: sender)
-        //    }
-        //
-        //    /**
-        //     Paste the current content of the general pasteboard.
-        //     */
-        //    open override func paste(_ sender: Any?) {
-        //        let pasteboard = UIPasteboard.general
-        //        if let image = pasteboard.image {
-        //            return pasteImage(image, at: selectedRange.location)
-        //        }
-        //        super.paste(sender)
-        //    }
-        //#endif
+        #if os(iOS) || os(visionOS)
+            /**
+             Check whether or not a certain action can be performed.
+             */
+            open override func canPerformAction(
+                _ action: Selector,
+                withSender sender: Any?
+            ) -> Bool {
+                let pasteboard = UIPasteboard.general
+                let hasImage = pasteboard.image != nil
+                let isPaste = action == #selector(paste(_:))
+                let canPerformImagePaste = imagePasteConfiguration != .disabled
+                if isPaste && hasImage && canPerformImagePaste { return true }
+                return super.canPerformAction(action, withSender: sender)
+            }
+        
+            /**
+             Paste the current content of the general pasteboard.
+             */
+            open override func paste(_ sender: Any?) {
+                let pasteboard = UIPasteboard.general
+                if let image = pasteboard.image {
+                    return pasteImage(image, at: selectedRange.location)
+                }
+                super.paste(sender)
+            }
+        #endif
 
         // MARK: - Setup
 
@@ -166,7 +166,7 @@
             with text: NSAttributedString,
             format: RichTextDataFormat? = nil
         ) {
-            //        text.autosizeImageAttachments(maxSize: imageAttachmentMaxSize)
+            text.autosizeImageAttachments(maxSize: imageAttachmentMaxSize)
             setupSharedBehavior(with: text, format)
             if let format {
                 richTextDataFormat = format
@@ -278,14 +278,14 @@
             // MARK: - UIDropInteractionDelegate
 
             /// Whether or not the view can handle a drop session.
-            //    open func dropInteraction(
-            //        _ interaction: UIDropInteraction,
-            //        canHandle session: UIDropSession
-            //    ) -> Bool {
-            //        if session.hasImage && imageDropConfiguration == .disabled { return false }
-            //        let identifiers = supportedDropInteractionTypes.map { $0.identifier }
-            //        return session.hasItemsConforming(toTypeIdentifiers: identifiers)
-            //    }
+                open func dropInteraction(
+                    _ interaction: UIDropInteraction,
+                    canHandle session: UIDropSession
+                ) -> Bool {
+                    if session.hasImage && imageDropConfiguration == .disabled { return false }
+                    let identifiers = supportedDropInteractionTypes.map { $0.identifier }
+                    return session.hasItemsConforming(toTypeIdentifiers: identifiers)
+                }
 
             /// Handle an updated drop session.
             open func dropInteraction(
@@ -331,13 +331,13 @@
      We reverse the item collection, since each item will be
      pasted at the original drop point.
      */
-            //    open func performImageDrop(with session: UIDropSession, at range: NSRange) {
-            //        guard validateImageInsertion(for: imageDropConfiguration) else { return }
-            //        session.loadObjects(ofClass: UIImage.self) { items in
-            //            let images = items.compactMap { $0 as? UIImage }.reversed()
-            //            images.forEach { self.pasteImage($0, at: range.location) }
-            //        }
-            //    }
+                open func performImageDrop(with session: UIDropSession, at range: NSRange) {
+                    guard validateImageInsertion(for: imageDropConfiguration) else { return }
+                    session.loadObjects(ofClass: UIImage.self) { items in
+                        let images = items.compactMap { $0 as? UIImage }.reversed()
+                        images.forEach { self.pasteImage($0, at: range.location) }
+                    }
+                }
 
             /**
      Perform a text drop session.
@@ -356,14 +356,14 @@
             }
 
         /// Refresh the drop interaction based on the config.
-        //    open func refreshDropInteraction() {
-        //        switch imageDropConfiguration {
-        //            case .disabled:
-        //                removeInteraction(imageDropInteraction)
-        //            case .disabledWithWarning, .enabled:
-        //                addInteraction(imageDropInteraction)
-        //        }
-        //    }
+            open func refreshDropInteraction() {
+                switch imageDropConfiguration {
+                    case .disabled:
+                        removeInteraction(imageDropInteraction)
+                    case .disabledWithWarning, .enabled:
+                        addInteraction(imageDropInteraction)
+                }
+            }
         #endif
     }
 
