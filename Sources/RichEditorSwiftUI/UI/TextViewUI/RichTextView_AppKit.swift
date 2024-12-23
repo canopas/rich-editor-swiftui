@@ -36,7 +36,12 @@
         public var highlightingStyle: RichTextHighlightingStyle = .standard
 
         /// The image configuration to use by the rich text view.
-        //    public var imageConfiguration: RichTextImageConfiguration = .disabled
+        public var imageConfiguration: RichTextImageConfiguration = .disabled {
+            didSet { imageConfigurationWasSet = true }
+        }
+
+        /// The image configuration to use by the rich text view.
+        var imageConfigurationWasSet = false
 
         // MARK: - Overrides
 
