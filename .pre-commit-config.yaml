@@ -1,0 +1,19 @@
+repos:
+  - repo: local
+    hooks:
+      - id: swiftformat
+        name: Swift Format
+        description: Enforces formatting guidelines for Swift files before committing.
+        language: system
+        entry: swiftformat --swiftversion 5
+        stages:
+          - pre-commit
+
+      - id: swiftlint
+        name: Swift Linter
+        description: Runs a linter before committing to ensure code quality.
+        language: system
+        always_run: true
+        entry: swiftlint lint --lenient --config .swiftlint.yml
+        stages:
+          - pre-commit
