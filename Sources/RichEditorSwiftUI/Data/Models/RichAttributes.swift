@@ -73,7 +73,12 @@ public struct RichAttributes: Codable {
     case background = "background"
     case align = "align"
     case link = "link"
-    case image = "image"
+    /**
+       Commented as it should not be encode as we follow Quill Architecture so in that image is encoded
+       in ``RichTextSpan.insert`` of span model
+
+       */
+    //    case image = "image"
   }
 
   public init(from decoder: Decoder) throws {
@@ -96,7 +101,12 @@ public struct RichAttributes: Codable {
     self.align = try values.decodeIfPresent(
       RichTextAlignment.self, forKey: .align)
     self.link = try values.decodeIfPresent(String.self, forKey: .link)
-    self.image = try values.decodeIfPresent(String.self, forKey: .image)
+    /**
+       Commented as it should not be decode as we follow Quill Structure so in that image is decoded
+       in ``RichTextSpan.insert`` of span's json and we add it by copying it
+
+       */
+    //    self.image = try values.decodeIfPresent(String.self, forKey: .image)
   }
 }
 
