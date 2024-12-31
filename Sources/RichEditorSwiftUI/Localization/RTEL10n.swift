@@ -7,152 +7,152 @@
 
 import SwiftUI
 
-/// This enum defines RichTextKit-specific, localized texts.
+/// This enum defines RichTextEditor-specific, localized texts.
 public enum RTEL10n: String, CaseIterable, Identifiable {
 
-    case
-        done,
-        more,
+  case
+    done,
+    more,
 
-        font,
-        fontSize,
-        fontSizeIncrease,
-        fontSizeIncreaseDescription,
-        fontSizeDecrease,
-        fontSizeDecreaseDescription,
+    font,
+    fontSize,
+    fontSizeIncrease,
+    fontSizeIncreaseDescription,
+    fontSizeDecrease,
+    fontSizeDecreaseDescription,
 
-        setHeaderStyle,
+    setHeaderStyle,
 
-        color,
-        foregroundColor,
-        backgroundColor,
-        underlineColor,
-        strikethroughColor,
-        strokeColor,
+    color,
+    foregroundColor,
+    backgroundColor,
+    underlineColor,
+    strikethroughColor,
+    strokeColor,
 
-        actionCopy,
-        actionDismissKeyboard,
-        actionPrint,
-        actionRedoLatestChange,
-        actionUndoLatestChange,
+    actionCopy,
+    actionDismissKeyboard,
+    actionPrint,
+    actionRedoLatestChange,
+    actionUndoLatestChange,
 
-        fileFormatRtk,
-        fileFormatPdf,
-        fileFormatRtf,
-        fileFormatTxt,
-        fileFormatJson,
+    fileFormatRtk,
+    fileFormatPdf,
+    fileFormatRtf,
+    fileFormatTxt,
+    fileFormatJson,
 
-        indent,
-        indentIncrease,
-        indentIncreaseDescription,
-        indentDecrease,
-        indentDecreaseDescription,
+    indent,
+    indentIncrease,
+    indentIncreaseDescription,
+    indentDecrease,
+    indentDecreaseDescription,
 
-        lineSpacing,
-        lineSpacingIncrease,
-        lineSpacingIncreaseDescription,
-        lineSpacingDecrease,
-        lineSpacingDecreaseDescription,
+    lineSpacing,
+    lineSpacingIncrease,
+    lineSpacingIncreaseDescription,
+    lineSpacingDecrease,
+    lineSpacingDecreaseDescription,
 
-        menuExport,
-        menuExportAs,
-        menuFormat,
-        menuPrint,
-        menuSave,
-        menuSaveAs,
-        menuShare,
-        menuShareAs,
-        menuText,
+    menuExport,
+    menuExportAs,
+    menuFormat,
+    menuPrint,
+    menuSave,
+    menuSaveAs,
+    menuShare,
+    menuShareAs,
+    menuText,
 
-        highlightedRange,
-        highlightingStyle,
+    highlightedRange,
+    highlightingStyle,
 
-        pasteImage,
-        pasteImages,
-        pasteText,
-        selectRange,
+    pasteImage,
+    pasteImages,
+    pasteText,
+    selectRange,
 
-        setAttributedString,
+    setAttributedString,
 
-        styleBold,
-        styleItalic,
-        styleStrikethrough,
-        styleUnderlined,
+    styleBold,
+    styleItalic,
+    styleStrikethrough,
+    styleUnderlined,
 
-        superscript,
-        superscriptIncrease,
-        superscriptIncreaseDescription,
-        superscriptDecrease,
-        superscriptDecreaseDescription,
+    superscript,
+    superscriptIncrease,
+    superscriptIncreaseDescription,
+    superscriptDecrease,
+    superscriptDecreaseDescription,
 
-        textAlignment,
-        textAlignmentLeft,
-        textAlignmentRight,
-        textAlignmentCentered,
-        textAlignmentJustified,
+    textAlignment,
+    textAlignmentLeft,
+    textAlignmentRight,
+    textAlignmentCentered,
+    textAlignmentJustified,
 
-        headerDefault,
-        header1,
-        header2,
-        header3,
-        header4,
-        header5,
-        header6,
+    headerDefault,
+    header1,
+    header2,
+    header3,
+    header4,
+    header5,
+    header6,
 
-        link,
+    link,
 
-        ignoreIt
+    ignoreIt
 }
 
 extension RTEL10n {
 
-    public static func actionStepFontSize(
-        _ points: Int
-    ) -> RTEL10n {
-        points < 0 ? .fontSizeDecreaseDescription : .fontSizeIncreaseDescription
-    }
+  public static func actionStepFontSize(
+    _ points: Int
+  ) -> RTEL10n {
+    points < 0 ? .fontSizeDecreaseDescription : .fontSizeIncreaseDescription
+  }
 
-    public static func actionStepIndent(
-        _ points: Double
-    ) -> RTEL10n {
-        points < 0 ? .indentDecreaseDescription : .indentIncreaseDescription
-    }
+  public static func actionStepIndent(
+    _ points: Double
+  ) -> RTEL10n {
+    points < 0 ? .indentDecreaseDescription : .indentIncreaseDescription
+  }
 
-    public static func actionStepLineSpacing(
-        _ points: CGFloat
-    ) -> RTEL10n {
-        points < 0
-            ? .lineSpacingDecreaseDescription : .lineSpacingIncreaseDescription
-    }
+  public static func actionStepLineSpacing(
+    _ points: CGFloat
+  ) -> RTEL10n {
+    points < 0
+      ? .lineSpacingDecreaseDescription : .lineSpacingIncreaseDescription
+  }
 
-    public static func actionStepSuperscript(
-        _ steps: Int
-    ) -> RTEL10n {
-        steps < 0
-            ? .superscriptDecreaseDescription : .superscriptIncreaseDescription
-    }
+  public static func actionStepSuperscript(
+    _ steps: Int
+  ) -> RTEL10n {
+    steps < 0
+      ? .superscriptDecreaseDescription : .superscriptIncreaseDescription
+  }
 
-    public static func menuIndent(_ points: Double) -> RTEL10n {
-        points < 0 ? .indentDecrease : .indentIncrease
-    }
+  public static func menuIndent(_ points: Double) -> RTEL10n {
+    points < 0 ? .indentDecrease : .indentIncrease
+  }
 }
 
 extension RTEL10n {
 
-    /// The item's unique identifier.
-    public var id: String { rawValue }
+  /// The item's unique identifier.
+  public var id: String { rawValue }
 
-    /// The item's localization key.
-    public var key: String { rawValue }
+  /// The item's localization key.
+  public var key: String { rawValue }
 
-    /// The item's localized text.
-    public var text: String {
-        rawValue
-    }
+  /// The item's localized text.
+  public var text: String {
+    rawValue
+  }
 
-    /// Get the localized text for a certain `Locale`.
-    //    func text(for locale: Locale) -> String {
-    //        guard let bundle = Bundle.module.bundle(for: locale) else { return "" }
-    //        return NSLocalizedString(key, bundle: bundle, comment: "")
-    //    }
+  /// Get the localized text for a certain `Locale`.
+  //    func text(for locale: Locale) -> String {
+  //        guard let bundle = Bundle.module.bundle(for: locale) else { return "" }
+  //        return NSLocalizedString(key, bundle: bundle, comment: "")
+  //    }
 }

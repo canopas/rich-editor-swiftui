@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RichTextView_UIKit.swift
 //  RichEditorSwiftUI
 //
 //  Created by Divyesh Vekariya on 19/10/24.
@@ -22,6 +22,9 @@
   /// make them implement ``RichTextViewComponent``, which is the
   /// protocol that is used within this library.
   open class RichTextView: UITextView, RichTextViewComponent {
+
+    //Pass event to the parent
+    var onTextViewEvent: ((_ event: TextViewEvents) -> Void)? = nil
 
     // MARK: - Initializers
 
@@ -158,7 +161,14 @@
       open override func paste(_ sender: Any?) {
         let pasteboard = UIPasteboard.general
         if let image = pasteboard.image {
-          return pasteImage(image, at: selectedRange.location)
+          let insertedString = pasteImage(image, at: selectedRange.location)
+          if let insertedString = insertedString {
+            onTextViewEvent?(
+              .didDroppedItems(
+                insertedString: insertedString, atRange: selectedRange,
+                isReplaced: !selectedRange.isCollapsed, with: [image]))
+          }
+          return
         }
         super.paste(sender)
       }
@@ -291,9 +301,14 @@
         _ interaction: UIDropInteraction,
         canHandle session: UIDropSession
       ) -> Bool {
-        if session.hasImage && imageDropConfiguration == .disabled { return false }
-        let identifiers = supportedDropInteractionTypes.map { $0.identifier }
-        return session.hasItemsConforming(toTypeIdentifiers: identifiers)
+        if session.hasImage && imageDropConfiguration == .disabled {
+          return false
+        }
+        let identifiers = supportedDropInteractionTypes.map {
+          $0.identifier
+        }
+        return session.hasItemsConforming(
+          toTypeIdentifiers: identifiers)
       }
 
       /// Handle an updated drop session.
@@ -340,12 +355,25 @@
      We reverse the item collection, since each item will be
      pasted at the original drop point.
      */
-      open func performImageDrop(with session: UIDropSession, at range: NSRange) {
-        guard validateImageInsertion(for: imageDropConfiguration) else { return }
-        session.loadObjects(ofClass: UIImage.self) { items in
-          let images = items.compactMap { $0 as? UIImage }.reversed()
-          images.forEach { self.pasteImage($0, at: range.location) }
+      open func performImageDrop(
+        with session: UIDropSession, at range: NSRange
+      ) {
+        guard validateImageInsertion(for: imageDropConfiguration) else {
+          return
         }
+        var insertedString =
+          session.loadObjects(ofClass: UIImage.self) { [weak self] items in
+            guard let self else { return }
+            let images = items.compactMap({ $0 as? UIImage }).reversed().map({ $0 })
+            let insertedString = self.pasteImages(
+              images, at: range.location, moveCursorToPastedContent: true)
+            if let insertedString = insertedString {
+              self.onTextViewEvent?(
+                .didDroppedItems(
+                  insertedString: insertedString, atRange: self.selectedRange,
+                  isReplaced: !self.selectedRange.isCollapsed, with: images))
+            }
+          }
       }
 
       /**

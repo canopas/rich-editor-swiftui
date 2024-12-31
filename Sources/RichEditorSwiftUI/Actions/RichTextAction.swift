@@ -15,179 +15,179 @@ import SwiftUI
 /// types and views, like ``RichTextAction/Button``.
 public enum RichTextAction: Identifiable, Equatable {
 
-    /// Copy the currently selected text, if any.
-    case copy
+  /// Copy the currently selected text, if any.
+  case copy
 
-    /// Dismiss any presented software keyboard.
-    case dismissKeyboard
+  /// Dismiss any presented software keyboard.
+  case dismissKeyboard
 
-    /// Paste a single image.
-    //    case pasteImage(RichTextInsertion<ImageRepresentable>)
-    //
-    //    /// Paste multiple images.
-    //    case pasteImages(RichTextInsertion<[ImageRepresentable]>)
-    //
-    //    /// Paste plain text.
-    //    case pasteText(RichTextInsertion<String>)
+  /// Paste a single image.
+  case pasteImage(RichTextInsertion<ImageRepresentable>)
 
-    /// A print command.
-    case print
+  /// Paste multiple images.
+  case pasteImages(RichTextInsertion<[ImageRepresentable]>)
 
-    /// Redo the latest undone change.
-    case redoLatestChange
+  /// Paste plain text.
+  case pasteText(RichTextInsertion<String>)
 
-    /// Select a range.
-    case selectRange(NSRange)
+  /// A print command.
+  case print
 
-    /// Set the text alignment.
-    case setAlignment(_ alignment: RichTextAlignment)
+  /// Redo the latest undone change.
+  case redoLatestChange
 
-    /// Set the entire attributed string.
-    case setAttributedString(NSAttributedString)
+  /// Select a range.
+  case selectRange(NSRange)
 
-    // Change background color
-    case setColor(RichTextColor, ColorRepresentable)
+  /// Set the text alignment.
+  case setAlignment(_ alignment: RichTextAlignment)
 
-    // Highlighted renge
-    case setHighlightedRange(NSRange?)
+  /// Set the entire attributed string.
+  case setAttributedString(NSAttributedString)
 
-    // Change highlighting style
-    case setHighlightingStyle(RichTextHighlightingStyle)
+  // Change background color
+  case setColor(RichTextColor, ColorRepresentable)
 
-    /// Set a certain ``RichTextStyle``.
-    case setStyle(RichTextStyle, Bool)
+  // Highlighted renge
+  case setHighlightedRange(NSRange?)
 
-    /// Step the font size.
-    case stepFontSize(points: Int)
+  // Change highlighting style
+  case setHighlightingStyle(RichTextHighlightingStyle)
 
-    /// Step the indent level.
-    case stepIndent(points: CGFloat)
+  /// Set a certain ``RichTextStyle``.
+  case setStyle(RichTextStyle, Bool)
 
-    /// Step the line spacing.
-    case stepLineSpacing(points: CGFloat)
+  /// Step the font size.
+  case stepFontSize(points: Int)
 
-    /// Step the superscript level.
-    case stepSuperscript(steps: Int)
+  /// Step the indent level.
+  case stepIndent(points: CGFloat)
 
-    /// Toggle a certain style.
-    case toggleStyle(_ style: RichTextStyle)
+  /// Step the line spacing.
+  case stepLineSpacing(points: CGFloat)
 
-    /// Undo the latest change.
-    case undoLatestChange
+  /// Step the superscript level.
+  case stepSuperscript(steps: Int)
 
-    /// Set HeaderStyle.
-    case setHeaderStyle(_ style: RichTextSpanStyle)
+  /// Toggle a certain style.
+  case toggleStyle(_ style: RichTextStyle)
 
-    /// Set link
-    case setLink(String? = nil)
+  /// Undo the latest change.
+  case undoLatestChange
+
+  /// Set HeaderStyle.
+  case setHeaderStyle(_ style: RichTextSpanStyle)
+
+  /// Set link
+  case setLink(String? = nil)
 }
 
 extension RichTextAction {
 
-    public typealias Publisher = PassthroughSubject<Self, Never>
+  public typealias Publisher = PassthroughSubject<Self, Never>
 
-    /// The action's unique identifier.
-    public var id: String { title }
+  /// The action's unique identifier.
+  public var id: String { title }
 
-    /// The action's standard icon.
-    public var icon: Image {
-        switch self {
-        case .copy: .richTextCopy
-        case .dismissKeyboard: .richTextDismissKeyboard
-        //        case .pasteImage: .richTextDocuments
-        //        case .pasteImages: .richTextDocuments
-        //        case .pasteText: .richTextDocuments
-        case .print: .richTextPrint
-        case .redoLatestChange: .richTextRedo
-        case .selectRange: .richTextSelection
-        case .setAlignment(let val): val.icon
-        case .setAttributedString: .richTextDocument
-        case .setColor(let color, _): color.icon
-        case .setHighlightedRange: .richTextAlignmentCenter
-        case .setHighlightingStyle: .richTextAlignmentCenter
-        case .setStyle(let style, _): style.icon
-        case .stepFontSize(let val): .richTextStepFontSize(val)
-        case .stepIndent(let val): .richTextStepIndent(val)
-        case .stepLineSpacing(let val): .richTextStepLineSpacing(val)
-        case .stepSuperscript(let val): .richTextStepSuperscript(val)
-        case .toggleStyle(let val): val.icon
-        case .undoLatestChange: .richTextUndo
-        case .setHeaderStyle: .richTextIgnoreIt
-        case .setLink: .richTextLink
-        }
+  /// The action's standard icon.
+  public var icon: Image {
+    switch self {
+    case .copy: .richTextCopy
+    case .dismissKeyboard: .richTextDismissKeyboard
+    case .pasteImage: .richTextDocuments
+    case .pasteImages: .richTextDocuments
+    case .pasteText: .richTextDocuments
+    case .print: .richTextPrint
+    case .redoLatestChange: .richTextRedo
+    case .selectRange: .richTextSelection
+    case .setAlignment(let val): val.icon
+    case .setAttributedString: .richTextDocument
+    case .setColor(let color, _): color.icon
+    case .setHighlightedRange: .richTextAlignmentCenter
+    case .setHighlightingStyle: .richTextAlignmentCenter
+    case .setStyle(let style, _): style.icon
+    case .stepFontSize(let val): .richTextStepFontSize(val)
+    case .stepIndent(let val): .richTextStepIndent(val)
+    case .stepLineSpacing(let val): .richTextStepLineSpacing(val)
+    case .stepSuperscript(let val): .richTextStepSuperscript(val)
+    case .toggleStyle(let val): val.icon
+    case .undoLatestChange: .richTextUndo
+    case .setHeaderStyle: .richTextIgnoreIt
+    case .setLink: .richTextLink
     }
+  }
 
-    /// The localized label to use for the action.
-    public var label: some View {
-        icon.label(title)
-    }
+  /// The localized label to use for the action.
+  public var label: some View {
+    icon.label(title)
+  }
 
-    /// The localized title to use in the main menu.
-    public var menuTitle: String {
-        menuTitleKey.text
-    }
+  /// The localized title to use in the main menu.
+  public var menuTitle: String {
+    menuTitleKey.text
+  }
 
-    /// The localized title key to use in the main menu.
-    public var menuTitleKey: RTEL10n {
-        switch self {
-        case .stepIndent(let points): .menuIndent(points)
-        default: titleKey
-        }
+  /// The localized title key to use in the main menu.
+  public var menuTitleKey: RTEL10n {
+    switch self {
+    case .stepIndent(let points): .menuIndent(points)
+    default: titleKey
     }
+  }
 
-    /// The localized action title.
-    public var title: String {
-        titleKey.text
-    }
+  /// The localized action title.
+  public var title: String {
+    titleKey.text
+  }
 
-    /// The localized action title key.
-    public var titleKey: RTEL10n {
-        switch self {
-        case .copy: .actionCopy
-        case .dismissKeyboard: .actionDismissKeyboard
-        //        case .pasteImage: .pasteImage
-        //        case .pasteImages: .pasteImages
-        //        case .pasteText: .pasteText
-        case .print: .actionPrint
-        case .redoLatestChange: .actionRedoLatestChange
-        case .selectRange: .selectRange
-        case .setAlignment(let alignment): alignment.titleKey
-        case .setAttributedString: .setAttributedString
-        case .setColor(let color, _): color.titleKey
-        case .setHighlightedRange: .highlightedRange
-        case .setHighlightingStyle: .highlightingStyle
-        case .setStyle(let style, _): style.titleKey
-        case .stepFontSize(let points): .actionStepFontSize(points)
-        case .stepIndent(let points): .actionStepIndent(points)
-        case .stepLineSpacing(let points): .actionStepLineSpacing(points)
-        case .stepSuperscript(let steps): .actionStepSuperscript(steps)
-        case .toggleStyle(let style): style.titleKey
-        case .undoLatestChange: .actionUndoLatestChange
-        case .setLink: .link
-        case .setHeaderStyle: .ignoreIt
-        }
+  /// The localized action title key.
+  public var titleKey: RTEL10n {
+    switch self {
+    case .copy: .actionCopy
+    case .dismissKeyboard: .actionDismissKeyboard
+    case .pasteImage: .pasteImage
+    case .pasteImages: .pasteImages
+    case .pasteText: .pasteText
+    case .print: .actionPrint
+    case .redoLatestChange: .actionRedoLatestChange
+    case .selectRange: .selectRange
+    case .setAlignment(let alignment): alignment.titleKey
+    case .setAttributedString: .setAttributedString
+    case .setColor(let color, _): color.titleKey
+    case .setHighlightedRange: .highlightedRange
+    case .setHighlightingStyle: .highlightingStyle
+    case .setStyle(let style, _): style.titleKey
+    case .stepFontSize(let points): .actionStepFontSize(points)
+    case .stepIndent(let points): .actionStepIndent(points)
+    case .stepLineSpacing(let points): .actionStepLineSpacing(points)
+    case .stepSuperscript(let steps): .actionStepSuperscript(steps)
+    case .toggleStyle(let style): style.titleKey
+    case .undoLatestChange: .actionUndoLatestChange
+    case .setLink: .link
+    case .setHeaderStyle: .ignoreIt
     }
+  }
 }
 
 // MARK: - Aliases
 
 extension RichTextAction {
 
-    /// A name alias for `.redoLatestChange`.
-    public static var redo: RichTextAction { .redoLatestChange }
+  /// A name alias for `.redoLatestChange`.
+  public static var redo: RichTextAction { .redoLatestChange }
 
-    /// A name alias for `.undoLatestChange`.
-    public static var undo: RichTextAction { .undoLatestChange }
+  /// A name alias for `.undoLatestChange`.
+  public static var undo: RichTextAction { .undoLatestChange }
 }
 
 extension CGFloat {
 
-    /// The default rich text indent step size.
-    public static var defaultRichTextIntentStepSize: CGFloat = 30.0
+  /// The default rich text indent step size.
+  public static var defaultRichTextIntentStepSize: CGFloat = 30.0
 }
 
 extension UInt {
 
-    /// The default rich text indent step size.
-    public static var defaultRichTextIntentStepSize: UInt = 30
+  /// The default rich text indent step size.
+  public static var defaultRichTextIntentStepSize: UInt = 30
 }
