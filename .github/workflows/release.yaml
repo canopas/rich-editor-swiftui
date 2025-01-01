@@ -1,0 +1,25 @@
+# This workflow release package on Cocoapods.
+
+name: Release
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      
+      - name: Install CocoaPods
+        run: gem install cocoapods
+
+      - name: Prepare and Publish
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          set -eo pipefail
+          pod lib lint --allow-warnings
+          pod trunk push RichEditorSwiftUI.podspec --allow-warnings
