@@ -25,8 +25,8 @@ The editor offers the following <b>options</b>:
 - [x] Background color
 - [x] Export with .txt, .rtf, .pdf, .json
 - [ ] Link
-- [] Image Attachment
-- [] Undo/Redo
+- [ ] Image Attachment
+- [ ] Undo/Redo
 
 ## What’s Coming Next for RichEditorSwiftUI?🚀
 
