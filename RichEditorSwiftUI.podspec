@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "RichEditorSwiftUI"
-  s.version          = "1.0.0"
+  s.version          = "1.1.1"
   s.summary          = "Rich text editing, SwiftUI rich text editor library."
 
   s.description      = <<-DESC
