@@ -25,8 +25,8 @@ The editor offers the following <b>options</b>:
     <th  width="33%" >Editor dark</th>
   </tr>
   <tr>
-    <td><img src="docs/editor_iphone_light.png" /></td>
-    <td> <img src="docs/editor_iphone_dark.png" /> </td>
+    <td><img src="editor_iphone_light.png" /></td>
+    <td> <img src="editor_iphone_dark.png" /> </td>
   </tr>
 </table>
 
@@ -36,8 +36,8 @@ The editor offers the following <b>options</b>:
     <th  width="33%" >Toolbar light</th>
   </tr>
   <tr align="center">
-    <td><img src="docs/editor_toolbar_iphone_dark.png" /></td>
-    <td> <img src="docs/editor_toolbar_iphone_light.png" /> </td>
+    <td><img src="editor_toolbar_iphone_dark.png" /></td>
+    <td> <img src="editor_toolbar_iphone_light.png" /> </td>
   </tr>
 </table>
 
@@ -46,7 +46,7 @@ The editor offers the following <b>options</b>:
     <th width="100%" >mac Editor light</th>
   </tr>
   <tr align="center">
-    <td><img src="docs/editor_mac_light.png"  width="70%" /></td>
+    <td><img src="editor_mac_light.png"  width="70%" /></td>
   </tr>
 </table>
 
@@ -55,7 +55,7 @@ The editor offers the following <b>options</b>:
     <th  width="100%" >mac Editor dark</th>
   </tr>
   <tr align="center">
-    <td> <img src="docs/editor_mac_dark.png"  width="70%" /> </td>
+    <td> <img src="editor_mac_dark.png"  width="70%" /> </td>
   </tr>
 </table>
 
