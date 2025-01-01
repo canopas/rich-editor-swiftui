@@ -24,7 +24,18 @@ The editor offers the following <b>options</b>:
 - [x] Font family
 - [x] Background color
 - [x] Export with .txt, .rtf, .pdf, .json
-- [x] Link
+- [ ] Link
+- [] Image Attachment
+- [] Undo/Redo
+
+## What’s Coming Next for RichEditorSwiftUI?🚀
+
+We’re thrilled about the future of RichEditorSwiftUI! 🎉 Check out the exciting features currently in development:
+
+**Link Support:** Easily add hyperlinks to your rich text content.
+**Image Drop:** Drag and drop images directly into your editor for seamless integration.
+**Undo & Redo:** Effortlessly step forward or backward in your edits for greater control.
+Thank you for your support and feedback—it fuels our journey. Stay tuned for these enhancements and more! 🙌
 
 ## Screenshots
 
