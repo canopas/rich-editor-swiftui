@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name             = 'RichEditorSwiftUI'
-  s.version          = '1.0.0'
-  s.summary          = 'Powerful WYSIWYG Rich editor for SwiftUI.'
+  s.name             = "RichEditorSwiftUI"
+  s.version          = "1.1.1"
+  s.summary          = "Rich text editing, SwiftUI rich text editor library."
 
   s.description      = <<-DESC
     Wrapper around UITextView to support Rich text editing in SwiftUI.
