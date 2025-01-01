@@ -232,6 +232,69 @@ public class RichEditorState: ObservableObject {
   }
 }
 
+//MARK: - Handle Image download
+extension RichEditorState {
+  func onTextViewDidEndWithSetUp() {
+    setupWithImage()
+  }
+
+  func setupWithImage() {
+    let imageSpans = internalSpans.filter({ $0.attributes?.image != nil })
+    guard !imageSpans.isEmpty else { return }
+    imageSpans.forEach { item in
+      Task { @MainActor [weak self] in
+        guard let attributes = item.attributes else { return }
+        let image = await attributes.getImage()
+        if let image, let imageUrl = attributes.image {
+          let attachment = ImageAttachment(image: image, url: imageUrl)
+          attachment.updateRange(with: item.spanRange)
+          self?.actionPublisher.send(.updateImageAttachments([attachment]))
+        }
+      }
+    }
+  }
+
+  func setupWithImageAttachment(imageAttachment: [ImageAttachment]) {
+    let richText = internalRichText
+    var tempSpans: [RichTextSpanInternal] = []
+    var text = ""
+    richText.spans.forEach({
+      let span = RichTextSpanInternal(
+        from: text.utf16Length,
+        to: (text.utf16Length + $0.insert.utf16Length - 1),
+        attributes: $0.attributes)
+
+      tempSpans.append(span)
+      text += $0.insert
+    })
+
+    let str = NSMutableAttributedString(string: text)
+
+    tempSpans.forEach { span in
+      str.addAttributes(
+        span.attributes?.toAttributes(font: .standardRichTextFont)
+          ?? [:], range: span.spanRange)
+      if span.attributes?.color == nil {
+        var color: ColorRepresentable = .clear
+        #if os(watchOS)
+          color = .black
+        #else
+          color = RichTextView.Theme.standard.fontColor
+        #endif
+        str.addAttributes(
+          [.foregroundColor: color], range: span.spanRange)
+      }
+      if let imageUrl = span.attributes?.image,
+        let image = imageAttachment.first(where: { $0.url == imageUrl })
+      {
+        str.addAttribute(.attachment, value: image.image, range: span.spanRange)
+      }
+    }
+
+    self.attributedString = str
+  }
+}
+
 extension RichEditorState {
 
   /// Whether or not the context has a selected range.

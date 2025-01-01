@@ -7,7 +7,11 @@
 
 import Foundation
 
-public class ImageAttachment {
+public class ImageAttachment: Equatable {
+  public static func == (lhs: ImageAttachment, rhs: ImageAttachment) -> Bool {
+    return lhs.id == rhs.id && lhs.image == rhs.image
+  }
+
   public let id: String
   public let image: ImageRepresentable
   internal var range: NSRange? = nil

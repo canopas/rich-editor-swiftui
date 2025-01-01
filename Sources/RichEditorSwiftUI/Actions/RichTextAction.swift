@@ -80,6 +80,10 @@ public enum RichTextAction: Identifiable, Equatable {
 
   /// Set link
   case setLink(String? = nil)
+
+  /// Update Image Attachment as image takes time to download
+  case updateImageAttachments([ImageAttachment])
+
 }
 
 extension RichTextAction {
@@ -114,6 +118,7 @@ extension RichTextAction {
     case .undoLatestChange: .richTextUndo
     case .setHeaderStyle: .richTextIgnoreIt
     case .setLink: .richTextLink
+    case .updateImageAttachments: .richTextIgnoreIt
     }
   }
 
@@ -164,7 +169,7 @@ extension RichTextAction {
     case .toggleStyle(let style): style.titleKey
     case .undoLatestChange: .actionUndoLatestChange
     case .setLink: .link
-    case .setHeaderStyle: .ignoreIt
+    case .setHeaderStyle, .updateImageAttachments: .ignoreIt
     }
   }
 }

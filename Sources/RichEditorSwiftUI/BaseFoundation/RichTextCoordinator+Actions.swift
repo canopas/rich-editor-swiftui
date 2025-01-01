@@ -76,6 +76,10 @@ import Foundation
         } else {
           removeLink()
         }
+      case .updateImageAttachments(let attachments):
+        attachments.forEach({
+          textView.setImageAttachment(imageAttachment: $0)
+        })
       }
     }
   }

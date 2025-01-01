@@ -222,8 +222,10 @@ extension RichAttributes {
         ? (byAdding ? att.align! : nil) : self.align),
       ///nil link indicates removal as well so removing link if `byAdding == false && att.link == nil`
       link: (att.link != nil
-        ? (byAdding ? att.link! : nil) : (att.link == nil && !byAdding) ? nil : self.link),
-      image: (att.image != nil ? (byAdding ? att.image! : nil) : self.image)
+        ? (byAdding ? att.link! : nil)
+        : (att.link == nil && !byAdding) ? nil : self.link),
+      image: (att.image != nil
+        ? (byAdding ? att.image! : nil) : self.image)
     )
   }
 }

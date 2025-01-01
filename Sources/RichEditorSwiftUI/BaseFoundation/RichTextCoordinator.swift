@@ -74,6 +74,7 @@
       super.init()
       self.textView.delegate = self
       subscribeToUserActions()
+      context.onTextViewDidEndWithSetUp()
     }
     #if canImport(UIKit)
 

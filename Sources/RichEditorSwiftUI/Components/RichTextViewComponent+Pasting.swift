@@ -76,7 +76,7 @@ extension RichTextViewComponent {
       let isSelectedRange = (index == selectedRange.location)
       if isSelectedRange { deleteCharacters(in: selectedRange) }
       if move { moveInputCursor(to: index) }
-      var insertedString: NSMutableAttributedString = .init()
+      let insertedString: NSMutableAttributedString = .init()
       images.reversed().forEach {
         insertedString.append(performPasteImage($0, at: index) ?? .init())
       }
@@ -86,6 +86,12 @@ extension RichTextViewComponent {
       }
       return insertedString
     #endif
+  }
+
+  public func setImageAttachment(imageAttachment: ImageAttachment) {
+    guard let range = imageAttachment.range else { return }
+    let image = imageAttachment.image
+    performSetImageAttachment(image, at: range)
   }
 
   /**
@@ -151,6 +157,18 @@ extension RichTextViewComponent {
 
       setRichText(content)
       return insertString
+    }
+  }
+#endif
+
+#if iOS || macOS || os(tvOS) || os(visionOS)
+  extension RichTextViewComponent {
+    fileprivate func performSetImageAttachment(
+      _ image: ImageRepresentable,
+      at range: NSRange
+    ) {
+      guard let attachmentString = getAttachmentString(for: image) else { return }
+      mutableAttributedString?.replaceCharacters(in: range, with: attachmentString)
     }
   }
 #endif

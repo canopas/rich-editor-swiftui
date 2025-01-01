@@ -57,8 +57,7 @@ public class ImageDownloadManager {
         userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
     }
 
-    let (data, _) = try await URLSession.shared.data(from: url)
-
+    let (data, response) = try await URLSession.shared.data(from: url)
     guard let image = ImageRepresentable(data: data) else {
       throw NSError(
         domain: "ImageDownloadManager", code: 500,
