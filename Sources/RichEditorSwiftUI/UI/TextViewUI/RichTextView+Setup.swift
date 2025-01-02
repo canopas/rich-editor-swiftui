@@ -15,6 +15,9 @@
             _ format: RichTextDataFormat?
         ) {
             attributedString = .empty
+            if let format, !imageConfigurationWasSet {
+                imageConfiguration = standardImageConfiguration(for: format)
+            }
             attributedString = text
 
             setContentCompressionResistancePriority(

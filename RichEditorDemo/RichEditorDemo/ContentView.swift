@@ -9,183 +9,208 @@ import RichEditorSwiftUI
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.colorScheme) var colorScheme
+  @Environment(\.colorScheme) var colorScheme
 
-    @ObservedObject var state: RichEditorState
-    @State private var isInspectorPresented = false
-    @State private var fileName: String = ""
-    @State private var exportFormat: RichTextDataFormat? = nil
-    @State private var otherExportFormat: RichTextExportOption? = nil
-    @State private var exportService: StandardRichTextExportService = .init()
+  @ObservedObject var state: RichEditorState
+  @State private var isInspectorPresented = false
+  @State private var fileName: String = ""
+  @State private var exportFormat: RichTextDataFormat? = nil
+  @State private var otherExportFormat: RichTextExportOption? = nil
+  @State private var exportService: StandardRichTextExportService = .init()
 
-    init(state: RichEditorState? = nil) {
-        if let state {
-            self.state = state
-        } else {
-            if let richText = readJSONFromFile(
-                fileName: "Sample_json",
-                type: RichText.self)
-            {
-                self.state = .init(richText: richText)
-            } else {
-                self.state = .init(input: "Hello World!")
-            }
-        }
+  init(state: RichEditorState? = nil) {
+    if let state {
+      self.state = state
+    } else {
+      if let richText = readJSONFromFile(
+        fileName: "Sample_json",
+        type: RichText.self)
+      {
+        self.state = .init(richText: richText, handleImageDropAction: handleImages(_:_:))
+      } else {
+        self.state = .init(
+          input: "Hello World!",
+          handleImageDropAction: handleImages(_:_:))
+      }
+
     }
+  }
 
-    var body: some View {
-        NavigationStack {
-            VStack {
-                #if os(macOS)
-                    RichTextFormat.Toolbar(context: state)
-                #endif
+  var body: some View {
+    NavigationStack {
+      VStack {
+        #if os(macOS)
+          RichTextFormat.Toolbar(context: state)
+        #endif
 
-                RichTextEditor(
-                    context: _state,
-                    viewConfiguration: { _ in
+        RichTextEditor(
+          context: _state,
+          viewConfiguration: { _ in
 
-                    }
-                )
-                .background(
-                    colorScheme == .dark ? .gray.opacity(0.3) : Color.white
-                )
-                .cornerRadius(10)
+          }
+        )
+        .background(
+          colorScheme == .dark ? .gray.opacity(0.3) : Color.white
+        )
+        .cornerRadius(10)
 
-                #if os(iOS)
-                    RichTextKeyboardToolbar(
-                        context: state,
-                        leadingButtons: { $0 },
-                        trailingButtons: { $0 },
-                        formatSheet: { $0 }
-                    )
-                #endif
-            }
-            #if os(iOS) || os(macOS)
-                .inspector(isPresented: $isInspectorPresented) {
-                    RichTextFormat.Sidebar(context: state)
-                        #if os(macOS)
-                            .inspectorColumnWidth(
-                                min: 200, ideal: 200, max: 315)
-                        #endif
-                }
-            #endif
-            .padding(10)
-            #if os(iOS) || os(macOS)
-                .toolbar {
-                    ToolbarItemGroup(placement: .automatic) {
-                        toolBarGroup
-                    }
-                }
-            #endif
-            .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
-            .navigationTitle("Rich Editor")
-            .alert("Enter file name", isPresented: getBindingAlert()) {
-                TextField("Enter file name", text: $fileName)
-                Button("OK", action: submit)
-            } message: {
-                Text("Please enter file name")
-            }
-            .focusedValue(\.richEditorState, state)
-            .toolbarRole(.automatic)
-            #if os(iOS) || os(macOS) || os(visionOS)
-                .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
-                .richTextFormatSidebarConfig(
-                    .init(
-                        colorPickers: colorPickers,
-                        fontPicker: isMac
-                    )
-                )
-                .richTextFormatToolbarConfig(.init(colorPickers: []))
+        #if os(iOS)
+          RichTextKeyboardToolbar(
+            context: state,
+            leadingButtons: { $0 },
+            trailingButtons: { $0 },
+            formatSheet: { $0 }
+          )
+        #endif
+      }
+      #if os(iOS) || os(macOS)
+        .inspector(isPresented: $isInspectorPresented) {
+          RichTextFormat.Sidebar(context: state)
+            #if os(macOS)
+              .inspectorColumnWidth(
+                min: 200, ideal: 200, max: 315)
             #endif
         }
+      #endif
+      .padding(10)
+      #if os(iOS) || os(macOS)
+        .toolbar {
+          ToolbarItemGroup(placement: .automatic) {
+            toolBarGroup
+          }
+        }
+      #endif
+      .background(colorScheme == .dark ? .black : .gray.opacity(0.07))
+      .navigationTitle("Rich Editor")
+      .alert("Enter file name", isPresented: getBindingAlert()) {
+        TextField("Enter file name", text: $fileName)
+        Button("OK", action: submit)
+      } message: {
+        Text("Please enter file name")
+      }
+      .focusedValue(\.richEditorState, state)
+      .toolbarRole(.automatic)
+      #if os(iOS) || os(macOS) || os(visionOS)
+        .richTextFormatSheetConfig(.init(colorPickers: colorPickers))
+        .richTextFormatSidebarConfig(
+          .init(
+            colorPickers: colorPickers,
+            fontPicker: isMac
+          )
+        )
+        .richTextFormatToolbarConfig(.init(colorPickers: []))
+      #endif
     }
+  }
 
-    #if os(iOS) || os(macOS)
-        var toolBarGroup: some View {
-            return Group {
-                RichTextExportMenu.init(
-                    formatAction: { format in
-                        exportFormat = format
-                    },
-                    otherOptionAction: { format in
-                        otherExportFormat = format
-                    }
-                )
-                #if !os(macOS)
-                    .frame(width: 25, alignment: .center)
-                #endif
-                Button(
-                    action: {
-                        print("Exported JSON == \(state.outputAsString())")
-                    },
-                    label: {
-                        Image(systemName: "printer.inverse")
-                    }
-                )
-                #if !os(macOS)
-                    .frame(width: 25, alignment: .center)
-                #endif
-                Toggle(isOn: $isInspectorPresented) {
-                    Image.richTextFormatBrush
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                }
-                #if !os(macOS)
-                    .frame(width: 25, alignment: .center)
-                #endif
-            }
+  #if os(iOS) || os(macOS)
+    var toolBarGroup: some View {
+      return Group {
+        RichTextExportMenu.init(
+          formatAction: { format in
+            exportFormat = format
+          },
+          otherOptionAction: { format in
+            otherExportFormat = format
+          }
+        )
+        #if !os(macOS)
+          .frame(width: 25, alignment: .center)
+        #endif
+        Button(
+          action: {
+            print("Exported JSON == \(state.outputAsString())")
+          },
+          label: {
+            Image(systemName: "printer.inverse")
+          }
+        )
+        #if !os(macOS)
+          .frame(width: 25, alignment: .center)
+        #endif
+        Toggle(isOn: $isInspectorPresented) {
+          Image.richTextFormatBrush
+            .resizable()
+            .aspectRatio(1, contentMode: .fit)
         }
-    #endif
-
-    func getBindingAlert() -> Binding<Bool> {
-        .init(
-            get: { exportFormat != nil || otherExportFormat != nil },
-            set: { newValue in
-                exportFormat = nil
-                otherExportFormat = nil
-            })
+        #if !os(macOS)
+          .frame(width: 25, alignment: .center)
+        #endif
+      }
     }
+  #endif
 
-    func submit() {
-        guard !fileName.isEmpty else { return }
-        var path: URL?
+  func getBindingAlert() -> Binding<Bool> {
+    .init(
+      get: { exportFormat != nil || otherExportFormat != nil },
+      set: { newValue in
+        exportFormat = nil
+        otherExportFormat = nil
+      })
+  }
 
-        if let exportFormat {
-            path = try? exportService.generateExportFile(
-                withName: fileName, content: state.attributedString,
-                format: exportFormat)
-        }
-        if let otherExportFormat {
-            switch otherExportFormat {
-            case .pdf:
-                path = try? exportService.generatePdfExportFile(
-                    withName: fileName, content: state.attributedString)
-            case .json:
-                path = try? exportService.generateJsonExportFile(
-                    withName: fileName, content: state.richText)
-            }
-        }
-        if let path {
-            print("Exported at path == \(path)")
-        }
+  func submit() {
+    guard !fileName.isEmpty else { return }
+    var path: URL?
+
+    if let exportFormat {
+      path = try? exportService.generateExportFile(
+        withName: fileName, content: state.attributedString,
+        format: exportFormat)
     }
+    if let otherExportFormat {
+      switch otherExportFormat {
+      case .pdf:
+        path = try? exportService.generatePdfExportFile(
+          withName: fileName, content: state.attributedString)
+      case .json:
+        path = try? exportService.generateJsonExportFile(
+          withName: fileName, content: state.richText)
+      }
+    }
+    if let path {
+      print("Exported at path == \(path)")
+    }
+  }
 }
 
 extension ContentView {
 
-    var isMac: Bool {
-        #if os(macOS)
-            true
-        #else
-            false
-        #endif
-    }
+  var isMac: Bool {
+    #if os(macOS)
+      true
+    #else
+      false
+    #endif
+  }
 
-    var colorPickers: [RichTextColor] {
-        [.foreground, .background]
-    }
+  var colorPickers: [RichTextColor] {
+    [.foreground, .background]
+  }
 
-    var formatToolbarEdge: VerticalEdge {
-        isMac ? .top : .bottom
-    }
+  var formatToolbarEdge: VerticalEdge {
+    isMac ? .top : .bottom
+  }
+}
+
+private func handleImages(
+  _ action: ImageAttachmentAction,
+  _ onCompletion: ((ImageAttachmentCompleteAction) -> Void)?
+) {
+  switch action {
+  case .save(let images):
+    images.forEach({
+      $0.updateUrl(with: "https://example.com/image/\($0.id).jpg")
+    })
+    onCompletion?(.saved(images))
+  case .delete(_):
+    onCompletion?(.deleted)
+    return
+  case .getImage(_):
+    onCompletion?(.getImage(nil))
+    return
+  case .getImages(_):
+    onCompletion?(.getImages([]))
+    return
+  }
 }
