@@ -8,16 +8,16 @@
 import Foundation
 
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    import AppKit
+  import AppKit
 #endif
 
 #if canImport(UIKit)
-    import UIKit
+  import UIKit
 #endif
 
 extension RichTextFont {
 
-    /**
+  /**
      This struct defines picker-specific fonts that are used
      by the various font pickers.
 
@@ -34,125 +34,125 @@ extension RichTextFont {
      to another value. To edit how fonts are detected by the
      system, use the ``systemFontNamePrefix``.
      */
-    public struct PickerFont: Identifiable, Equatable {
+  public struct PickerFont: Identifiable, Equatable {
 
-        public init(
-            fontName: String
-        ) {
-            self.fontName = fontName
-            self.fontDisplayName = ""
-            self.fontDisplayName = displayName
-        }
-
-        public let fontName: String
-        public private(set) var fontDisplayName: String
-
-        /// Get the unique font id.
-        public var id: String {
-            fontName.lowercased()
-        }
+    public init(
+      fontName: String
+    ) {
+      self.fontName = fontName
+      self.fontDisplayName = ""
+      self.fontDisplayName = displayName
     }
+
+    public let fontName: String
+    public private(set) var fontDisplayName: String
+
+    /// Get the unique font id.
+    public var id: String {
+      fontName.lowercased()
+    }
+  }
 }
 
 // MARK: - Static Properties
 
 extension RichTextFont.PickerFont {
 
-    /// Get all available system fonts.
-    public static var all: [Self] {
-        let all = systemFonts
-        let system = Self.init(
-            fontName: Self.systemFontNamePrefix
-        )
-        var sorted = all.sorted { $0.fontDisplayName < $1.fontDisplayName }
-        sorted.insert(system, at: 0)
-        return sorted
-    }
+  /// Get all available system fonts.
+  public static var all: [Self] {
+    let all = systemFonts
+    let system = Self.init(
+      fontName: Self.systemFontNamePrefix
+    )
+    var sorted = all.sorted { $0.fontDisplayName < $1.fontDisplayName }
+    sorted.insert(system, at: 0)
+    return sorted
+  }
 
-    /// The display name for the standard system font.
-    public static var standardSystemFontDisplayName: String {
-        #if macOS
-            return "Standard"
-        #else
-            return "San Francisco"
-        #endif
-    }
+  /// The display name for the standard system font.
+  public static var standardSystemFontDisplayName: String {
+    #if os(macOS)
+      return "Standard"
+    #else
+      return "San Francisco"
+    #endif
+  }
 
-    /// The font name prefix for the standard system font.
-    public static var systemFontNamePrefix: String {
-        #if macOS
-            return ".AppleSystemUIFont"
-        #else
-            return ".SFUI"
-        #endif
-    }
+  /// The font name prefix for the standard system font.
+  public static var systemFontNamePrefix: String {
+    #if os(macOS)
+      return ".AppleSystemUIFont"
+    #else
+      return ".SFUI"
+    #endif
+  }
 }
 
 // MARK: - Public Properties
 
 extension RichTextFont.PickerFont {
 
-    /// Get the font display name.
-    public var displayName: String {
-        let isSystemFont = isStandardSystemFont
-        let systemName = Self.standardSystemFontDisplayName
-        return isSystemFont ? systemName : fontName
-    }
+  /// Get the font display name.
+  public var displayName: String {
+    let isSystemFont = isStandardSystemFont
+    let systemName = Self.standardSystemFontDisplayName
+    return isSystemFont ? systemName : fontName
+  }
 
-    ///  Check if the a font name represents the system font.
-    public var isStandardSystemFont: Bool {
-        let name = fontName.trimmingCharacters(in: .whitespaces)
-        let prefix = Self.systemFontNamePrefix
-        return name.hasPrefix(prefix)
-    }
+  ///  Check if the a font name represents the system font.
+  public var isStandardSystemFont: Bool {
+    let name = fontName.trimmingCharacters(in: .whitespaces)
+    let prefix = Self.systemFontNamePrefix
+    return name.hasPrefix(prefix)
+  }
 }
 
 // MARK: - Collection Extensions
 
 extension Collection where Element == RichTextFont.PickerFont {
 
-    /// Get all available system fonts.
-    public static var all: [Element] {
-        Element.all
-    }
+  /// Get all available system fonts.
+  public static var all: [Element] {
+    Element.all
+  }
 
-    /// Move a certain font topmost in the list.
-    public func moveTopmost(_ topmost: String) -> [Element] {
-        let topmost = topmost.trimmingCharacters(in: .whitespaces)
-        let exists = contains {
-            $0.fontName.lowercased() == topmost.lowercased()
-        }
-        guard exists else { return Array(self) }
-        var filtered = filter {
-            $0.fontName.lowercased() != topmost.lowercased()
-        }
-        let new = Element(fontName: topmost)
-        filtered.insert(new, at: 0)
-        return filtered
+  /// Move a certain font topmost in the list.
+  public func moveTopmost(_ topmost: String) -> [Element] {
+    let topmost = topmost.trimmingCharacters(in: .whitespaces)
+    let exists = contains {
+      $0.fontName.lowercased() == topmost.lowercased()
     }
+    guard exists else { return Array(self) }
+    var filtered = filter {
+      $0.fontName.lowercased() != topmost.lowercased()
+    }
+    let new = Element(fontName: topmost)
+    filtered.insert(new, at: 0)
+    return filtered
+  }
 }
 
 // MARK: - System Fonts
 
 extension RichTextFont.PickerFont {
 
-    /**
+  /**
      Get all available font picker fonts.
      */
-    fileprivate static var systemFonts: [RichTextFont.PickerFont] {
-        #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-            return NSFontManager.shared
-                .availableFontFamilies
-                .map {
-                    RichTextFont.PickerFont(fontName: $0)
-                }
-        #endif
+  fileprivate static var systemFonts: [RichTextFont.PickerFont] {
+    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+      return NSFontManager.shared
+        .availableFontFamilies
+        .map {
+          RichTextFont.PickerFont(fontName: $0)
+        }
+    #endif
 
-        #if canImport(UIKit)
-            return UIFont.familyNames
-                .map {
-                    RichTextFont.PickerFont(fontName: $0)
-                }
-        #endif
-    }
+    #if canImport(UIKit)
+      return UIFont.familyNames
+        .map {
+          RichTextFont.PickerFont(fontName: $0)
+        }
+    #endif
+  }
 }

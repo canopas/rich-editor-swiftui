@@ -5,34 +5,34 @@
 //  Created by Divyesh Vekariya on 21/10/24.
 //
 
-#if macOS
-    import Foundation
+#if os(macOS)
+  import Foundation
 
-    extension RichTextView {
+  extension RichTextView {
 
-        /**
+    /**
      This type can be used to configure a ``RichTextEditor``.
      */
-        public struct Configuration {
+    public struct Configuration {
 
-            /// Create a custom configuration
-            /// - Parameters:
-            ///   - isScrollingEnabled: Whether or not the editor should scroll, by default `true`.
-            ///   - isContinuousSpellCheckingEnabled: Whether the editor spell-checks in realtime. Defaults to `true`.
-            public init(
-                isScrollingEnabled: Bool = true,
-                isContinuousSpellCheckingEnabled: Bool = true
-            ) {
-                self.isScrollingEnabled = isScrollingEnabled
-                self.isContinuousSpellCheckingEnabled =
-                    isContinuousSpellCheckingEnabled
-            }
+      /// Create a custom configuration
+      /// - Parameters:
+      ///   - isScrollingEnabled: Whether or not the editor should scroll, by default `true`.
+      ///   - isContinuousSpellCheckingEnabled: Whether the editor spell-checks in realtime. Defaults to `true`.
+      public init(
+        isScrollingEnabled: Bool = true,
+        isContinuousSpellCheckingEnabled: Bool = true
+      ) {
+        self.isScrollingEnabled = isScrollingEnabled
+        self.isContinuousSpellCheckingEnabled =
+          isContinuousSpellCheckingEnabled
+      }
 
-            /// Whether or not the editor should scroll.
-            public var isScrollingEnabled: Bool
+      /// Whether or not the editor should scroll.
+      public var isScrollingEnabled: Bool
 
-            /// Whether the editor spell-checks in realtime.
-            public var isContinuousSpellCheckingEnabled: Bool
-        }
+      /// Whether the editor spell-checks in realtime.
+      public var isContinuousSpellCheckingEnabled: Bool
     }
+  }
 #endif

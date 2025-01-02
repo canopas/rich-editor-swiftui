@@ -9,7 +9,7 @@ import SwiftUI
 
 extension RichTextFont {
 
-    /**
+  /**
      This font picker can be used to pick a font from a list,
      using ``RichTextFont/PickerFont/all`` as default fonts.
 
@@ -31,88 +31,87 @@ extension RichTextFont {
 
      Note that this picker will not apply all configurations.
      */
-    public struct Picker: View {
+  public struct Picker: View {
 
-        /**
+    /**
          Create a font picker.
 
          - Parameters:
            - selection: The selected font name.
          */
-        public init(
-            selection: Binding<FontName>
-        ) {
-            self._selection = selection
-            self.selectedFont = Config.Font.all.first
-        }
-
-        public typealias Config = RichTextFont.PickerConfig
-        public typealias Font = Config.Font
-        public typealias FontName = Config.FontName
-
-        @State
-        private var selectedFont: Font?
-
-        @Binding
-        private var selection: FontName
-
-        @Environment(\.richTextFontPickerConfig)
-        private var config
-
-        public var body: some View {
-            SwiftUI.Picker(selection: $selection) {
-                ForEach(config.fonts) { font in
-                    RichTextFont.PickerItem(
-                        font: font,
-                        fontSize: config.fontSize,
-                        isSelected: false
-                    )
-                    .tag(font.fontName)
-                }
-            } label: {
-                EmptyView()
-            }
-        }
+    public init(
+      selection: Binding<FontName>
+    ) {
+      self._selection = selection
+      self.selectedFont = Config.Font.all.first
     }
+
+    public typealias Config = RichTextFont.PickerConfig
+    public typealias Font = Config.Font
+    public typealias FontName = Config.FontName
+
+    @State
+    private var selectedFont: Font?
+
+    @Binding
+    private var selection: FontName
+
+    @Environment(\.richTextFontPickerConfig)
+    private var config
+
+    public var body: some View {
+      SwiftUI.Picker(selection: $selection) {
+        ForEach(config.fonts) { font in
+          RichTextFont.PickerItem(
+            font: font,
+            fontSize: config.fontSize,
+            isSelected: false
+          )
+          .tag(font.fontName)
+        }
+      } label: {
+        EmptyView()
+      }
+    }
+  }
 }
 
 extension RichTextFont.PickerFont {
 
-    /**
+  /**
      A system font has a font name that may be resolved to a
      different name when picked. We must thus try to pattern
      match, using the currently selected font name.
      */
-    fileprivate func matches(_ fontName: String) -> Bool {
-        let compare = fontName.lowercased()
-        let fontName = self.fontName.lowercased()
-        if fontName == compare { return true }
-        if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "")) {
-            return true
-        }
-        if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "-"))
-        {
-            return true
-        }
-        return false
+  fileprivate func matches(_ fontName: String) -> Bool {
+    let compare = fontName.lowercased()
+    let fontName = self.fontName.lowercased()
+    if fontName == compare { return true }
+    if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "")) {
+      return true
     }
+    if compare.hasPrefix(fontName.replacingOccurrences(of: " ", with: "-")) {
+      return true
+    }
+    return false
+  }
 
-    /**
+  /**
      Use the selected font name as tag for the selected font.
      */
-    fileprivate func tag(for selectedFont: Self?, selectedName: String)
-        -> String
-    {
-        let isSelected = fontName == selectedFont?.fontName
-        return isSelected ? selectedName : fontName
-    }
+  fileprivate func tag(for selectedFont: Self?, selectedName: String)
+    -> String
+  {
+    let isSelected = fontName == selectedFont?.fontName
+    return isSelected ? selectedName : fontName
+  }
 }
 
 //extension View {
 //
 //    func withPreviewPickerStyles() -> some View {
 //        NavigationView {
-//            #if macOS
+//            #if os(macOS)
 //            Color.clear
 //            #endif
 //            ScrollView {
@@ -120,7 +119,7 @@ extension RichTextFont.PickerFont {
 //                    self.label("Default")
 //                    self.pickerStyle(.automatic).label(".automatic")
 //                    self.pickerStyle(.inline).label(".inline")
-//                    #if os(iOS) || macOS
+//                    #if os(iOS) || os(macOS)
 //                    self.pickerStyle(.menu).label(".menu")
 //                    #endif
 //                    #if iOS
@@ -128,7 +127,7 @@ extension RichTextFont.PickerFont {
 //                        pickerStyle(.navigationLink).label(".navigationLink")
 //                    }
 //                    #endif
-//                    #if os(iOS) || macOS
+//                    #if os(iOS) || os(macOS)
 //                    if #available(iOS 17.0, os(macOS) 14.0, watchOS 10.0, *) {
 //                        pickerStyle(.palette).label(".palette")
 //                    }
