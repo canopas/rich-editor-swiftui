@@ -1,14 +1,31 @@
 //
-//  AlertController.swift
+//  RichTextAlertController.swift
 //  RichEditorSwiftUI
 //
 //  Created by Divyesh Vekariya on 19/12/24.
 //
 
+#if os(macOS)
+import AppKit
+
+/// This typealias bridges platform-specific colors to simplify
+/// multi-platform support.
+public typealias RichTextAlertController = AlertControllerAppKitImpl
+#endif
+
+#if os(iOS) || os(tvOS) || os(visionOS)
+import UIKit
+
+/// This typealias bridges platform-specific colors to simplify
+/// multi-platform support.
+public typealias RichTextAlertController = AlertControllerUIKitImpl
+#endif
+
+
 #if os(iOS) || os(tvOS) || os(visionOS)
   import UIKit
 
-  public class AlertController {
+  public class AlertControllerUIKitImpl {
 
     private var onTextChange: ((String) -> Void)?
 
@@ -106,7 +123,7 @@
 
 #if os(macOS)
   import AppKit
-  public class AlertController {
+  public class AlertControllerAppKitImpl {
 
     private var onTextChange: ((String) -> Void)?
 

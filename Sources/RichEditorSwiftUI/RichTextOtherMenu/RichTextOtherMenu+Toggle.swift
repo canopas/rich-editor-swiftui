@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-extension RichTextOtherMenu {
+#if os(iOS) || os(macOS) || os(visionOS)
+  extension RichTextOtherMenu {
 
     /**
      This toggle can be used to toggle a ``RichTextOtherMenu``.
@@ -18,7 +19,7 @@ extension RichTextOtherMenu {
      */
     public struct Toggle: View {
 
-        /**
+      /**
          Create a rich text style toggle toggle.
 
          - Parameters:
@@ -26,17 +27,17 @@ extension RichTextOtherMenu {
          - value: The value to bind to.
          - fillVertically: Whether or not fill up vertical space in a non-greedy way, by default `false`.
          */
-        public init(
-            style: RichTextOtherMenu,
-            value: Binding<Bool>,
-            fillVertically: Bool = false
-        ) {
-            self.style = style
-            self.value = value
-            self.fillVertically = fillVertically
-        }
+      public init(
+        style: RichTextOtherMenu,
+        value: Binding<Bool>,
+        fillVertically: Bool = false
+      ) {
+        self.style = style
+        self.value = value
+        self.fillVertically = fillVertically
+      }
 
-        /**
+      /**
          Create a rich text style toggle.
 
          - Parameters:
@@ -44,44 +45,45 @@ extension RichTextOtherMenu {
          - context: The context to affect.
          - fillVertically: Whether or not fill up vertical space in a non-greedy way, by default `false`.
          */
-        public init(
-            style: RichTextOtherMenu,
-            context: RichEditorState,
-            fillVertically: Bool = false
-        ) {
-            self.init(
-                style: style,
-                value: context.binding(for: style),
-                fillVertically: fillVertically
-            )
-        }
+      public init(
+        style: RichTextOtherMenu,
+        context: RichEditorState,
+        fillVertically: Bool = false
+      ) {
+        self.init(
+          style: style,
+          value: context.bindingForManu(for: style),
+          fillVertically: fillVertically
+        )
+      }
 
-        private let style: RichTextOtherMenu
-        private let value: Binding<Bool>
-        private let fillVertically: Bool
+      private let style: RichTextOtherMenu
+      private let value: Binding<Bool>
+      private let fillVertically: Bool
 
-        public var body: some View {
-            #if os(tvOS) || os(watchOS)
-                toggle
-            #else
-                toggle.toggleStyle(.button)
-            #endif
-        }
+      public var body: some View {
+        #if os(tvOS) || os(watchOS)
+          toggle
+        #else
+          toggle.toggleStyle(.button)
+        #endif
+      }
 
-        private var toggle: some View {
-            SwiftUI.Toggle(isOn: value) {
-                style.icon
-                    .frame(maxHeight: fillVertically ? .infinity : nil)
-            }
-            //            .keyboardShortcut(for: style)
-            .accessibilityLabel(style.title)
+      private var toggle: some View {
+        SwiftUI.Toggle(isOn: value) {
+          style.icon
+            .frame(maxHeight: fillVertically ? .infinity : nil)
         }
+        //            .keyboardShortcut(for: style)
+        .accessibilityLabel(style.title)
+      }
     }
-}
+  }
 
-extension RichTextOtherMenu.Toggle {
+  extension RichTextOtherMenu.Toggle {
 
     fileprivate var isOn: Bool {
-        value.wrappedValue
+      value.wrappedValue
     }
-}
+  }
+#endif

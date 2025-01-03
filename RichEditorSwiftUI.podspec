@@ -20,11 +20,11 @@ Pod::Spec.new do |s|
 
   s.swift_version    = "5.9"
 
-  #s.ios.deployment_target = "15.0"
-  #s.osx.deployment_target = "12.0"
-  #s.tvos.deployment_target = "17.0"
+  s.ios.deployment_target = "15.0"
+  s.osx.deployment_target = "12.0"
+  s.tvos.deployment_target = "17.0"
   s.watchos.deployment_target = "8.0"
-  #Cocoapods pod lib lint fail with vision os as it's throwing error "Could not find a `xros` simulator"
+  Cocoapods pod lib lint fail with vision os as it's throwing error "Could not find a `xros` simulator"
   #s.visionos.deployment_target = "1.0"
 
   s.preserve_paths   = "README.md"
