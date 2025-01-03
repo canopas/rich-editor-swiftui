@@ -18,80 +18,80 @@ extension NSAttributedString: RichTextDataReader {}
 
 extension RichTextDataReader {
 
-    /**
+  /**
      Generate rich text data from the current rich text.
 
      - Parameters:
        - format: The data format to use.
      */
-    public func richTextData(
-        for format: RichTextDataFormat
-    ) throws -> Data {
-        switch format {
-        case .archivedData: try richTextArchivedData()
-        case .plainText: try richTextPlainTextData()
-        case .rtf: try richTextRtfData()
-        case .vendorArchivedData: try richTextArchivedData()
-        }
+  public func richTextData(
+    for format: RichTextDataFormat
+  ) throws -> Data {
+    switch format {
+    case .archivedData: try richTextArchivedData()
+    case .plainText: try richTextPlainTextData()
+    case .rtf: try richTextRtfData()
+    case .vendorArchivedData: try richTextArchivedData()
     }
+  }
 }
 
 extension RichTextDataReader {
 
-    /// The full text range.
-    fileprivate var textRange: NSRange {
-        NSRange(location: 0, length: richText.length)
-    }
+  /// The full text range.
+  fileprivate var textRange: NSRange {
+    NSRange(location: 0, length: richText.length)
+  }
 
-    /// The full text range.
-    fileprivate func documentAttributes(
-        for documentType: NSAttributedString.DocumentType
-    ) -> [NSAttributedString.DocumentAttributeKey: Any] {
-        [.documentType: documentType]
-    }
+  /// The full text range.
+  fileprivate func documentAttributes(
+    for documentType: NSAttributedString.DocumentType
+  ) -> [NSAttributedString.DocumentAttributeKey: Any] {
+    [.documentType: documentType]
+  }
 
-    /// Generate archived formatted data.
-    fileprivate func richTextArchivedData() throws -> Data {
-        try NSKeyedArchiver.archivedData(
-            withRootObject: richText,
-            requiringSecureCoding: false
-        )
-    }
+  /// Generate archived formatted data.
+  fileprivate func richTextArchivedData() throws -> Data {
+    try NSKeyedArchiver.archivedData(
+      withRootObject: richText,
+      requiringSecureCoding: false
+    )
+  }
 
-    /// Generate plain text formatted data.
-    fileprivate func richTextPlainTextData() throws -> Data {
-        let string = richText.string
-        guard let data = string.data(using: .utf8) else {
-            throw
-                RichTextDataError
-                .invalidData(in: string)
-        }
-        return data
+  /// Generate plain text formatted data.
+  fileprivate func richTextPlainTextData() throws -> Data {
+    let string = richText.string
+    guard let data = string.data(using: .utf8) else {
+      throw
+        RichTextDataError
+        .invalidData(in: string)
     }
+    return data
+  }
 
-    /// Generate RTF formatted data.
-    fileprivate func richTextRtfData() throws -> Data {
-        try richText.data(
-            from: textRange,
-            documentAttributes: documentAttributes(for: .rtf)
-        )
+  /// Generate RTF formatted data.
+  fileprivate func richTextRtfData() throws -> Data {
+    try richText.data(
+      from: textRange,
+      documentAttributes: documentAttributes(for: .rtf)
+    )
+  }
+
+  /// Generate RTFD formatted data.
+  fileprivate func richTextRtfdData() throws -> Data {
+    try richText.data(
+      from: textRange,
+      documentAttributes: documentAttributes(for: .rtfd)
+    )
+  }
+
+  #if os(macOS)
+    /// Generate Word formatted data.
+    func richTextWordData() throws -> Data {
+      try richText.data(
+        from: textRange,
+        documentAttributes: documentAttributes(for: .docFormat)
+      )
     }
-
-    /// Generate RTFD formatted data.
-    fileprivate func richTextRtfdData() throws -> Data {
-        try richText.data(
-            from: textRange,
-            documentAttributes: documentAttributes(for: .rtfd)
-        )
-    }
-
-    #if macOS
-        /// Generate Word formatted data.
-        func richTextWordData() throws -> Data {
-            try richText.data(
-                from: textRange,
-                documentAttributes: documentAttributes(for: .docFormat)
-            )
-        }
-    #endif
+  #endif
 }

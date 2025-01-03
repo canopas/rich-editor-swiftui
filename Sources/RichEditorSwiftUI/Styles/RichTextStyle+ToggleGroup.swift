@@ -6,11 +6,11 @@
 //
 
 #if os(iOS) || os(macOS) || os(visionOS)
-    import SwiftUI
+  import SwiftUI
 
-    extension RichTextStyle {
+  extension RichTextStyle {
 
-        /**
+    /**
      This view can list ``RichTextStyle/Toggle``s for a list
      of ``RichTextStyle`` values, in a bordered button group.
 
@@ -20,9 +20,9 @@
      > Important: Since the `ControlGroup` doesn't highlight
      buttons in iOS, we use a `ToggleStack` for iOS.
      */
-        public struct ToggleGroup: View {
+    public struct ToggleGroup: View {
 
-            /**
+      /**
          Create a rich text style toggle button group.
 
          - Parameters:
@@ -30,51 +30,51 @@
            - styles: The styles to list, by default ``RichTextStyle/all``.
            - greedy: Whether or not the group is horizontally greedy, by default `true`.
          */
-            public init(
-                context: RichEditorState,
-                styles: [RichTextStyle] = .all,
-                greedy: Bool = true
-            ) {
-                self._context = ObservedObject(wrappedValue: context)
-                self.isGreedy = greedy
-                self.styles = styles
+      public init(
+        context: RichEditorState,
+        styles: [RichTextStyle] = .all,
+        greedy: Bool = true
+      ) {
+        self._context = ObservedObject(wrappedValue: context)
+        self.isGreedy = greedy
+        self.styles = styles
+      }
+
+      private let styles: [RichTextStyle]
+      private let isGreedy: Bool
+
+      private var groupWidth: CGFloat? {
+        if isGreedy { return nil }
+        let count = Double(styles.count)
+        #if os(macOS)
+          return 30 * count
+        #else
+          return 50 * count
+        #endif
+      }
+
+      @ObservedObject
+      private var context: RichEditorState
+
+      public var body: some View {
+        #if os(macOS)
+          ControlGroup {
+            ForEach(styles) {
+              RichTextStyle.Toggle(
+                style: $0,
+                context: context,
+                fillVertically: true
+              )
             }
-
-            private let styles: [RichTextStyle]
-            private let isGreedy: Bool
-
-            private var groupWidth: CGFloat? {
-                if isGreedy { return nil }
-                let count = Double(styles.count)
-                #if macOS
-                    return 30 * count
-                #else
-                    return 50 * count
-                #endif
-            }
-
-            @ObservedObject
-            private var context: RichEditorState
-
-            public var body: some View {
-                #if macOS
-                    ControlGroup {
-                        ForEach(styles) {
-                            RichTextStyle.Toggle(
-                                style: $0,
-                                context: context,
-                                fillVertically: true
-                            )
-                        }
-                    }
-                    .frame(width: groupWidth)
-                #else
-                    RichTextStyle.ToggleStack(
-                        context: context,
-                        styles: styles
-                    )
-                #endif
-            }
-        }
+          }
+          .frame(width: groupWidth)
+        #else
+          RichTextStyle.ToggleStack(
+            context: context,
+            styles: styles
+          )
+        #endif
+      }
     }
+  }
 #endif

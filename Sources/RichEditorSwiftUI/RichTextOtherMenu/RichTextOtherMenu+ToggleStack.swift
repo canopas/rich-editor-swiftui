@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-extension RichTextOtherMenu {
+#if os(iOS) || os(macOS) || os(visionOS)
+
+  extension RichTextOtherMenu {
 
     /**
      This view can list ``RichTextOtherMenu/Toggle``s for a list
@@ -18,7 +20,7 @@ extension RichTextOtherMenu {
      */
     public struct ToggleStack: View {
 
-        /**
+      /**
          Create a rich text style toggle button group.
 
          - Parameters:
@@ -26,33 +28,34 @@ extension RichTextOtherMenu {
          - styles: The styles to list, by default ``RichTextOtherMenu/all``.
          - spacing: The spacing to apply to stack items, by default `5`.
          */
-        public init(
-            context: RichEditorState,
-            styles: [RichTextOtherMenu] = .all,
-            spacing: Double = 5
-        ) {
-            self._context = ObservedObject(wrappedValue: context)
-            self.styles = styles
-            self.spacing = spacing
+      public init(
+        context: RichEditorState,
+        styles: [RichTextOtherMenu] = .all,
+        spacing: Double = 5
+      ) {
+        self._context = ObservedObject(wrappedValue: context)
+        self.styles = styles
+        self.spacing = spacing
+      }
+
+      private let styles: [RichTextOtherMenu]
+      private let spacing: Double
+
+      @ObservedObject
+      private var context: RichEditorState
+
+      public var body: some View {
+        HStack(spacing: spacing) {
+          ForEach(styles) {
+            RichTextOtherMenu.Toggle(
+              style: $0,
+              context: context,
+              fillVertically: true
+            )
+          }
         }
-
-        private let styles: [RichTextOtherMenu]
-        private let spacing: Double
-
-        @ObservedObject
-        private var context: RichEditorState
-
-        public var body: some View {
-            HStack(spacing: spacing) {
-                ForEach(styles) {
-                    RichTextOtherMenu.Toggle(
-                        style: $0,
-                        context: context,
-                        fillVertically: true
-                    )
-                }
-            }
-            .fixedSize(horizontal: false, vertical: true)
-        }
+        .fixedSize(horizontal: false, vertical: true)
+      }
     }
-}
+  }
+#endif

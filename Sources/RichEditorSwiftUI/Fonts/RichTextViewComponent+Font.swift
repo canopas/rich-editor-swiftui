@@ -26,118 +26,118 @@ import Foundation
 
 extension RichTextViewComponent {
 
-    /// Get the rich text font at current range.
-    public var richTextFont: FontRepresentable? {
-        richTextAttributes[.font] as? FontRepresentable ?? typingAttributes[
-            .font] as? FontRepresentable
-    }
+  /// Get the rich text font at current range.
+  public var richTextFont: FontRepresentable? {
+    richTextAttributes[.font] as? FontRepresentable ?? typingAttributes[
+      .font] as? FontRepresentable
+  }
 
-    /// Set the rich text font at current range.
-    public func setRichTextFont(_ font: FontRepresentable) {
-        setRichTextAttribute(.font, to: font)
-    }
+  /// Set the rich text font at current range.
+  public func setRichTextFont(_ font: FontRepresentable) {
+    setRichTextAttribute(.font, to: font)
+  }
 
-    /// Set the rich text font name at current range.
-    public func setRichTextFontName(_ name: String) {
-        if richTextFont?.fontName == name { return }
-        if hasSelectedRange {
-            setFontName(name, at: selectedRange)
-        } else {
-            setFontNameAtCurrentPosition(to: name)
-        }
+  /// Set the rich text font name at current range.
+  public func setRichTextFontName(_ name: String) {
+    if richTextFont?.fontName == name { return }
+    if hasSelectedRange {
+      setFontName(name, at: selectedRange)
+    } else {
+      setFontNameAtCurrentPosition(to: name)
     }
+  }
 
-    /// Set the rich text font size at current range.
-    public func setRichTextFontSize(_ size: CGFloat) {
-        if size == richTextFont?.pointSize { return }
-        #if macOS
-            setFontSize(size, at: selectedRange)
-            setFontSizeAtCurrentPosition(size)
-        #else
-            if hasSelectedRange {
-                setFontSize(size, at: selectedRange)
-            } else {
-                setFontSizeAtCurrentPosition(size)
-            }
-        #endif
-    }
+  /// Set the rich text font size at current range.
+  public func setRichTextFontSize(_ size: CGFloat) {
+    if size == richTextFont?.pointSize { return }
+    #if os(macOS)
+      setFontSize(size, at: selectedRange)
+      setFontSizeAtCurrentPosition(size)
+    #else
+      if hasSelectedRange {
+        setFontSize(size, at: selectedRange)
+      } else {
+        setFontSizeAtCurrentPosition(size)
+      }
+    #endif
+  }
 
-    /// Step the rich text font size at current range.
-    public func stepRichTextFontSize(points: Int) {
-        let old = richTextFont?.pointSize ?? .standardRichTextFontSize
-        let new = max(0, old + CGFloat(points))
-        setRichTextFontSize(new)
-    }
+  /// Step the rich text font size at current range.
+  public func stepRichTextFontSize(points: Int) {
+    let old = richTextFont?.pointSize ?? .standardRichTextFontSize
+    let new = max(0, old + CGFloat(points))
+    setRichTextFontSize(new)
+  }
 }
 
 extension RichTextViewComponent {
 
-    /// Set the font at the current position.
-    fileprivate func setFontNameAtCurrentPosition(to name: String) {
-        var attributes = typingAttributes
-        let oldFont =
-            attributes[.font] as? FontRepresentable ?? .standardRichTextFont
-        let size = oldFont.pointSize
-        let newFont = FontRepresentable(name: name, size: size)
-        attributes[.font] = newFont
-        typingAttributes = attributes
-    }
+  /// Set the font at the current position.
+  fileprivate func setFontNameAtCurrentPosition(to name: String) {
+    var attributes = typingAttributes
+    let oldFont =
+      attributes[.font] as? FontRepresentable ?? .standardRichTextFont
+    let size = oldFont.pointSize
+    let newFont = FontRepresentable(name: name, size: size)
+    attributes[.font] = newFont
+    typingAttributes = attributes
+  }
 
-    /// Set the font size at the current position.
-    fileprivate func setFontSizeAtCurrentPosition(_ size: CGFloat) {
-        var attributes = typingAttributes
-        let oldFont =
-            attributes[.font] as? FontRepresentable ?? .standardRichTextFont
-        let newFont = oldFont.withSize(size)
-        attributes[.font] = newFont
-        typingAttributes = attributes
-    }
+  /// Set the font size at the current position.
+  fileprivate func setFontSizeAtCurrentPosition(_ size: CGFloat) {
+    var attributes = typingAttributes
+    let oldFont =
+      attributes[.font] as? FontRepresentable ?? .standardRichTextFont
+    let newFont = oldFont.withSize(size)
+    attributes[.font] = newFont
+    typingAttributes = attributes
+  }
 
-    /// Set the font name at a certain range.
-    fileprivate func setFontName(_ name: String, at range: NSRange) {
-        guard let text = mutableRichText else { return }
-        guard text.length > 0 else { return }
-        let fontName = settableFontName(for: name)
-        text.beginEditing()
-        text.enumerateAttribute(.font, in: range, options: .init()) {
-            value, range, _ in
-            let oldFont = value as? FontRepresentable ?? .standardRichTextFont
-            let size = oldFont.pointSize
-            let newFont =
-                FontRepresentable(name: fontName, size: size)
-                ?? .standardRichTextFont
-            text.removeAttribute(.font, range: range)
-            text.addAttribute(.font, value: newFont, range: range)
-            text.fixAttributes(in: range)
-        }
-        text.endEditing()
+  /// Set the font name at a certain range.
+  fileprivate func setFontName(_ name: String, at range: NSRange) {
+    guard let text = mutableRichText else { return }
+    guard text.length > 0 else { return }
+    let fontName = settableFontName(for: name)
+    text.beginEditing()
+    text.enumerateAttribute(.font, in: range, options: .init()) {
+      value, range, _ in
+      let oldFont = value as? FontRepresentable ?? .standardRichTextFont
+      let size = oldFont.pointSize
+      let newFont =
+        FontRepresentable(name: fontName, size: size)
+        ?? .standardRichTextFont
+      text.removeAttribute(.font, range: range)
+      text.addAttribute(.font, value: newFont, range: range)
+      text.fixAttributes(in: range)
     }
+    text.endEditing()
+  }
 
-    /// Set the font size at a certain range.
-    fileprivate func setFontSize(_ size: CGFloat, at range: NSRange) {
-        guard let text = mutableRichText else { return }
-        guard text.length > 0 else { return }
-        text.beginEditing()
-        text.enumerateAttribute(.font, in: range, options: .init()) {
-            value, range, _ in
-            let oldFont = value as? FontRepresentable ?? .standardRichTextFont
-            let newFont = oldFont.withSize(size)
-            text.removeAttribute(.font, range: range)
-            text.addAttribute(.font, value: newFont, range: range)
-            text.fixAttributes(in: range)
-        }
-        text.endEditing()
+  /// Set the font size at a certain range.
+  fileprivate func setFontSize(_ size: CGFloat, at range: NSRange) {
+    guard let text = mutableRichText else { return }
+    guard text.length > 0 else { return }
+    text.beginEditing()
+    text.enumerateAttribute(.font, in: range, options: .init()) {
+      value, range, _ in
+      let oldFont = value as? FontRepresentable ?? .standardRichTextFont
+      let newFont = oldFont.withSize(size)
+      text.removeAttribute(.font, range: range)
+      text.addAttribute(.font, value: newFont, range: range)
+      text.fixAttributes(in: range)
     }
+    text.endEditing()
+  }
 }
 
 extension RichTextAttributeWriter {
 
-    /// We must adjust empty font names on some platforms.
-    fileprivate func settableFontName(for fontName: String) -> String {
-        #if macOS
-            fontName
-        #else
-            fontName
-        #endif
-    }
+  /// We must adjust empty font names on some platforms.
+  fileprivate func settableFontName(for fontName: String) -> String {
+    #if os(macOS)
+      fontName
+    #else
+      fontName
+    #endif
+  }
 }
