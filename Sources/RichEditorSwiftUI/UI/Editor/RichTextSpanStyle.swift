@@ -21,7 +21,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     .h4,
     .h5,
     .h6,
-    .bullet(),
+    //    .bullet(),
     .size(),
     .font(),
     .color(),
@@ -32,9 +32,9 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(key)
 
-    if case .bullet(let indent) = self {
-      hasher.combine(indent)
-    }
+    //    if case .bullet(let indent) = self {
+    //      hasher.combine(indent)
+    //    }
     if case .align(let alignment) = self {
       hasher.combine(alignment)
     }
@@ -51,7 +51,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
   case h4
   case h5
   case h6
-  case bullet(_ indent: Int? = nil)
+  //  case bullet(_ indent: Int? = nil)
   //    case ordered(_ indent: Int? = nil)
   case size(Int? = nil)
   case font(String? = nil)
@@ -84,8 +84,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
       return "h5"
     case .h6:
       return "h6"
-    case .bullet:
-      return "bullet"
+    //    case .bullet:
+    //      return "bullet"
     //        case .ordered:
     //            return "ordered"
     case .size:
@@ -110,9 +110,9 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
       return NSUnderlineStyle.single.rawValue
     case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6:
       return getFontWithUpdating(font: font)
-    case .bullet(let indent):
-      return getListStyleAttributeValue(
-        listType ?? .bullet(), indent: indent)
+    //    case .bullet(let indent):
+    //      return getListStyleAttributeValue(
+    //        listType ?? .bullet(), indent: indent)
     case .strikethrough:
       return NSUnderlineStyle.single.rawValue
     case .size(let size):
@@ -157,7 +157,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     case .default, .bold, .italic, .h1, .h2, .h3, .h4, .h5, .h6, .size,
       .font:
       return .font
-    case .bullet, .align:
+    case .align:  //, .bullet
       return .paragraphStyle
     case .strikethrough:
       return .strikethroughStyle
@@ -208,14 +208,14 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     }
   }
 
-  var listType: ListType? {
-    switch self {
-    case .bullet(let indent):
-      return .bullet(indent)
-    default:
-      return nil
-    }
-  }
+  //  var listType: ListType? {
+  //    switch self {
+  //    case .bullet(let indent):
+  //      return .bullet(indent)
+  //    default:
+  //      return nil
+  //    }
+  //  }
 
   var headerType: HeaderType {
     switch self {
@@ -254,14 +254,14 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     }
   }
 
-  var isList: Bool {
-    switch self {
-    case .bullet:
-      return true
-    default:
-      return false
-    }
-  }
+  //  var isList: Bool {
+  //    switch self {
+  //    case .bullet:
+  //      return true
+  //    default:
+  //      return false
+  //    }
+  //  }
 
   var isDefault: Bool {
     switch self {
@@ -280,8 +280,8 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
       return font
     case .bold, .italic:
       return font.addFontStyle(self)
-    case .underline, .bullet, .strikethrough, .color, .background, .align,
-      .link:
+    case .underline, .strikethrough, .color, .background, .align,
+      .link:  //, .bullet
       return font
     case .h1:
       return font.updateFontSize(multiple: 1.5)
@@ -330,7 +330,7 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
 
   func getFontAfterRemovingStyle(font: FontRepresentable) -> FontRepresentable {
     switch self {
-    case .bold, .italic, .bullet:
+    case .bold, .italic:  //, .bullet:
       return font.removeFontStyle(self)
     case .underline, .strikethrough, .color, .background, .align, .link:
       return font
@@ -339,17 +339,17 @@ public enum RichTextSpanStyle: Equatable, CaseIterable, Hashable {
     }
   }
 
-  func getListStyleAttributeValue(_ listType: ListType, indent: Int? = nil)
-    -> NSMutableParagraphStyle
-  {
-    let paragraphStyle = NSMutableParagraphStyle()
-    paragraphStyle.alignment = .left
-    let listItem = TextList(
-      markerFormat: listType.getMarkerFormat(), options: 0)
-    paragraphStyle.textLists = Array(
-      repeating: listItem, count: (indent ?? 0) + 1)
-    return paragraphStyle
-  }
+  //  func getListStyleAttributeValue(_ listType: ListType, indent: Int? = nil)
+  //    -> NSMutableParagraphStyle
+  //  {
+  //    let paragraphStyle = NSMutableParagraphStyle()
+  //    paragraphStyle.alignment = .left
+  //    let listItem = TextList(
+  //      markerFormat: listType.getMarkerFormat(), options: 0)
+  //    paragraphStyle.textLists = Array(
+  //      repeating: listItem, count: (indent ?? 0) + 1)
+  //    return paragraphStyle
+  //  }
 }
 
 #if canImport(UIKit)
@@ -393,8 +393,8 @@ extension RichTextSpanStyle {
       return RichAttributes(underline: true)
     case .strikethrough:
       return RichAttributes(strike: true)
-    case .bullet:
-      return RichAttributes(list: .bullet())
+    //    case .bullet:
+    //      return RichAttributes(list: .bullet())
     case .h1:
       return RichAttributes(header: .h1)
     case .h2:
