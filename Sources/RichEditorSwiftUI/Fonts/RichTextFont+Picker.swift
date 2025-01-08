@@ -40,9 +40,9 @@ extension RichTextFont {
            - selection: The selected font name.
          */
     public init(
-      selection: Binding<FontName>
+      context: RichEditorState
     ) {
-      self._selection = selection
+      self._selection = context.bindingForFontName()
       self.selectedFont = Config.Font.all.first
     }
 

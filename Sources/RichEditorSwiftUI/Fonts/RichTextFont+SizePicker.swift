@@ -9,7 +9,7 @@ import SwiftUI
 
 extension RichTextFont {
 
-    /**
+  /**
      This picker can be used to pick a font size.
 
      The view returns a plain SwiftUI `Picker` view that can
@@ -26,60 +26,60 @@ extension RichTextFont {
      .richTextFontSizePickerConfig(...)
      ```
      */
-    public struct SizePicker: View {
+  public struct SizePicker: View {
 
-        /**
+    /**
          Create a font size picker.
 
          - Parameters:
          - selection: The selected font size.
          */
-        public init(
-            selection: Binding<CGFloat>
+    public init(
+      context: RichEditorState
+    ) {
+      self._selection = context.bindingForFontSize()
+    }
+
+    @Binding
+    private var selection: CGFloat
+
+    @Environment(\.richTextFontSizePickerConfig)
+    private var config
+
+    public var body: some View {
+      SwiftUI.Picker("", selection: $selection) {
+        ForEach(
+          values(
+            for: config.values,
+            selection: selection
+          ), id: \.self
         ) {
-            self._selection = selection
+          text(for: $0)
+            .tag($0)
         }
-
-        @Binding
-        private var selection: CGFloat
-
-        @Environment(\.richTextFontSizePickerConfig)
-        private var config
-
-        public var body: some View {
-            SwiftUI.Picker("", selection: $selection) {
-                ForEach(
-                    values(
-                        for: config.values,
-                        selection: selection
-                    ), id: \.self
-                ) {
-                    text(for: $0)
-                        .tag($0)
-                }
-            }
-        }
+      }
     }
+  }
 }
 
 extension RichTextFont.SizePicker {
 
-    /// Get a list of values for a certain selection.
-    public func values(
-        for values: [CGFloat],
-        selection: CGFloat
-    ) -> [CGFloat] {
-        let values = values + [selection]
-        return Array(Set(values)).sorted()
-    }
+  /// Get a list of values for a certain selection.
+  public func values(
+    for values: [CGFloat],
+    selection: CGFloat
+  ) -> [CGFloat] {
+    let values = values + [selection]
+    return Array(Set(values)).sorted()
+  }
 }
 
 extension RichTextFont.SizePicker {
 
-    fileprivate func text(
-        for fontSize: CGFloat
-    ) -> some View {
-        Text("\(Int(fontSize))")
-            .fixedSize(horizontal: true, vertical: false)
-    }
+  fileprivate func text(
+    for fontSize: CGFloat
+  ) -> some View {
+    Text("\(Int(fontSize))")
+      .fixedSize(horizontal: true, vertical: false)
+  }
 }
