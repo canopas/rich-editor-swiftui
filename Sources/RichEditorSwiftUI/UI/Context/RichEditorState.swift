@@ -36,12 +36,13 @@ public class RichEditorState: ObservableObject {
 
      Until then, use `setAttributedString(to:)` to change it.
      */
-  public internal(set) var attributedString = NSAttributedString()
+  @Published public internal(set) var attributedString = NSAttributedString()
 
   /// The currently selected range, if any.
+  @Published
   public internal(set) var selectedRange = NSRange()
 
-  // MARK: - Bindable & Settable Properies
+  // MARK: - Bindable & Settable Properties
 
   /// Whether or not the rich text editor is editable.
   @Published
@@ -124,9 +125,19 @@ public class RichEditorState: ObservableObject {
   internal var rawText: String = ""
 
   internal var updateAttributesQueue: [(span: RichTextSpanInternal, shouldApply: Bool)] = []
+
+  //MARK: - Alert Controller to handle Link
   #if os(iOS) || os(tvOS) || os(macOS) || os(visionOS)
     internal let alertController: RichTextAlertController = RichTextAlertController()
   #endif
+
+  //MARK: - Undo Redo manager
+  internal let undoManager: RichEditorUndoRedoManager = RichEditorUndoRedoManager()
+
+  ///This set is used to store all observable observations.
+  public var cancellables = Set<AnyCancellable>()
+
+  var isOperationIsFromUser: Bool = true
 
   /**
      This will provide encoded text which is of type RichText
@@ -188,6 +199,7 @@ public class RichEditorState: ObservableObject {
     activeStyles = []
 
     rawText = input
+    subscribeObservers()
   }
 
   /**
@@ -215,6 +227,14 @@ public class RichEditorState: ObservableObject {
     activeStyles = []
 
     rawText = input
+    subscribeObservers()
+  }
+}
+
+//MARK: - Subscribe Observer
+extension RichEditorState {
+  func subscribeObservers() {
+    observerTextInput()
   }
 }
 

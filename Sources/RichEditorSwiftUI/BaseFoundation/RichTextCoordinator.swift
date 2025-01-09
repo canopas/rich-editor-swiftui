@@ -100,12 +100,14 @@
       }
 
       open func textViewDidChangeSelection(_ textView: UITextView) {
-        context.onTextViewEvent(
-          .didChangeSelection(
-            selectedRange: textView.selectedRange,
-            text: textView.attributedText
+        DispatchQueue.main.async { [weak self] in
+          self?.context.onTextViewEvent(
+            .didChangeSelection(
+              selectedRange: textView.selectedRange,
+              text: textView.attributedText
+            )
           )
-        )
+        }
         syncWithTextView()
       }
 
@@ -201,15 +203,17 @@
 
     /// Sync state from the text view's current state.
     func syncWithTextView() {
-      syncContextWithTextView()
+      DispatchQueue.main.async { [weak self] in
+        self?.syncContextWithTextView()
+      }
       syncTextWithTextView()
     }
 
     /// Sync the rich text context with the text view.
     func syncContextWithTextView() {
       if shouldDelaySyncContextWithTextView {
-        DispatchQueue.main.async {
-          self.syncContextWithTextViewAfterDelay()
+        DispatchQueue.main.async { [weak self] in
+          self?.syncContextWithTextViewAfterDelay()
         }
       } else {
         syncContextWithTextViewAfterDelay()
@@ -229,10 +233,10 @@
       sync(&context.canCopy, with: textView.hasSelectedRange)
       sync(
         &context.canRedoLatestChange,
-        with: textView.undoManager?.canRedo ?? false)
+        with: context.canRedoLatestChange)
       sync(
         &context.canUndoLatestChange,
-        with: textView.undoManager?.canUndo ?? false)
+        with: context.canUndoLatestChange)
       sync(&context.fontName, with: font.fontName)
       sync(&context.fontSize, with: font.pointSize)
       sync(&context.isEditingText, with: textView.isFirstResponder)

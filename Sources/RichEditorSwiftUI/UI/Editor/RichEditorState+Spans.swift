@@ -47,13 +47,17 @@ extension RichEditorState {
      - Parameters:
      - style: is of type RichTextSpanStyle
      */
-  public func toggleStyle(style: RichTextSpanStyle) {
-    if activeStyles.contains(style) {
+  public func toggleStyle(style: RichTextSpanStyle, shouldRegisterUndo: Bool = true) {
+    let shouldAdd: Bool = !activeStyles.contains(style)
+    if !shouldAdd {
       setInternalStyles(style: style, add: false)
       removeStyle(style)
     } else {
       setInternalStyles(style: style)
       addStyle(style)
+    }
+    if shouldRegisterUndo {
+      registerUndoFor(style: style, isAdded: shouldAdd)
     }
   }
 
@@ -62,9 +66,10 @@ extension RichEditorState {
      - Parameters:
      - style: is of type RichTextSpanStyle
      */
-  public func updateStyle(style: RichTextSpanStyle) {
+  public func updateStyle(style: RichTextSpanStyle, shouldRegisterUndo: Bool = true) {
+    let wasStyleActive = activeStyles.contains(style)
     setInternalStyles(style: style)
-    setStyle(style)
+    setStyle(style, shouldRegisterUndo: shouldRegisterUndo)
   }
 }
 
@@ -91,6 +96,7 @@ extension RichEditorState {
     case .didChange:
       onTextFieldValueChange(
         newText: attributedString, selection: selectedRange)
+    //        isOperationIsFromUser = true
     case .didEndEditing:
       selectedRange = .init(location: 0, length: 0)
     }
@@ -102,11 +108,12 @@ extension RichEditorState {
      - newText: is updated NSMutableAttributedString
      - selection: is the range of the selected text
      */
-  private func onTextFieldValueChange(
+  internal func onTextFieldValueChange(
     newText: NSAttributedString, selection: NSRange
   ) {
     self.selectedRange = selection
 
+    //      registerOperationForText(newText: newText, rawText: rawText)
     if newText.string.count > rawText.count {
       handleAddingCharacters(newText)
     } else if newText.string.count < rawText.count {
@@ -115,6 +122,7 @@ extension RichEditorState {
 
     rawText = newText.string
     updateCurrentSpanStyle()
+    //      beginEditingGroup(.textChange)
   }
 
   /**
@@ -133,7 +141,8 @@ extension RichEditorState {
      - style: is of type RichTextSpanStyle
      This will set the activeStyle according to style  passed
      */
-  private func setStyle(_ style: RichTextSpanStyle) {
+  private func setStyle(_ style: RichTextSpanStyle, shouldRegisterUndo: Bool = true) {
+    let previousStyles = activeStyles
     activeStyles.removeAll()
     activeAttributes = [:]
     activeStyles.insert(style)
@@ -141,10 +150,18 @@ extension RichEditorState {
     if style.isHeaderStyle || style.isDefault  //|| style.isList
       || style.isAlignmentStyle
     {
+      if shouldRegisterUndo {
+        let previousStyle = previousStyles.first(where: { $0.key == style.key })
+        registerUndoForSetStyle(previousStyle: previousStyle, newStyle: style)
+      }
       handleAddOrRemoveStyleToLine(
         in: selectedRange, style: style, byAdding: !style.isDefault)
     } else if !selectedRange.isCollapsed {
       let addStyle = checkIfStyleIsActiveWithSameAttributes(style)
+      if shouldRegisterUndo {
+        let previousStyle = previousStyles.first(where: { $0.key == style.key })
+        registerUndoForSetStyle(previousStyle: previousStyle, newStyle: style)
+      }
       processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
     }
 
