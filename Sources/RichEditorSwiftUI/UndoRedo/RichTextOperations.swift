@@ -12,10 +12,15 @@ struct RichTextOperation {
   let operationType: OperationType
   let range: NSRange
   let attributes: OperationAttributes
-  init(operationType: OperationType, range: NSRange, attributes: OperationAttributes) {
+  let previousAttributes: OperationAttributes
+  init(
+    operationType: OperationType, range: NSRange, attributes: OperationAttributes,
+    previousAttributes: OperationAttributes
+  ) {
     self.operationType = operationType
     self.range = range
     self.attributes = attributes
+    self.previousAttributes = previousAttributes
   }
 }
 
@@ -26,38 +31,56 @@ enum OperationType {
 }
 
 struct OperationAttributes {
-  let activeStyles: Set<RichTextSpanStyle>
+  let attributedString: NSAttributedString
+  let selectedRange: NSRange
   let headerType: HeaderType
   let textAlignment: RichTextAlignment
   let fontName: String
   let fontSize: CGFloat
-  let colors: [RichTextColor: ColorRepresentable]
   let lineSpacing: CGFloat
+  let colors: [RichTextColor: ColorRepresentable]
+  let highlightingStyle: RichTextHighlightingStyle
   let paragraphStyle: NSParagraphStyle
   let styles: [RichTextStyle: Bool]
   let link: String?
+  let highlightedRange: NSRange?
+  let activeStyles: Set<RichTextSpanStyle>
+  let activeAttributes: [NSAttributedString.Key: Any]?
+  let rawText: String
 
   init(
-    activeStyles: Set<RichTextSpanStyle>,
+    attributedString: NSAttributedString,
+    selectedRange: NSRange,
     headerType: HeaderType,
     textAlignment: RichTextAlignment,
     fontName: String,
     fontSize: CGFloat,
-    colors: [RichTextColor: ColorRepresentable],
     lineSpacing: CGFloat,
+    colors: [RichTextColor: ColorRepresentable],
+    highlightingStyle: RichTextHighlightingStyle,
     paragraphStyle: NSParagraphStyle,
     styles: [RichTextStyle: Bool],
-    link: String?
+    link: String?,
+    highlightedRange: NSRange?,
+    activeStyles: Set<RichTextSpanStyle>,
+    activeAttributes: [NSAttributedString.Key: Any]?,
+    rawText: String
   ) {
-    self.activeStyles = activeStyles
+    self.attributedString = attributedString
+    self.selectedRange = selectedRange
     self.headerType = headerType
     self.textAlignment = textAlignment
     self.fontName = fontName
     self.fontSize = fontSize
-    self.colors = colors
     self.lineSpacing = lineSpacing
+    self.colors = colors
+    self.highlightingStyle = highlightingStyle
     self.paragraphStyle = paragraphStyle
     self.styles = styles
     self.link = link
+    self.highlightedRange = highlightedRange
+    self.activeStyles = activeStyles
+    self.activeAttributes = activeAttributes
+    self.rawText = rawText
   }
 }

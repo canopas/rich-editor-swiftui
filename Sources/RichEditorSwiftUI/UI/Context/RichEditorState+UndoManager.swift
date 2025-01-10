@@ -1,11 +1,12 @@
 //
-//  RichEditorState+UndoRedoManager.swift
+//  RichEditorState+UndoManager.swift
 //  RichEditorSwiftUI
 //
 //  Created by Divyesh Vekariya on 06/01/25.
 //
 
 import Foundation
+import SwiftUI
 
 extension RichEditorState {
   func updateUndoRedoState() {
@@ -24,7 +25,7 @@ extension RichEditorState {
         //                if let operation {
         //                    self.undoManager.registerUndoOperation(operation)
         //                }
-        //                self.isOperationIsFromUser = false
+                        self.isOperationIsFromUser = false
         //                self.operationRawText = self.attributedString.string
         updateUndoRedoState()
       }
@@ -46,7 +47,7 @@ extension RichEditorState {
   private func restoreState(for operation: RichTextOperation, isRedo: Bool) {
     setSelectedRange(range: operation.range)
     if isRedo {
-      setCurrentAttributes(attributes: operation.attributes)
+//      setCurrentAttributes(attributes: operation.attributes)
     }
 
     switch operation.operationType {
@@ -78,7 +79,7 @@ extension RichEditorState {
     }
 
     if !isRedo {
-      setCurrentAttributes(attributes: undoManager.getPreviousAttributes())
+        setCurrentAttributes(attributes: operation.previousAttributes)
     }
 
     updateUndoRedoState()
@@ -89,16 +90,23 @@ extension RichEditorState {
     selectedRange = range
   }
   private func setCurrentAttributes(attributes: OperationAttributes) {
-    activeStyles = attributes.activeStyles
-    headerType = attributes.headerType
-    textAlignment = attributes.textAlignment
-    fontName = attributes.fontName
-    fontSize = attributes.fontSize
-    colors = attributes.colors
-    lineSpacing = attributes.lineSpacing
-    paragraphStyle = attributes.paragraphStyle
-    //        styles = attributes.styles
-    link = attributes.link
+//      let attributedStringCopy = NSMutableAttributedString(attributedString: attributes.attributedString)
+//      attributedString = attributedStringCopy
+      selectedRange = attributes.selectedRange
+      headerType = attributes.headerType
+      textAlignment = attributes.textAlignment
+      fontName = attributes.fontName
+      fontSize = attributes.fontSize
+      lineSpacing = attributes.lineSpacing
+      colors = attributes.colors
+      highlightingStyle = attributes.highlightingStyle
+      paragraphStyle = attributes.paragraphStyle
+      styles = attributes.styles
+      link = attributes.link
+      highlightedRange = attributes.highlightedRange
+      activeStyles = attributes.activeStyles
+      activeAttributes = attributes.activeAttributes
+//      rawText = attributes.rawText
   }
 
   func getAttributedStringBy(adding: Bool, chars: String, at index: Int)
@@ -126,7 +134,8 @@ extension RichEditorState {
     return RichTextOperation(
       operationType: .addOrRemoveText(newText: newText, rawText: rawText, isAdded: isAdded),
       range: range,
-      attributes: getCurrentAttributes()
+      attributes: getCurrentAttributes(),
+      previousAttributes: getPreviousAttributes()
     )
   }
 
@@ -134,7 +143,8 @@ extension RichEditorState {
     return RichTextOperation(
       operationType: .addOrRemoveStyle(style: style, isAdded: isAdded),
       range: selectedRange,
-      attributes: getCurrentAttributes()
+      attributes: getCurrentAttributes(),
+      previousAttributes: getPreviousAttributes()
     )
   }
 
@@ -152,7 +162,8 @@ extension RichEditorState {
     return RichTextOperation(
       operationType: .setStyleStyle(previousStyle: previousStyle, newStyle: newStyle, isSet: isSet),
       range: selectedRange,
-      attributes: getCurrentAttributes()
+      attributes: getCurrentAttributes(),
+      previousAttributes: getPreviousAttributes()
     )
   }
 
@@ -176,25 +187,88 @@ extension RichEditorState {
     updateUndoRedoState()
   }
 
-  func registerUndoForSetStyle(previousStyle: RichTextSpanStyle?, newStyle: RichTextSpanStyle) {
+  func registerUndoForSetStyle(newStyle: RichTextSpanStyle) {
+    let previousStyle = getPreviousStyleFor(style: newStyle)
     let operation = getOperationForSetStyle(
       previousStyle: previousStyle, newStyle: newStyle, isSet: true)
     undoManager.registerUndoOperation(operation)
     updateUndoRedoState()
   }
 
-  private func getCurrentAttributes() -> OperationAttributes {
-    return OperationAttributes(
-      activeStyles: activeStyles,
-      headerType: headerType,
-      textAlignment: textAlignment,
-      fontName: fontName,
-      fontSize: fontSize,
-      colors: colors,
-      lineSpacing: lineSpacing,
-      paragraphStyle: paragraphStyle,
-      styles: styles,
-      link: link
-    )
-  }
+    private func getPreviousStyleFor(style: RichTextSpanStyle) -> RichTextSpanStyle? {
+        var previousStyle: RichTextSpanStyle? = nil
+        switch style {
+        case .h1, .h2, .h3, .h4, .h5, .h6:
+            previousStyle = previousHeaderType.getTextSpanStyle()
+        case .size(_):
+            previousStyle = .size(Int(previousFontSize))
+        case .font(_):
+            let fontName: String = previousFontName.isEmpty ? RichTextFont.PickerFont.standardSystemFontDisplayName : previousFontName
+            previousStyle = .font(fontName)
+        case .color(_):
+            if let color = previousColors[.foreground] {
+                previousStyle = .color(Color(color))
+            } else {
+                previousStyle = .color()
+            }
+        case .background(_):
+            if let color = previousColors[.background] {
+                previousStyle = .background(Color(color))
+            } else {
+                previousStyle = .background()
+            }
+        case .align(_):
+            previousStyle = .align(previousTextAlignment)
+        case .link(_):
+            previousStyle = .link(previousLink)
+        default:
+            previousStyle = nil
+        }
+        return previousStyle
+    }
+
+    private func getCurrentAttributes() -> OperationAttributes {
+        let attributedString = NSMutableAttributedString(attributedString: attributedString)
+
+        return OperationAttributes(
+            attributedString: attributedString,
+            selectedRange: selectedRange,
+            headerType: headerType,
+            textAlignment: textAlignment,
+            fontName: fontName,
+            fontSize: fontSize,
+            lineSpacing: lineSpacing,
+            colors: colors,
+            highlightingStyle: highlightingStyle,
+            paragraphStyle: paragraphStyle,
+            styles: styles,
+            link: link,
+            highlightedRange: highlightedRange,
+            activeStyles: activeStyles,
+            activeAttributes: activeAttributes,
+            rawText: rawText
+        )
+    }
+
+    private func getPreviousAttributes() -> OperationAttributes {
+        let previousAttributedString = NSMutableAttributedString(attributedString: previousAttributedString)
+        return OperationAttributes(
+            attributedString: previousAttributedString,
+            selectedRange: previousSelectedRange,
+            headerType: previousHeaderType,
+            textAlignment: previousTextAlignment,
+            fontName: previousFontName,
+            fontSize: previousFontSize,
+            lineSpacing: previousLineSpacing,
+            colors: previousColors,
+            highlightingStyle: previousHighlightingStyle,
+            paragraphStyle: previousParagraphStyle,
+            styles: previousStyles,
+            link: previousLink,
+            highlightedRange: previousHighlightedRange,
+            activeStyles: previousActiveStyles,
+            activeAttributes: previousActiveAttributes,
+            rawText: previousRawText
+        )
+    }
 }

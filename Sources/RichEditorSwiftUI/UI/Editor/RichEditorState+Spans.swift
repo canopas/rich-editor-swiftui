@@ -85,12 +85,12 @@ extension RichEditorState {
     switch event {
     case .didChangeSelection(let range, let text):
       selectedRange = range
+      onSelectionDidChanged()
       guard
         rawText.count == text.string.count && selectedRange.isCollapsed
       else {
         return
       }
-      onSelectionDidChanged()
     case .didBeginEditing(let range, _):
       selectedRange = range
     case .didChange:
@@ -150,19 +150,17 @@ extension RichEditorState {
     if style.isHeaderStyle || style.isDefault  //|| style.isList
       || style.isAlignmentStyle
     {
-      if shouldRegisterUndo {
-        let previousStyle = previousStyles.first(where: { $0.key == style.key })
-        registerUndoForSetStyle(previousStyle: previousStyle, newStyle: style)
-      }
       handleAddOrRemoveStyleToLine(
         in: selectedRange, style: style, byAdding: !style.isDefault)
+      if shouldRegisterUndo {
+        registerUndoForSetStyle(newStyle: style)
+      }
     } else if !selectedRange.isCollapsed {
       let addStyle = checkIfStyleIsActiveWithSameAttributes(style)
-      if shouldRegisterUndo {
-        let previousStyle = previousStyles.first(where: { $0.key == style.key })
-        registerUndoForSetStyle(previousStyle: previousStyle, newStyle: style)
-      }
       processSpansFor(new: style, in: selectedRange, addStyle: addStyle)
+      if shouldRegisterUndo {
+        registerUndoForSetStyle(newStyle: style)
+      }
     }
 
     updateCurrentSpanStyle()
@@ -847,6 +845,7 @@ extension RichEditorState {
     internalSpans.removeAll()
     rawText = ""
     attributedString = NSMutableAttributedString(string: "")
+    undoManager.reset()
   }
 
   /**
@@ -886,7 +885,7 @@ extension RichEditorState {
         setStyle(style, to: add)
       }
     case .h1, .h2, .h3, .h4, .h5, .h6, .default:
-      actionPublisher.send(.setHeaderStyle(style))
+      setHeaderStyle(style.headerType)
     //        case .bullet(_):
     //            return
     case .size(let size):
