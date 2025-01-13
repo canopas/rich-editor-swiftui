@@ -28,7 +28,7 @@ struct ContentView: View {
       {
         self.state = .init(richText: richText)
       } else {
-        self.state = .init(input: "Bold \n Italic \n Underline \n Strikethrough \n ")
+        self.state = .init(input: "Hello World!")
       }
     }
   }
