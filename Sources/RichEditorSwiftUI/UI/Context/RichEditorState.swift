@@ -108,6 +108,8 @@ public class RichEditorState: ObservableObject {
   public internal(set) var colors = [RichTextColor: ColorRepresentable]() {
     willSet { previousColors = colors }
   }
+  @Published
+  internal var colorScheme: ColorScheme = .light
 
   /// The style to apply when highlighting a range.
   @Published

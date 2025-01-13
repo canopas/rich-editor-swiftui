@@ -51,6 +51,7 @@
   /// For more information, see ``RichTextKeyboardToolbarConfig``
   /// and ``RichTextKeyboardToolbarStyle``.
   public struct RichTextEditor: ViewRepresentable {
+    @Environment(\.colorScheme) var colorScheme
 
     @State var cancellable: Set<AnyCancellable> = []
 
@@ -112,6 +113,9 @@
         textView.configuration = config
         textView.theme = style
         viewConfiguration(textView)
+        DispatchQueue.main.async {
+          self.context.colorScheme = self.colorScheme
+        }
         return textView
       }
 
@@ -129,6 +133,9 @@
         textView.configuration = config
         textView.theme = style
         viewConfiguration(textView)
+        DispatchQueue.main.async {
+          self.context.colorScheme = self.colorScheme
+        }
         return scrollView
       }
 

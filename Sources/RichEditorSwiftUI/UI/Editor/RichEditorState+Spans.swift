@@ -67,9 +67,9 @@ extension RichEditorState {
      - style: is of type RichTextSpanStyle
      */
   public func updateStyle(style: RichTextSpanStyle, shouldRegisterUndo: Bool = true) {
-    let wasStyleActive = activeStyles.contains(style)
-    setInternalStyles(style: style)
     setStyle(style, shouldRegisterUndo: shouldRegisterUndo)
+    /// Don't change order of function call as it is comparing active attributes with new one so updating it before applying attribute will break the behavior of undo and redo
+    setInternalStyles(style: style)
   }
 }
 
@@ -180,9 +180,10 @@ extension RichEditorState {
         addStyle = fontName == self.fontName
       }
     case .color(let color):
-      if let color, color.toHex() != Color.primary.toHex() {
+      let defaultColor = RichTextColor.foreground.adjust(nil, for: colorScheme)
+      if let color, color.toHex() != defaultColor.toHex() {
         if let internalColor = self.color(for: .foreground) {
-          addStyle = Color(internalColor) != color
+          addStyle = (Color(internalColor) != color)
         } else {
           addStyle = true
         }
@@ -190,9 +191,10 @@ extension RichEditorState {
         addStyle = false
       }
     case .background(let bgColor):
-      if let color = bgColor, color.toHex() != Color.clear.toHex() {
+      let defaultColor = RichTextColor.background.adjust(nil, for: colorScheme)
+      if let color = bgColor, color.toHex() != defaultColor.toHex() {
         if let internalColor = self.color(for: .background) {
-          addStyle = Color(internalColor) != color
+          addStyle = (Color(internalColor) == color)
         } else {
           addStyle = true
         }
@@ -899,10 +901,18 @@ extension RichEditorState {
     case .color(let color):
       if let color {
         setColor(.foreground, to: .init(color))
+      } else {
+        setColor(
+          .foreground,
+          to: ColorRepresentable(RichTextColor.foreground.adjust(nil, for: colorScheme)))
       }
     case .background(let color):
       if let color {
         setColor(.background, to: .init(color))
+      } else {
+        setColor(
+          .background,
+          to: ColorRepresentable(RichTextColor.background.adjust(nil, for: colorScheme)))
       }
     case .align(let alignment):
       if let alignment, alignment != self.textAlignment {
