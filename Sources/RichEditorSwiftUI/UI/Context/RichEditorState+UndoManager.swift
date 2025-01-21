@@ -25,7 +25,7 @@ extension RichEditorState {
         //                if let operation {
         //                    self.undoManager.registerUndoOperation(operation)
         //                }
-                        self.isOperationIsFromUser = false
+        self.isOperationIsFromUser = false
         //                self.operationRawText = self.attributedString.string
         updateUndoRedoState()
       }
@@ -45,22 +45,23 @@ extension RichEditorState {
   }
 
   private func restoreState(for operation: RichTextOperation, isRedo: Bool) {
-    setSelectedRange(range: operation.range)
-    if isRedo {
-//      setCurrentAttributes(attributes: operation.attributes)
-    }
+    setSelectedRange(
+      range: isRedo
+        ? operation.previousAttributes.selectedRange : operation.attributes.selectedRange)
 
     switch operation.operationType {
-    case .addOrRemoveText(_, let rawText, _):
-      //            let shouldAdd = isRedo ? isAdded : !isAdded
-      self.isOperationIsFromUser = false
-      actionPublisher.send(.setAttributedString(attributedString))
-      self.rawText = rawText
-    //            let attributedText = getAttributedStringBy(adding: shouldAdd, chars: rawText, at: operation.range.location)
-    //            self.attributedString = attributedText
-    //            onTextFieldValueChange(newText: attributedText, selection: operation.range)
-    //            self.operationRawText = attributedString.string
-
+    case .addOrRemoveText:
+      let attributedText = NSMutableAttributedString(
+        attributedString: isRedo
+          ? operation.attributes.attributedString : operation.previousAttributes.attributedString)
+      if isRedo {
+        self.rawText = operation.previousAttributes.rawText
+      } else {
+        self.rawText = operation.attributes.rawText
+      }
+      actionPublisher.send(.setAttributedString(attributedText))
+      onTextFieldValueChange(
+        newText: attributedText, selection: operation.range, shouldRegisterUndo: false)
     case .addOrRemoveStyle(let style, let isAdded):
       let shouldAdd = isRedo ? isAdded : !isAdded
       if shouldAdd {
@@ -79,7 +80,7 @@ extension RichEditorState {
     }
 
     if !isRedo {
-        setCurrentAttributes(attributes: operation.previousAttributes)
+      setCurrentAttributes(attributes: operation.previousAttributes)
     }
 
     updateUndoRedoState()
@@ -90,23 +91,23 @@ extension RichEditorState {
     selectedRange = range
   }
   private func setCurrentAttributes(attributes: OperationAttributes) {
-//      let attributedStringCopy = NSMutableAttributedString(attributedString: attributes.attributedString)
-//      attributedString = attributedStringCopy
-      selectedRange = attributes.selectedRange
-      headerType = attributes.headerType
-      textAlignment = attributes.textAlignment
-      fontName = attributes.fontName
-      fontSize = attributes.fontSize
-      lineSpacing = attributes.lineSpacing
-      colors = attributes.colors
-      highlightingStyle = attributes.highlightingStyle
-      paragraphStyle = attributes.paragraphStyle
-      styles = attributes.styles
-      link = attributes.link
-      highlightedRange = attributes.highlightedRange
-      activeStyles = attributes.activeStyles
-      activeAttributes = attributes.activeAttributes
-//      rawText = attributes.rawText
+    //      let attributedStringCopy = NSMutableAttributedString(attributedString: attributes.attributedString)
+    //      attributedString = attributedStringCopy
+    selectedRange = attributes.selectedRange
+    headerType = attributes.headerType
+    textAlignment = attributes.textAlignment
+    fontName = attributes.fontName
+    fontSize = attributes.fontSize
+    lineSpacing = attributes.lineSpacing
+    //    colors = attributes.colors
+    highlightingStyle = attributes.highlightingStyle
+    paragraphStyle = attributes.paragraphStyle
+    styles = attributes.styles
+    link = attributes.link
+    highlightedRange = attributes.highlightedRange
+    activeStyles = attributes.activeStyles
+    activeAttributes = attributes.activeAttributes
+    //      rawText = attributes.rawText
   }
 
   func getAttributedStringBy(adding: Bool, chars: String, at index: Int)
@@ -132,7 +133,7 @@ extension RichEditorState {
     let range = NSRange(
       location: isAdded ? selectedRange.lowerBound : selectedRange.upperBound, length: 0)
     return RichTextOperation(
-      operationType: .addOrRemoveText(newText: newText, rawText: rawText, isAdded: isAdded),
+      operationType: .addOrRemoveText,
       range: range,
       attributes: getCurrentAttributes(),
       previousAttributes: getPreviousAttributes()
@@ -149,8 +150,7 @@ extension RichEditorState {
   }
 
   func registerOperationForText(newText: NSAttributedString, rawText: String) {
-    guard isOperationIsFromUser,
-      let operation = getOperationForTextChange(newText, rawText: rawText)
+    guard let operation = getOperationForTextChange(newText, rawText: rawText)
     else { return }
     undoManager.registerUndoOperation(operation)
     updateUndoRedoState()
@@ -195,80 +195,83 @@ extension RichEditorState {
     updateUndoRedoState()
   }
 
-    private func getPreviousStyleFor(style: RichTextSpanStyle) -> RichTextSpanStyle? {
-        var previousStyle: RichTextSpanStyle? = nil
-        switch style {
-        case .h1, .h2, .h3, .h4, .h5, .h6:
-            previousStyle = previousHeaderType.getTextSpanStyle()
-        case .size(_):
-            previousStyle = .size(Int(previousFontSize))
-        case .font(_):
-            let fontName: String = previousFontName.isEmpty ? RichTextFont.PickerFont.standardSystemFontDisplayName : previousFontName
-            previousStyle = .font(fontName)
-        case .color(_):
-            if let color = previousColors[.foreground] {
-                previousStyle = .color(Color(color))
-            } else {
-                previousStyle = .color()
-            }
-        case .background(_):
-            if let color = previousColors[.background] {
-                previousStyle = .background(Color(color))
-            } else {
-                previousStyle = .background()
-            }
-        case .align(_):
-            previousStyle = .align(previousTextAlignment)
-        case .link(_):
-            previousStyle = .link(previousLink)
-        default:
-            previousStyle = nil
-        }
-        return previousStyle
+  private func getPreviousStyleFor(style: RichTextSpanStyle) -> RichTextSpanStyle? {
+    var previousStyle: RichTextSpanStyle? = nil
+    switch style {
+    case .h1, .h2, .h3, .h4, .h5, .h6:
+      previousStyle = previousHeaderType.getTextSpanStyle()
+    case .size(_):
+      previousStyle = .size(Int(previousFontSize))
+    case .font(_):
+      let fontName: String =
+        previousFontName.isEmpty
+        ? RichTextFont.PickerFont.standardSystemFontDisplayName : previousFontName
+      previousStyle = .font(fontName)
+    case .color(_):
+      if let color = previousColors[.foreground] {
+        previousStyle = .color(Color(color))
+      } else {
+        previousStyle = .color()
+      }
+    case .background(_):
+      if let color = previousColors[.background] {
+        previousStyle = .background(Color(color))
+      } else {
+        previousStyle = .background()
+      }
+    case .align(_):
+      previousStyle = .align(previousTextAlignment)
+    case .link(_):
+      previousStyle = .link(previousLink)
+    default:
+      previousStyle = nil
     }
+    return previousStyle
+  }
 
-    private func getCurrentAttributes() -> OperationAttributes {
-        let attributedString = NSMutableAttributedString(attributedString: attributedString)
+  private func getCurrentAttributes() -> OperationAttributes {
+    let attributedString = NSMutableAttributedString(attributedString: attributedString)
 
-        return OperationAttributes(
-            attributedString: attributedString,
-            selectedRange: selectedRange,
-            headerType: headerType,
-            textAlignment: textAlignment,
-            fontName: fontName,
-            fontSize: fontSize,
-            lineSpacing: lineSpacing,
-            colors: colors,
-            highlightingStyle: highlightingStyle,
-            paragraphStyle: paragraphStyle,
-            styles: styles,
-            link: link,
-            highlightedRange: highlightedRange,
-            activeStyles: activeStyles,
-            activeAttributes: activeAttributes,
-            rawText: rawText
-        )
-    }
+    return OperationAttributes(
+      attributedString: attributedString,
+      selectedRange: selectedRange,
+      headerType: headerType,
+      textAlignment: textAlignment,
+      fontName: fontName,
+      fontSize: fontSize,
+      lineSpacing: lineSpacing,
+      colors: colors,
+      highlightingStyle: highlightingStyle,
+      paragraphStyle: paragraphStyle,
+      styles: styles,
+      link: link,
+      highlightedRange: highlightedRange,
+      activeStyles: activeStyles,
+      activeAttributes: activeAttributes,
+      rawText: rawText
+    )
+  }
 
-    private func getPreviousAttributes() -> OperationAttributes {
-        let previousAttributedString = NSMutableAttributedString(attributedString: previousAttributedString)
-        return OperationAttributes(
-            attributedString: previousAttributedString,
-            selectedRange: previousSelectedRange,
-            headerType: previousHeaderType,
-            textAlignment: previousTextAlignment,
-            fontName: previousFontName,
-            fontSize: previousFontSize,
-            lineSpacing: previousLineSpacing,
-            colors: previousColors,
-            highlightingStyle: previousHighlightingStyle,
-            paragraphStyle: previousParagraphStyle,
-            styles: previousStyles,
-            link: previousLink,
-            highlightedRange: previousHighlightedRange,
-            activeStyles: previousActiveStyles,
-            activeAttributes: previousActiveAttributes,
-            rawText: previousRawText
-        )
-    }
+  private func getPreviousAttributes() -> OperationAttributes {
+    let previousAttributedString = NSMutableAttributedString(
+      attributedString: previousAttributedString)
+    return OperationAttributes(
+      attributedString: previousAttributedString,
+      selectedRange: previousSelectedRange,
+      headerType: previousHeaderType,
+      textAlignment: previousTextAlignment,
+      fontName: previousFontName,
+      fontSize: previousFontSize,
+      lineSpacing: previousLineSpacing,
+      colors: previousColors,
+      highlightingStyle: previousHighlightingStyle,
+      paragraphStyle: previousParagraphStyle,
+      styles: previousStyles,
+      link: previousLink,
+      highlightedRange: previousHighlightedRange,
+      activeStyles: previousActiveStyles,
+      activeAttributes: previousActiveAttributes,
+      rawText: previousRawText
+    )
+  }
 }

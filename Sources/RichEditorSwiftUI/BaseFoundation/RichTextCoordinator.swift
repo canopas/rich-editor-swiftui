@@ -251,6 +251,8 @@
       RichTextColor.allCases.forEach {
         if let color = textView.richTextColor($0) {
           context.setColor($0, to: color)
+        } else {
+          context.setColor($0, to: nil)
         }
       }
 

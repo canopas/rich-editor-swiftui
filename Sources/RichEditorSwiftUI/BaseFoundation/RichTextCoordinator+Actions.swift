@@ -29,6 +29,9 @@ import Foundation
       case .redoLatestChange:
         context.redoLastChanges()
         syncContextWithTextView()
+      case .undoLatestChange:
+        context.undoLastChanges()
+        syncContextWithTextView()
       case .selectRange(let range):
         setSelectedRange(to: range)
       case .setAlignment(let alignment):
@@ -58,9 +61,6 @@ import Foundation
       case .toggleStyle(_):
         //                textView.toggleRichTextStyle(style)
         return
-      case .undoLatestChange:
-        context.undoLastChanges()
-        syncContextWithTextView()
       case .setHeaderStyle(let style):
         let size = style.fontSizeMultiplier * .standardRichTextFontSize
         let range = textView.textString.getHeaderRangeFor(
@@ -109,7 +109,7 @@ import Foundation
     //            moveCursorToPastedContent: data.moveCursor
     //        )
     //    }
-
+    //
     //    func pasteText(_ data: RichTextInsertion<String>) {
     //        textView.pasteText(
     //            data.content,
@@ -124,12 +124,12 @@ import Foundation
     }
 
     // TODO: This code should be handled by the component
-    func setColor(_ color: RichTextColor, to val: ColorRepresentable) {
+    func setColor(_ color: RichTextColor, to val: ColorRepresentable?) {
       var applyRange: NSRange?
       if textView.hasSelectedRange {
         applyRange = textView.selectedRange
       }
-      guard let attribute = color.attribute else { return }
+      guard let attribute = color.attribute, let val else { return }
       if let applyRange {
         textView.setRichTextColor(color, to: val, at: applyRange)
       } else {

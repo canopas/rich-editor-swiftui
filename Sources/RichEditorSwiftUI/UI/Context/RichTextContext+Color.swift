@@ -25,7 +25,7 @@ extension RichEditorState {
   /// Set the value for a certain color.
   public func setColor(
     _ color: RichTextColor,
-    to val: ColorRepresentable
+    to val: ColorRepresentable?
   ) {
     actionPublisher.send(.setColor(color, val))
     setColorInternal(color, to: val)

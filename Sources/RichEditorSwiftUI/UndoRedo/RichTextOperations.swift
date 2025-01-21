@@ -25,7 +25,7 @@ struct RichTextOperation {
 }
 
 enum OperationType {
-  case addOrRemoveText(newText: NSAttributedString, rawText: String, isAdded: Bool)
+  case addOrRemoveText
   case addOrRemoveStyle(style: RichTextSpanStyle, isAdded: Bool)
   case setStyleStyle(previousStyle: RichTextSpanStyle?, newStyle: RichTextSpanStyle, isSet: Bool)
 }

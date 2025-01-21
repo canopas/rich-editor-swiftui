@@ -109,11 +109,13 @@ extension RichEditorState {
      - selection: is the range of the selected text
      */
   internal func onTextFieldValueChange(
-    newText: NSAttributedString, selection: NSRange
+    newText: NSAttributedString,
+    selection: NSRange,
+    shouldRegisterUndo: Bool = true
   ) {
     self.selectedRange = selection
 
-    //      registerOperationForText(newText: newText, rawText: rawText)
+    updateCurrentSpanStyle()
     if newText.string.count > rawText.count {
       handleAddingCharacters(newText)
     } else if newText.string.count < rawText.count {
@@ -121,8 +123,9 @@ extension RichEditorState {
     }
 
     rawText = newText.string
-    updateCurrentSpanStyle()
-    //      beginEditingGroup(.textChange)
+    if shouldRegisterUndo {
+      registerOperationForText(newText: newText, rawText: rawText)
+    }
   }
 
   /**
@@ -179,7 +182,7 @@ extension RichEditorState {
     case .font(let fontName):
       let defaultName = RichTextFont.PickerFont.standardSystemFontDisplayName
       if let fontName, fontName != defaultName {
-        addStyle = fontName != defaultName
+        addStyle = fontName == self.fontName && defaultName != fontName
       } else {
         addStyle = false
       }
