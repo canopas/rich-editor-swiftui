@@ -36,12 +36,21 @@ public class RichEditorState: ObservableObject {
 
      Until then, use `setAttributedString(to:)` to change it.
      */
+  @Published
   public internal(set) var attributedString = NSAttributedString()
+  {
+    willSet {
+      previousAttributedString = NSMutableAttributedString(attributedString: attributedString)
+    }
+  }
 
   /// The currently selected range, if any.
-  public internal(set) var selectedRange = NSRange()
+  @Published
+  public internal(set) var selectedRange = NSRange() {
+    willSet { previousSelectedRange = selectedRange }
+  }
 
-  // MARK: - Bindable & Settable Properies
+  // MARK: - Bindable & Settable Properties
 
   /// Whether or not the rich text editor is editable.
   @Published
@@ -52,23 +61,33 @@ public class RichEditorState: ObservableObject {
   public var isEditingText = false
 
   @Published
-  public var headerType: HeaderType = .default
+  public var headerType: HeaderType = .default {
+    willSet { previousHeaderType = headerType }
+  }
 
   /// The current text alignment, if any.
   @Published
-  public var textAlignment: RichTextAlignment = .left
+  public var textAlignment: RichTextAlignment = .left {
+    willSet { previousTextAlignment = textAlignment }
+  }
 
   /// The current font name.
   @Published
-  public var fontName = RichTextFont.PickerFont.all.first?.fontName ?? ""
+  public var fontName = RichTextFont.PickerFont.all.first?.fontName ?? "" {
+    willSet { previousFontName = fontName }
+  }
 
   /// The current font size.
   @Published
-  public var fontSize = CGFloat.standardRichTextFontSize
+  public var fontSize = CGFloat.standardRichTextFontSize {
+    willSet { previousFontSize = fontSize }
+  }
 
   /// The current line spacing.
   @Published
-  public var lineSpacing: CGFloat = 10.0
+  public var lineSpacing: CGFloat = 10.0 {
+    willSet { previousLineSpacing = lineSpacing }
+  }
 
   // MARK: - Observable Properties
 
@@ -86,23 +105,38 @@ public class RichEditorState: ObservableObject {
 
   /// The current color values.
   @Published
-  public internal(set) var colors = [RichTextColor: ColorRepresentable]()
+  public internal(set) var colors = [RichTextColor: ColorRepresentable]() {
+    willSet { previousColors = colors }
+  }
+  @Published
+  internal var colorScheme: ColorScheme = .light
 
   /// The style to apply when highlighting a range.
   @Published
   public internal(set) var highlightingStyle = RichTextHighlightingStyle
     .standard
+  {
+    willSet { previousHighlightingStyle = highlightingStyle }
+  }
 
   /// The current paragraph style.
   @Published
-  public internal(set) var paragraphStyle = NSParagraphStyle.default
+  public internal(set) var paragraphStyle = NSParagraphStyle.default {
+    willSet {
+      previousParagraphStyle = paragraphStyle.copy() as? NSParagraphStyle ?? NSParagraphStyle()
+    }
+  }
 
   /// The current rich text styles.
   @Published
-  public internal(set) var styles = [RichTextStyle: Bool]()
+  public internal(set) var styles = [RichTextStyle: Bool]() {
+    willSet { previousStyles = styles }
+  }
 
   @Published
-  public internal(set) var link: String? = nil
+  public internal(set) var link: String? = nil {
+    willSet { previousLink = link }
+  }
 
   // MARK: - Properties
 
@@ -110,23 +144,102 @@ public class RichEditorState: ObservableObject {
   public let actionPublisher = RichTextAction.Publisher()
 
   /// The currently highlighted range, if any.
-  public var highlightedRange: NSRange?
+  public var highlightedRange: NSRange? {
+    willSet { previousHighlightedRange = highlightedRange }
+  }
 
   //MARK: - Variables To Handle JSON
   internal var adapter: EditorAdapter = DefaultAdapter()
 
-  @Published internal var activeStyles: Set<RichTextSpanStyle> = []
-  @Published internal var activeAttributes: [NSAttributedString.Key: Any]? =
+  @Published
+  internal var activeStyles: Set<RichTextSpanStyle> = [] {
+    willSet { previousActiveStyles = activeStyles }
+  }
+  @Published
+  internal var activeAttributes: [NSAttributedString.Key: Any]? =
     [:]
+  {
+    willSet { previousActiveAttributes = activeAttributes }
+  }
 
   internal var internalSpans: [RichTextSpanInternal] = []
 
-  internal var rawText: String = ""
+  internal var rawText: String = "" {
+    willSet { previousRawText = rawText }
+  }
 
-  internal var updateAttributesQueue: [(span: RichTextSpanInternal, shouldApply: Bool)] = []
+  ///===============############################################====================
+  //MARK: - Previous State variables
+  internal private(set) var previousAttributedString = NSAttributedString()
+  /// The currently selected range, if any.
+  internal private(set) var previousSelectedRange = NSRange()
+
+  // MARK: - Bindable & Settable Properties
+  /// The previous headerType, if any.
+  internal private(set) var previousHeaderType: HeaderType = .default
+
+  /// The current text alignment, if any.
+  internal private(set) var previousTextAlignment: RichTextAlignment = .left
+
+  /// The current font name.
+  internal private(set) var previousFontName =
+    RichTextFont.PickerFont.all.first?.fontName ?? ""
+
+  /// The current font size.
+  internal private(set) var previousFontSize = CGFloat
+    .standardRichTextFontSize
+
+  /// The current line spacing.
+  internal private(set) var previousLineSpacing: CGFloat = 10.0
+
+  // MARK: - Observable Properties
+  /// The current color values.
+  internal private(set) var previousColors = [
+    RichTextColor: ColorRepresentable
+  ]()
+
+  /// The style to apply when highlighting a range.
+  internal private(set) var previousHighlightingStyle =
+    RichTextHighlightingStyle
+    .standard
+
+  /// The previous paragraph style
+  internal private(set) var previousParagraphStyle = NSParagraphStyle.default
+
+  /// The previous rich text styles.
+  internal private(set) var previousStyles = [RichTextStyle: Bool]()
+
+  internal private(set) var previousLink: String? = nil
+
+  // MARK: - Properties
+
+  /// The currently highlighted range, if any.
+  internal private(set) var previousHighlightedRange: NSRange?
+
+  //MARK: - Variables To Handle JSON
+
+  internal private(set) var previousActiveStyles: Set<RichTextSpanStyle> = []
+  internal private(set) var previousActiveAttributes: [NSAttributedString.Key: Any]? =
+    [:]
+
+  internal private(set) var previousRawText: String = ""
+  //MARK: - END OF PREVIOUS STATE VARIABLES
+  ///=============##############################################=================
+
+  //MARK: - Alert Controller to handle Link
   #if os(iOS) || os(tvOS) || os(macOS) || os(visionOS)
-    internal let alertController: RichTextAlertController = RichTextAlertController()
+    internal let alertController: RichTextAlertController =
+      RichTextAlertController()
   #endif
+
+  //MARK: - Undo Redo manager
+  internal let undoManager: RichEditorUndoManager =
+    RichEditorUndoManager()
+
+  ///This set is used to store all observable observations.
+  public var cancellables = Set<AnyCancellable>()
+
+  var isOperationIsFromUser: Bool = true
 
   /**
      This will provide encoded text which is of type RichText
@@ -188,6 +301,7 @@ public class RichEditorState: ObservableObject {
     activeStyles = []
 
     rawText = input
+    subscribeObservers()
   }
 
   /**
@@ -215,6 +329,14 @@ public class RichEditorState: ObservableObject {
     activeStyles = []
 
     rawText = input
+    subscribeObservers()
+  }
+}
+
+//MARK: - Subscribe Observer
+extension RichEditorState {
+  func subscribeObservers() {
+    observerTextInput()
   }
 }
 

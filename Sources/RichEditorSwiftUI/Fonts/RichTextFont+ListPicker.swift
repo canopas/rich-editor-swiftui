@@ -9,7 +9,7 @@ import SwiftUI
 
 extension RichTextFont {
 
-    /**
+  /**
      This view uses a `List` to list a set of fonts of which
      one can be selected.
 
@@ -28,47 +28,47 @@ extension RichTextFont {
      .richTextFontPickerConfig(...)
      ```
      */
-    public struct ListPicker: View {
+  public struct ListPicker: View {
 
-        /**
+    /**
          Create a font list picker.
 
          - Parameters:
            - selection: The selected font name.
          */
-        public init(
-            selection: Binding<FontName>
-        ) {
-            self._selection = selection
-        }
-
-        public typealias Config = RichTextFont.PickerConfig
-        public typealias Font = Config.Font
-        public typealias FontName = Config.FontName
-
-        @Binding
-        private var selection: FontName
-
-        @Environment(\.richTextFontPickerConfig)
-        private var config
-
-        public var body: some View {
-            let font = Binding(
-                get: { Font(fontName: selection) },
-                set: { selection = $0.fontName }
-            )
-
-            RichEditorSwiftUI.ListPicker(
-                items: config.fontsToList(for: selection),
-                selection: font,
-                dismissAfterPick: config.dismissAfterPick
-            ) { font, isSelected in
-                RichTextFont.PickerItem(
-                    font: font,
-                    fontSize: config.fontSize,
-                    isSelected: isSelected
-                )
-            }
-        }
+    public init(
+      context: RichEditorState
+    ) {
+      self._selection = context.bindingForFontName()
     }
+
+    public typealias Config = RichTextFont.PickerConfig
+    public typealias Font = Config.Font
+    public typealias FontName = Config.FontName
+
+    @Binding
+    private var selection: FontName
+
+    @Environment(\.richTextFontPickerConfig)
+    private var config
+
+    public var body: some View {
+      let font = Binding(
+        get: { Font(fontName: selection) },
+        set: { selection = $0.fontName }
+      )
+
+      RichEditorSwiftUI.ListPicker(
+        items: config.fontsToList(for: selection),
+        selection: font,
+        dismissAfterPick: config.dismissAfterPick
+      ) { font, isSelected in
+        RichTextFont.PickerItem(
+          font: font,
+          fontSize: config.fontSize,
+          isSelected: isSelected
+        )
+      }
+    }
+  }
 }

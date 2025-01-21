@@ -5,7 +5,7 @@ repos:
         name: Swift Format
         description: Enforces formatting guidelines for Swift files before committing.
         language: system
-        entry: swiftformat --swiftversion 5
+        entry: swiftformat --swiftversion 5.9
         stages:
           - pre-commit
 

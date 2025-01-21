@@ -203,7 +203,7 @@
     fileprivate var trailingViews: some View {
       RichTextAlignment.Picker(selection: $context.textAlignment)
         .pickerStyle(.segmented)
-        .frame(maxWidth: 200)
+        .frame(minWidth: 100, idealWidth: 150, maxWidth: 200)
         .keyboardShortcutsOnly(if: isCompact)
 
       trailingButtons(StandardTrailingButtons())

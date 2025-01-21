@@ -115,10 +115,7 @@
       HStack {
         #if os(macOS)
           headerPicker(context: context)
-          fontPicker(value: $context.fontName)
-            .onChangeBackPort(of: context.fontName) { newValue in
-              context.updateStyle(style: .font(newValue))
-            }
+          fontPicker(context: context)
         #endif
         styleToggleGroup(for: context)
         otherMenuToggleGroup(for: context)

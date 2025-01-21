@@ -196,9 +196,10 @@ extension RichAttributes {
       size: (att.size != nil ? (byAdding ? att.size! : nil) : self.size),
       font: (att.font != nil ? (byAdding ? att.font! : nil) : self.font),
       color: (att.color != nil
-        ? (byAdding ? att.color! : nil) : self.color),
+        ? (byAdding ? att.color! : nil) : (att.color == nil && !byAdding) ? nil : self.color),
       background: (att.background != nil
-        ? (byAdding ? att.background! : nil) : self.background),
+        ? (byAdding ? att.background! : nil)
+        : (att.background == nil && !byAdding) ? nil : self.background),
       align: (att.align != nil
         ? (byAdding ? att.align! : nil) : self.align),
       ///nil link indicates removal as well so removing link if `byAdding == false && att.link == nil`
